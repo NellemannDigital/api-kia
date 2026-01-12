@@ -1,0 +1,51 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "My API",
+    "version": "1.0.0",
+    "description": "OpenAPI spec baseret på dine Laravel ruter"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000/api",
+      "description": "Local API server"
+    }
+  ],
+  "paths": {
+    "/api/cars": {
+      "get": {
+        "summary": "List all cars",
+        "description": "List all cars from function CarController@all",
+        "responses": {
+          "200": {
+            "description": "List all cars",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer" },
+                      "name": { "type": "string" },
+                      "model": { "type": "string" },
+                      "price": { "type": "number", "format": "float" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sanctum": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
