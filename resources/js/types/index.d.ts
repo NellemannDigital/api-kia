@@ -5,6 +5,11 @@ export interface Auth {
     user: User;
 }
 
+export interface Flash {
+  token?: string;
+}
+
+
 export interface BreadcrumbItem {
     title: string;
     href: string;
