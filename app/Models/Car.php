@@ -20,6 +20,7 @@ use App\Data\Car\{
 };
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Scopes\OpenChannels;
+use Carbon\Carbon;
 
 class Car extends Model
 {
@@ -140,6 +141,22 @@ class Car extends Model
         }
 
         return $cars;
+    }
+
+    protected function isChannelOpen(string $channel): bool
+    {
+        $channelData = $this->channels[$channel] ?? null;
+
+        if (!$channelData) {
+            return false;
+        }
+
+        $now = now();
+
+        $openFrom = isset($channelData['open_from']) ? Carbon::parse($channelData['open_from']) : null;
+        $openTo   = isset($channelData['open_to']) ? Carbon::parse($channelData['open_to']) : null;
+
+        return (! $openFrom || $now->gte($openFrom)) && (! $openTo || $now->lte($openTo));
     }
 
 }

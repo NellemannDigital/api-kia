@@ -8,6 +8,8 @@ use App\Models\Trim;
 use App\Data\TrimData;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +17,7 @@ use Throwable;
 
 class SyncTrimJob implements ShouldQueue
 {
-    use Batchable, Queueable;
+    use Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected TrimData $trimData;
 

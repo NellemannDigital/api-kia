@@ -38,6 +38,7 @@ class Trim extends Model
         'technical_specifications' => TechnicalSpecificationsData::class,
         'campaign' => CampaignData::class,
         'channels' => ChannelsData::class,
+        'accessory_mapping' => 'array'
     ];
 
     protected static function booted()

@@ -32,9 +32,9 @@ class SyncPimData extends Command
         $this->info('Syncing data from PIM');
 
         Bus::chain([
-            //new SyncCarsJob(),
+            new SyncCarsJob(),
             //new SyncConfigurationsJob(),
-           new SyncAccessoriesJob(),
+           //new SyncAccessoriesJob(),
         ])
             ->dispatch();
 

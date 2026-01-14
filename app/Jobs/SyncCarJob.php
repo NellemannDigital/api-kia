@@ -7,13 +7,15 @@ use App\Models\Car;
 use App\Data\CarData;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class SyncCarJob implements ShouldQueue
 {
-    use Batchable, Queueable;
+    use Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected CarData $carData;
 
@@ -30,6 +32,10 @@ class SyncCarJob implements ShouldQueue
                 ['struct_id' => $this->carData->struct_id],
                 $this->carData->toArray()
             );
+
+             Log::info('Car synced to database', [
+                'car_id' => $this->carData->struct_id,
+            ]);
 
         } catch (Throwable $e) {
             $this->handleFailure($e);

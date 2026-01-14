@@ -1,83 +1,167 @@
-import React from 'react'
+"use client"
 
-export interface CarImage {
-  url: string
-  name: string
-  type: 'Image'
-  file_type: 'Image'
-  struct_id: string
-}
-
-export interface Car {
-  id: number
-  name: string
-  primary_image: CarImage
-  featuredEquipment?: string
-}
+import { Head } from '@inertiajs/react'
+import { Car } from '@/types/Car'
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { toast } from "sonner"
+import { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { RefreshCcw } from 'lucide-react';
+import { Progress } from "@/components/ui/progress"
 
 interface Props {
-    cars: Car[]
+  cars: Car[]
+}
+
+type ChannelData = {
+  open_from?: string | null
+  open_to?: string | null
+  open_internal?: boolean
+}
+
+type SyncState = {
+  batchId: string | null
+  progress: number
+  finished: boolean
+}
+
+const breadcrumbs: BreadcrumbItem[] = [
+  { title: 'Cars', href: '/cars' },
+];
+
+function isChannelOpen(channel: ChannelData | null): boolean {
+  if (!channel) return false
+  const now = new Date()
+  const from = channel.open_from ? new Date(channel.open_from) : null
+  const to = channel.open_to ? new Date(channel.open_to) : null
+  return (!from || now >= from) && (!to || now <= to)
+}
+
+// Custom hook til at håndtere sync progress
+function useSync() {
+  const [syncStates, setSyncStates] = useState<Record<number, SyncState>>({})
+  const intervalsRef = useRef<Record<number, NodeJS.Timer>>({})
+
+  const startSync = async (carId: number) => {
+    try {
+      const res = await axios.post(`/cars/sync/${carId}`)
+      const batchId = res.data.batch_id
+
+      setSyncStates(prev => ({
+        ...prev,
+        [carId]: { batchId, progress: 0, finished: false }
+      }))
+    } catch {
+      toast.error('Failed to start sync')
+    }
+  }
+
+  useEffect(() => {
+    Object.entries(syncStates).forEach(([carIdStr, state]) => {
+      const carId = Number(carIdStr)
+
+      // Hvis sync allerede kører, gør intet
+      if (!state.batchId || state.finished || intervalsRef.current[carId]) return
+
+      intervalsRef.current[carId] = setInterval(async () => {
+        try {
+          const res = await axios.get(`/batches/${state.batchId}`)
+          const { progress, finished } = res.data
+
+          setSyncStates(prev => {
+            const newState = {
+              ...prev,
+              [carId]: { ...prev[carId], progress, finished }
+            }
+            if (finished && !prev[carId].finished) {
+              toast.success(`Sync completed for car #${carId}`)
+              clearInterval(intervalsRef.current[carId])
+              delete intervalsRef.current[carId]
+            }
+            return newState
+          })
+        } catch {
+          clearInterval(intervalsRef.current[carId])
+          delete intervalsRef.current[carId]
+          toast.error(`Error fetching progress for car #${carId}`)
+        }
+      }, 1500)
+    })
+
+    return () => {
+      Object.values(intervalsRef.current).forEach(clearInterval)
+      intervalsRef.current = {}
+    }
+  }, [syncStates])
+
+  return { syncStates, startSync }
 }
 
 export default function Index({ cars }: Props) {
+  const { syncStates, startSync } = useSync()
+
   return (
-    <>
-      <main className="bg-white text-gray-900">
-        <div className="mx-auto px-4 py-12 max-w-6xl">
+    <AppLayout breadcrumbs={breadcrumbs}>
+      <Head title="Cars" />
 
-          <div className="gap-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {cars.map(car => (
-              <article
-                key={car.id}
-                className="border overflow-hidden transition"
-              >
-                <div className="flex justify-center items-center bg-gray-100 h-48">
-                  {car.primary_image ? (
-                    <img
-                      src={car.primary_image.url}
-                      alt={car.name}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <span className="text-gray-400">Ingen billede tilgængelig</span>
-                  )}
-                </div>
+      <div className="p-4">
+        <div className="border rounded-xl overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-bold px-4">Name</TableHead>
+                <TableHead className="font-bold">Year</TableHead>
+                <TableHead className="font-bold">Struct ID</TableHead>
+                <TableHead className="font-bold text-center w-20">Master</TableHead>
+                <TableHead className="font-bold text-center w-20">Web</TableHead>
+                <TableHead className="font-bold text-center w-20">Dealer</TableHead>
+                <TableHead className="font-bold text-center w-20">Price</TableHead>
+                <TableHead className="font-bold text-center w-20">Test Drive</TableHead>
+                <TableHead className="font-bold text-right w-42 px-2"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {cars.map(car => {
+                const state = syncStates[car.struct_id]
 
-                <div className="flex flex-col justify-between p-6">
-                  <header>
-                    <h2 className="mb-2 font-semibold text-xl">{car.name}</h2>
-                    {car.featuredEquipment && (
-                      <p className="mb-4 text-gray-600 text-sm">
-                        {car.featuredEquipment}
-                      </p>
-                    )}
-                  </header>
-                  <div className="flex gap-3 mt-4">
-                    <a
-                      href="#"
-                      className="flex-1 bg-black py-2 font-medium text-white text-center transition"
-                    >
-                      Se detaljer
-                    </a>
-                    <a
-                      href="#"
-                      className="flex-1 py-2 border border-black font-medium text-black text-center transition"
-                    >
-                      Book prøvetur
-                    </a>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          {cars.length === 0 && (
-            <p className="mt-12 text-gray-500 text-center">
-              Ingen biler fundet.
-            </p>
-          )}
+                return (
+                  <TableRow key={car.id}>
+                    <TableCell className="px-4">{car.name}</TableCell>
+                    <TableCell>{car.year}</TableCell>
+                    <TableCell>{car.struct_id}</TableCell>
+                    <TableCell className="text-center">{isChannelOpen(car.channels.master_channel) ? '✅' : '❌'}</TableCell>
+                    <TableCell className="text-center">{isChannelOpen(car.channels.web_channel) ? '✅' : '❌'}</TableCell>
+                    <TableCell className="text-center">{isChannelOpen(car.channels.dealer_channel) ? '✅' : '❌'}</TableCell>
+                    <TableCell className="text-center">{isChannelOpen(car.channels.price_channel) ? '✅' : '❌'}</TableCell>
+                    <TableCell className="text-center">{isChannelOpen(car.channels.test_drive_channel) ? '✅' : '❌'}</TableCell>
+                    <TableCell className="text-center flex justify-end items-center gap-4 px-2">
+                      {state && !state.finished && <Progress value={state.progress} className="w-16"/>}
+                      <Button
+                        className="cursor-pointer"
+                        size="icon"
+                        onClick={() => startSync(car.struct_id)}
+                        disabled={state && !state.finished}
+                      >
+                        <RefreshCcw className={state && !state.finished ? "animate-spin" : ""} />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
         </div>
-      </main>
-    </>
+      </div>
+    </AppLayout>
   )
 }

@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Car;
+use Inertia\Inertia;
+use App\Jobs\SyncCarJob;
+use App\Jobs\SyncTrimJob;
+use Illuminate\Support\Facades\Bus;
+use App\Requests\ProductRequest;
 
 class CarController extends Controller
 {
@@ -12,7 +17,9 @@ class CarController extends Controller
      */
     public function index()
     {
-        return Car::query()->orderBy('name')->paginate();
+        return Inertia::render('cars/index', [
+            'cars' => Car::orderBy('name')->get(),
+        ]);
     }
 
     /**
@@ -28,7 +35,7 @@ class CarController extends Controller
      */
     public function show(string $id)
     {
-        return Car::where('web_id', $id)->firstOrFail();
+        //return Car::where('web_id', $id)->firstOrFail();
     }
 
     /**
@@ -45,5 +52,27 @@ class CarController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function sync($id)
+{
+    $jobs = [
+        new SyncCarJob($id),
+    ];
+
+    $productVariantIds = (new ProductRequest)->getProductVariantsIdsByProductId($id);
+        foreach ($productVariantIds as $variantId) {
+            $jobs[] = new SyncTrimJob($variantId);
+        }
+
+        $batch = Bus::batch($jobs)
+            ->onQueue('pim-sync')
+            ->allowFailures()
+            ->dispatch();
+
+        return response()->json([
+            'batch_id' => $batch->id,
+            'message' => 'Sync started',
+        ]);
     }
 }

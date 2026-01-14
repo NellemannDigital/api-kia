@@ -2,7 +2,6 @@ import { router, Form, Head, usePage } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 import { useState } from 'react';
 import { Clipboard, Check } from 'lucide-react';
-
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import HeadingSmall from '@/components/heading-small';
@@ -40,7 +39,6 @@ export default function ApiTokens() {
 
     router.delete(`/settings/api-tokens/${id}`, {
         onSuccess: () => {
-            // Fjern token fra lokal state
             setTokens((prev) => prev.filter((token) => token.id !== id));
         },
     });
