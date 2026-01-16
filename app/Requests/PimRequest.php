@@ -58,14 +58,19 @@ abstract class PimRequest
      * Perform a POST request to the Nellemann PIM API.
      *
      * @param string $endpoint
-     * @param array $payload
+     * @param array|Collection $payload
      * @param string|null $jsonKey
+     * @param bool $forceStrings
      * @return Collection
      *
      * @throws Throwable
      */
-    protected function postRequest(string $endpoint, array $payload, ?string $jsonKey = null): Collection
-    {
+    protected function postRequest(
+        string $endpoint,
+        array|Collection $payload,
+        ?string $jsonKey = null,
+        bool $forceStrings = false
+    ): Collection {
         $startTime = microtime(true);
 
         try {
@@ -73,13 +78,17 @@ abstract class PimRequest
                 return collect();
             }
 
-            $payload = array_map('strval', $payload);
+            $payloadArray = $payload instanceof Collection ? $payload->all() : $payload;
+
+            if ($forceStrings) {
+                $payloadArray = array_map('strval', $payloadArray);
+            }
 
             $response = Http::nellemannPIM()
                 ->timeout(10)
                 ->retry(3, 200)
                 ->withHeaders(['Content-Type' => 'application/json'])
-                ->withBody(json_encode($payload), 'application/json')
+                ->withBody(json_encode($payloadArray), 'application/json')
                 ->post($endpoint);
 
             $duration = round((microtime(true) - $startTime) * 1000, 2);
@@ -107,4 +116,5 @@ abstract class PimRequest
             throw $e;
         }
     }
+
 }
