@@ -11,6 +11,8 @@ use App\Data\Trim\{
     ChannelsData,
     PowertrainData,
     LeasingPowertrainData,
+    ColorData,
+    Color\PriceData as ColorPriceData,
     Powertrain\EngineData,
     Powertrain\TransmissionData,
     Powertrain\TechnicalSpecificationsData as PowertrainTechnicalSpecificationsData,
@@ -26,7 +28,7 @@ use Throwable;
 
 class TrimMapper
 {
-    public static function map(Collection $variantData, Collection $attributesData, Collection $variantAttributesReferencesData, callable $getAsset): TrimData
+    public static function map(Collection $variantData, Collection $attributesData, Collection $variantAttributesReferencesData, callable $getAsset, callable $getAssets): TrimData
     {
         try {
             $structId = Arr::get($variantData, 'Id', '');
@@ -41,6 +43,7 @@ class TrimMapper
             $primaryImage = self::resolveAsset($attributesData, 'PrimaryImage', $getAsset);
             $channels = ChannelsMapper::map($attributesData);
             $powertrains = self::mapPowertrains($attributesData->get('KiaEngineAndTransmissions'));
+            $colors = self::mapColors($attributesData->get('KiaColors'), $getAsset, $getAssets);
             $leasingPowertrains = self::mapLeasingPowertrains($attributesData->get('KiaLeasingEngineAndTransmission'));
             $accessoryMapping = self::mapAccessoryMapping($variantAttributesReferencesData->get('MobisModelMapping'));
 
@@ -58,7 +61,8 @@ class TrimMapper
                 channels: $channels,
                 powertrains: $powertrains,
                 leasing_powertrains: $leasingPowertrains,
-                accessory_mapping: $accessoryMapping
+                accessory_mapping: $accessoryMapping,
+                colors: $colors
             );
 
         } catch (Throwable $e) {
@@ -170,6 +174,83 @@ class TrimMapper
             ->filter()
             ->values()
             ->all();
+    }
+
+    protected static function mapColors(array|Collection|null $colors, callable $getAsset, callable $getAssets): array
+    {
+        if (!$colors) return [];
+
+        $data = $colors instanceof Collection ? $colors : collect($colors);
+
+        return $data
+            ->map(function ($item) use ($getAsset, $getAssets) {
+                $code = Arr::get($item, 'Color.Code');
+                $primaryColor = Arr::get($item, 'Color.PrimaryColor');
+                $secondaryColor = Arr::get($item, 'Color.SecondaryColor');
+                $type = Arr::get($item, 'Color.Type');
+                $colorImageId = Arr::get($item, 'Color.Image');
+                $colorImage = $colorImageId ? $getAsset($colorImageId) : null;
+                $ocnChangeCode = Arr::get($item, 'OCNChangeCode');
+
+                $turntableImagesData = Arr::get($item, 'Image');
+                $turntableImages = self::mapColorTurntableImages($turntableImagesData, $getAssets);
+
+                $pricesData = Arr::get($item, 'Prices');
+                $prices = self::mapColorPrices($pricesData);
+
+                
+
+                if (!$code || !$primaryColor) {
+                    return null;
+                }
+
+                return new ColorData(
+                    code: $code,
+                    primary_color: $primaryColor,
+                    secondary_color: $secondaryColor,
+                    type: $type,
+                    color_image: $colorImage,
+                    ocn_change_code: $ocnChangeCode,
+                    turntable_images: $turntableImages,
+                    prices: $prices
+                );
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected static function mapColorPrices(array|Collection|null $prices): array
+    {
+        if (!$prices) return [];
+        $data = $prices instanceof Collection ? $prices : collect($prices);
+
+        return $data->map(fn($item) => new ColorPriceData(
+            dealer_net_price: Arr::get($item, 'DealerNetPrice'),
+            dealer_profit: Arr::get($item, 'DealerProfit'),
+            suggested_retail_price: Arr::get($item, 'SuggestedRetailPrice'),
+            campaign_retail_price: Arr::get($item, 'CampaignRetailPrice'),
+            retail_price_ex_vat: Arr::get($item, 'RetailPriceExVAT'),
+            valid_from: Arr::get($item, 'ValidFrom') ? substr($item['ValidFrom'], 0, 10) : null,
+            valid_to: Arr::get($item, 'ValidTo') ? substr($item['ValidTo'], 0, 10) : null,
+        ))->values()->all();
+    }
+
+    protected static function mapColorTurntableImages(array|Collection|null $images, callable $getAssets): array
+    {
+        if (!$images) return [];
+
+        $data = $images instanceof Collection ? $images : collect($images);
+
+        $ids = $data
+            ->filter(fn($id) => is_numeric($id))
+            ->map(fn($id) => (string) $id)
+            ->values()
+            ->all();
+
+        $assets = $ids ? $getAssets($ids) : collect();
+
+        return $assets->all();
     }
 
     protected static function mapLeasingPowertrains(array|Collection|null $powertrains): array

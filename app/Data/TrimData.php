@@ -10,6 +10,7 @@ use App\Data\Trim\{
     TechnicalSpecificationsData,
     CampaignData,
     ChannelsData,
+    ColorData,
     PowertrainData,
     LeasingPowertrainData
 };
@@ -28,6 +29,9 @@ class TrimData extends Data
         public ?CampaignData $campaign = null,
         public ChannelsData $channels,
         public array $accessory_mapping = [],
+
+        #[DataCollectionOf(ColorData::class)]
+        public array $colors = [],
 
         #[DataCollectionOf(PowertrainData::class)]
         public array $powertrains = [],

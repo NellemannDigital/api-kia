@@ -45,6 +45,7 @@ class SyncTrimJob implements ShouldQueue
                     )
                 );
 
+                $this->mapColors($this->trimData, $trim);
                 $this->mapPowertrains($this->trimData, $trim);
                 $this->mapLeasingPowertrains($this->trimData, $trim);
             });
@@ -69,6 +70,42 @@ class SyncTrimJob implements ShouldQueue
     public function failed(Throwable $exception): void
     {
         $this->handleFailure($exception);
+    }
+
+    private function mapColors(TrimData $trimData, Trim $trim): void
+    {
+        $existingColorIds = collect();
+
+        foreach ($trimData->colors as $c) {
+
+            $color = $trim->colors()->updateOrCreate(
+                ['code' => $c->code],
+                $c->toArray()
+            );
+
+            Log::info('Color synced to database', [
+                'code' => $c->code,
+            ]);
+
+            $existingColorIds->push($color->id);
+
+            $existingPriceIds = collect();
+
+            foreach ($c->prices as $p) {
+                $price = $color->prices()->updateOrCreate(
+                    $p->toArray()
+                );
+
+                Log::info('Color price synced to database');
+
+                $existingPriceIds->push($price->id);
+            }
+
+            $color->prices()->whereNotIn('id', $existingPriceIds)->delete();
+
+        }
+
+        $trim->colors()->whereNotIn('id', $existingColorIds)->delete();
     }
 
     private function mapPowertrains(TrimData $trimData, Trim $trim): void

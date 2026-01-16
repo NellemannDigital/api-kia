@@ -30,7 +30,9 @@ class SyncCarJob implements ShouldQueue
 
             Car::withoutGlobalScopes()->updateOrCreate(
                 ['struct_id' => $this->carData->struct_id],
-                $this->carData->toArray()
+                array_merge($this->carData->toArray(), [
+                    'synced_at' => now(),
+                ])
             );
 
              Log::info('Car synced to database', [

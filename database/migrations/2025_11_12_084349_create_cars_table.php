@@ -34,7 +34,8 @@ return new class extends Migration
             $table->json('files')->nullable();
             $table->json('insurance_rates')->nullable();
             $table->json('categories')->nullable();
-
+            
+            $table->timestamp('synced_at')->nullable();
             $table->timestamps();
         });
     }

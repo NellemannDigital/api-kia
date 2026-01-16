@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Jobs\SyncCarJob;
 use App\Jobs\SyncTrimJob;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Bus\Batch;
 use App\Requests\ProductRequest;
 
 class CarController extends Controller
@@ -55,24 +56,23 @@ class CarController extends Controller
     }
 
     public function sync($id)
-{
-    $jobs = [
-        new SyncCarJob($id),
-    ];
+    {
+        $jobs = [
+            new SyncCarJob($id),
+        ];
 
-    $productVariantIds = (new ProductRequest)->getProductVariantsIdsByProductId($id);
-        foreach ($productVariantIds as $variantId) {
-            $jobs[] = new SyncTrimJob($variantId);
+        $productVariantIds = (new ProductRequest)->getProductVariantsIdsByProductId($id);
+            foreach ($productVariantIds as $variantId) {
+                $jobs[] = new SyncTrimJob($variantId);
+            }
+
+            $batch = Bus::batch($jobs)
+                ->onQueue('pim-sync')
+                ->dispatch();
+
+            return response()->json([
+                'batch_id' => $batch->id,
+                'message' => 'Sync started',
+            ]);
         }
-
-        $batch = Bus::batch($jobs)
-            ->onQueue('pim-sync')
-            ->allowFailures()
-            ->dispatch();
-
-        return response()->json([
-            'batch_id' => $batch->id,
-            'message' => 'Sync started',
-        ]);
     }
-}

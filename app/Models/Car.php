@@ -43,6 +43,7 @@ class Car extends Model
         'files',
         'insurance_rates',
         'categories',
+        'synced_at'
     ];
 
     protected $casts = [

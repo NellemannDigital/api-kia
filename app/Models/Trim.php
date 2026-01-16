@@ -71,6 +71,14 @@ class Trim extends Model
     }
 
     /**
+     * @return HasMany<Color, $this>
+     */
+    public function colors(): HasMany
+    {
+        return $this->hasMany(Color::class);
+    }
+
+    /**
      * @return BelongsToMany<Accessory, $this>
      */
     public function accessories()

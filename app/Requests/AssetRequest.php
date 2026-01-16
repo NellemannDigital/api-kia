@@ -10,4 +10,14 @@ class AssetRequest extends PimRequest
     {
         return $this->request("assets/{$assetId}");
     }
+
+    public function getAssetsResponse(array $assetIds): Collection
+    {
+        $assetIds = array_filter($assetIds, fn($id) => !is_null($id) && $id !== '');
+        if (empty($assetIds)) {
+            return collect();
+        }
+
+        return $this->postRequest('assets/batch', $assetIds);
+    }
 }

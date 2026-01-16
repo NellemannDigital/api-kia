@@ -67,7 +67,8 @@ class PimService
             $variantData,
             $variantAttributesData,
             $variantAttributesReferencesData,
-            fn ($id) => $this->getAsset($id)
+            fn ($id) => $this->getAsset($id),
+            fn ($ids) => $this->getAssets($ids)
         );
     }
 
@@ -117,6 +118,19 @@ class PimService
         $assetData = $this->assetRequest->getAssetResponse($assetId);
         return $this->assetMapper->map($assetData);
     }
+
+    public function getAssets(array $assetIds)
+    {
+        $assetIds = array_filter($assetIds, fn($id) => is_numeric($id));
+        if (empty($assetIds)) {
+            return collect();
+        }
+
+        $assetsData = $this->assetRequest->getAssetsResponse($assetIds);
+
+        return $assetsData->map(fn($asset) => $this->assetMapper->map(collect($asset)));
+    }
+
 
     protected function safeCall(callable $callback)
     {
