@@ -13,7 +13,7 @@ class CarController extends Controller
      */
     public function index()
     {
-        return Car::query()->orderBy('name')->paginate();
+        return Car::with('trims.colors.prices')->orderBy('name')->paginate();
     }
 
     /**

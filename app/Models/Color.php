@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -24,6 +25,13 @@ class Color extends Model
     protected $casts = [
         'color_image' => AssetData::class
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope('hasPrices', function (Builder $builder) {
+            $builder->has('prices');
+        });
+    }
 
     /**
      * @return BelongsTo<Trim, $this>
