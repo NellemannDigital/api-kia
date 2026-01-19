@@ -83,7 +83,7 @@ export default function Index({ cars }: Props) {
                   {['Master','Web','Dealer','Price','Test Drive'].map((h, i) =>
                     <TableHead key={i} className="text-center">{h}</TableHead>
                   )}
-                  <TableHead className="w-24">Synced at</TableHead>
+                  <TableHead>Synced at</TableHead>
                   <TableHead></TableHead>
                   <TableHead>Sync</TableHead>
               </TableRow>

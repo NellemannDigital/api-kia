@@ -5,6 +5,7 @@ namespace App\Data;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use App\Data\AssetData;
+use App\Data\EquipmentData;
 use App\Data\Trim\{
     InteriorData,
     TechnicalSpecificationsData,
@@ -29,6 +30,9 @@ class TrimData extends Data
         public ?CampaignData $campaign = null,
         public ChannelsData $channels,
         public array $accessory_mapping = [],
+       
+        #[DataCollectionOf(EquipmentData::class)]
+        public array $equipment = [],
 
         #[DataCollectionOf(ColorData::class)]
         public array $colors = [],

@@ -86,4 +86,11 @@ class Trim extends Model
         return $this->belongsToMany(Accessory::class, 'accessory_trim');
     }
 
+      /**
+     * @return BelongsToMany<Equipment, $this>
+     */
+    public function equipment()
+    {
+        return $this->belongsToMany(Equipment::class, 'equipment_trim');
+    }
 }

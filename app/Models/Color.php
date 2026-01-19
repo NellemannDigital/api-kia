@@ -23,12 +23,13 @@ class Color extends Model
     ];
 
     protected $casts = [
-        'color_image' => AssetData::class
+        'color_image' => AssetData::class,
+        'turntable_images' => 'array'
     ];
 
     protected static function booted()
     {
-        static::addGlobalScope('hasPrices', function (Builder $builder) {
+        static::addGlobalScope('hasPrices', function ($builder) {
             $builder->has('prices');
         });
     }

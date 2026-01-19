@@ -4,6 +4,7 @@ namespace App\Mappers;
 
 use App\Data\TrimData;
 use App\Data\AssetData;
+use App\Data\EquipmentData;
 use App\Data\Trim\{
     InteriorData,
     TechnicalSpecificationsData,
@@ -43,10 +44,10 @@ class TrimMapper
             $primaryImage = self::resolveAsset($attributesData, 'PrimaryImage', $getAsset);
             $channels = ChannelsMapper::map($attributesData);
             $powertrains = self::mapPowertrains($attributesData->get('KiaEngineAndTransmissions'));
+            $equipment = self::mapEquipment($attributesData->get('KiaStandardEquipment'), $getAssets);
             $colors = self::mapColors($attributesData->get('KiaColors'), $getAsset, $getAssets);
             $leasingPowertrains = self::mapLeasingPowertrains($attributesData->get('KiaLeasingEngineAndTransmission'));
             $accessoryMapping = self::mapAccessoryMapping($variantAttributesReferencesData->get('MobisModelMapping'));
-
 
             return new TrimData(
                 struct_id: $structId,
@@ -62,7 +63,8 @@ class TrimMapper
                 powertrains: $powertrains,
                 leasing_powertrains: $leasingPowertrains,
                 accessory_mapping: $accessoryMapping,
-                colors: $colors
+                colors: $colors,
+                equipment: $equipment
             );
 
         } catch (Throwable $e) {
@@ -174,6 +176,56 @@ class TrimMapper
             ->filter()
             ->values()
             ->all();
+    }
+
+    protected static function mapEquipment(array|Collection|null $equipment, callable $getAssets): array
+    {
+        if (!$equipment) return [];
+
+        $data = $equipment instanceof Collection ? $equipment : collect($equipment);
+
+        return $data
+            ->map(function ($item) use ($getAssets)  {
+                $code = Arr::get($item, 'Code');
+                
+                $name = collect(Arr::get($item, 'Name', []))
+                ->firstWhere('CultureCode', 'da-DK')['Data'] ?? '';
+
+                $category = Arr::get($item, 'Category.Name', '');
+                $imagesData = Arr::get($item, 'Images');
+                $images = self::mapEquipmentImages($imagesData, $getAssets);
+
+                if (!$code || !$name) {
+                    return null;
+                }
+
+                return new EquipmentData(
+                    code: $code,
+                    name: $name,
+                    category: $category,
+                    images: $images
+                );
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected static function mapEquipmentImages(array|Collection|null $images, callable $getAssets): array
+    {
+        if (!$images) return [];
+
+        $data = $images instanceof Collection ? $images : collect($images);
+
+        $ids = $data
+            ->filter(fn($id) => is_numeric($id))
+            ->map(fn($id) => (string) $id)
+            ->values()
+            ->all();
+
+        $assets = $ids ? $getAssets($ids) : collect();
+
+        return $assets->all();
     }
 
     protected static function mapColors(array|Collection|null $colors, callable $getAsset, callable $getAssets): array

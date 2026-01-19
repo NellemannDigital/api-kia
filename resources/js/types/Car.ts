@@ -6,6 +6,7 @@ export interface Car {
   year: string | null
   delivery_year: string | null
   channels: string[]
+  synced_at: string
   campaign?: {
     name?: string
   } | null

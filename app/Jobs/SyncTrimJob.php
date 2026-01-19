@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Services\PimService;
 use App\Models\Car;
 use App\Models\Trim;
+use App\Models\Equipment;
 use App\Data\TrimData;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -48,6 +49,7 @@ class SyncTrimJob implements ShouldQueue
                 $this->mapColors($this->trimData, $trim);
                 $this->mapPowertrains($this->trimData, $trim);
                 $this->mapLeasingPowertrains($this->trimData, $trim);
+                $this->mapEquipment($this->trimData, $trim);
             });
 
         } catch (Throwable $e) {
@@ -174,6 +176,27 @@ class SyncTrimJob implements ShouldQueue
             }
 
         }
+    }
+
+    private function mapEquipment(TrimData $trimData, Trim $trim): void
+    {
+        $equipmentIds = collect();
+
+        foreach ($trimData->equipment as $e) {
+
+            $equipment = Equipment::withoutGlobalScopes()->updateOrCreate(
+                ['code' => $e->code],
+                $e->toArray()
+            );
+
+            Log::info('Equipment synced to database', [
+                'code' => $e->code,
+            ]);
+            
+            $equipmentIds->push($equipment->id);
+        }
+
+        $trim->equipment()->sync($equipmentIds->all());
     }
 
 
