@@ -27,8 +27,6 @@ return new class extends Migration
             $table->json('turntable_images')->nullable();
 
             $table->timestamps();
-
-            $table->unique(['trim_id', 'code']);
         });
     }
 

@@ -93,4 +93,12 @@ class Trim extends Model
     {
         return $this->belongsToMany(Equipment::class, 'equipment_trim');
     }
+
+      /**
+     * @return HasMeny<ExtraEquipmentPackage, $this>
+     */
+    public function extraEquipmentPackages()
+    {
+        return $this->hasMany(ExtraEquipmentPackage::class);
+    }
 }

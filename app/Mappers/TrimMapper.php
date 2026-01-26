@@ -11,6 +11,7 @@ use App\Data\Trim\{
     CampaignData,
     ChannelsData,
     PowertrainData,
+    ExtraEquipmentPackageData,
     LeasingPowertrainData,
     ColorData,
     Color\PriceData as ColorPriceData,
@@ -19,7 +20,11 @@ use App\Data\Trim\{
     Powertrain\TechnicalSpecificationsData as PowertrainTechnicalSpecificationsData,
     Powertrain\PriceData,
     Powertrain\LeasingPriceData,
-    Powertrain\Engine\ServiceIntervalData
+    Powertrain\Engine\ServiceIntervalData,
+    ExtraEquipmentPackage\InteriorOverrideToData,
+    ExtraEquipmentPackage\ModelChangeCodeData,
+    ExtraEquipmentPackage\TransmissionRequiredData,
+    ExtraEquipmentPackage\ColorRequiredData,
 };
 use App\Mappers\Trim\ChannelsMapper;
 use Illuminate\Support\Collection;
@@ -45,6 +50,7 @@ class TrimMapper
             $channels = ChannelsMapper::map($attributesData);
             $powertrains = self::mapPowertrains($attributesData->get('KiaEngineAndTransmissions'));
             $equipment = self::mapEquipment($attributesData->get('KiaStandardEquipment'), $getAssets);
+            $extraEquipmentPackages = self::mapExtraEquipmentPackages($attributesData->get('KiaExtraEquipmentFoundation'), $getAsset, $getAssets);
             $colors = self::mapColors($attributesData->get('KiaColors'), $getAsset, $getAssets);
             $leasingPowertrains = self::mapLeasingPowertrains($attributesData->get('KiaLeasingEngineAndTransmission'));
             $accessoryMapping = self::mapAccessoryMapping($variantAttributesReferencesData->get('MobisModelMapping'));
@@ -64,7 +70,8 @@ class TrimMapper
                 leasing_powertrains: $leasingPowertrains,
                 accessory_mapping: $accessoryMapping,
                 colors: $colors,
-                equipment: $equipment
+                equipment: $equipment,
+                extra_equipment_packages: $extraEquipmentPackages
             );
 
         } catch (Throwable $e) {
@@ -228,6 +235,100 @@ class TrimMapper
         return $assets->all();
     }
 
+    protected static function mapExtraEquipmentPackages(array|Collection|null $packages, callable $getAsset, callable $getAssets): array
+    {
+        if (!$packages) return [];
+
+        $data = $packages instanceof Collection ? $packages : collect($packages);
+
+        return $data
+            ->map(function ($item) use ($getAsset, $getAssets)  {
+                $code = Arr::get($item, 'Package.Code');
+                $name = Arr::get($item, 'Package.Name');
+                $category = Arr::get($item, 'Package.Category.Name', '');
+                
+                $imageId = Arr::get($item, 'Image');
+                $image = $imageId ? $getAsset($imageId) : null;
+
+                $interiorOverrideTo = self::mapInteriorOverrideTo(Arr::get($item, 'InteriorOverrideTo'));
+                $modelChangeCode = self::mapModelChangeCode(Arr::get($item, 'ModelChangeCode'));
+                $transmissionRequired = self::mapTransmissionRequired(Arr::get($item, 'TransmissionRequired'));
+                
+                $colorRequiredData = Arr::get($item, 'ColorRequired');
+                $colorRequired = self::mapColorRequired($colorRequiredData);
+
+                $equipmentData = Arr::get($item, 'Equipment');
+                $equipment = self::mapEquipment($equipmentData, $getAssets);
+
+                if (!$code || !$name) {
+                    return null;
+                }
+
+                return new ExtraEquipmentPackageData(
+                    code: $code,
+                    name: $name,
+                    category: $category,
+                    image: $image,
+                    interior_override_to: $interiorOverrideTo,
+                    model_change_code: $modelChangeCode,
+                    transmission_required: $transmissionRequired,
+                    color_required: $colorRequired,
+                    equipment: $equipment
+                );
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected static function mapInteriorOverrideTo(array|Collection|null $attributes): ?InteriorOverrideToData
+    {
+        if (!$attributes) return null;
+
+        $name = Arr::get($attributes, 'Name');
+        $code = Arr::get($attributes, 'Code');
+
+        if (!$name || !$code) return null;
+
+        return new InteriorOverrideToData(name: $name, code: $code);
+    }
+
+    protected static function mapModelChangeCode(array|Collection|null $attributes): ?ModelChangeCodeData
+    {
+        if (!$attributes) return null;
+
+        $name = Arr::get($attributes, 'Name');
+        $code = Arr::get($attributes, 'Code');
+
+        if (!$name || !$code) return null;
+
+        return new ModelChangeCodeData(name: $name, code: $code);
+    }
+
+    protected static function mapTransmissionRequired(array|Collection|null $attributes): ?TransmissionRequiredData
+    {
+        if (!$attributes) return null;
+
+        $name = Arr::get($attributes, 'Name');
+        $code = Arr::get($attributes, 'Code');
+
+        if (!$name || !$code) return null;
+
+        return new TransmissionRequiredData(name: $name, code: $code);
+    }
+
+    protected static function mapColorRequired(array|Collection|null $reguiredColors): array
+    {
+        if (!$reguiredColors) return [];
+        $data = $reguiredColors instanceof Collection ? $reguiredColors : collect($reguiredColors);
+
+        return $data->map(fn($item) => new ColorRequiredData(
+            code: Arr::get($item, 'Code'),
+            primary_color: Arr::get($item, 'PrimaryColor'),
+            secondary_color: Arr::get($item, 'SecondaryColor'),
+        ))->values()->all();
+    }
+
     protected static function mapColors(array|Collection|null $colors, callable $getAsset, callable $getAssets): array
     {
         if (!$colors) return [];
@@ -239,7 +340,7 @@ class TrimMapper
                 $code = Arr::get($item, 'Color.Code');
                 $primaryColor = Arr::get($item, 'Color.PrimaryColor');
                 $secondaryColor = Arr::get($item, 'Color.SecondaryColor');
-                $type = Arr::get($item, 'Color.Type');
+                $type = Arr::get($item, 'Color.Type.Name');
                 $colorImageId = Arr::get($item, 'Color.Image');
                 $colorImage = $colorImageId ? $getAsset($colorImageId) : null;
                 $ocnChangeCode = Arr::get($item, 'OCNChangeCode');

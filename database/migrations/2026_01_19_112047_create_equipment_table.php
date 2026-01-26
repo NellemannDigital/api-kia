@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('equipment', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique();
+            
             $table->string('name');
             $table->string('category')->nullable();
             $table->json('images')->nullable();

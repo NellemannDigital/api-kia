@@ -13,7 +13,8 @@ use App\Data\Trim\{
     ChannelsData,
     ColorData,
     PowertrainData,
-    LeasingPowertrainData
+    LeasingPowertrainData,
+    ExtraEquipmentPackageData
 };
 
 class TrimData extends Data
@@ -33,6 +34,9 @@ class TrimData extends Data
        
         #[DataCollectionOf(EquipmentData::class)]
         public array $equipment = [],
+
+        #[DataCollectionOf(ExtraEquipmentPackageData::class)]
+        public array $extra_equipment_packages = [],
 
         #[DataCollectionOf(ColorData::class)]
         public array $colors = [],

@@ -15,7 +15,8 @@ class CarController extends Controller
     {
         return Car::with([
             'trims.colors.prices',
-            'trims.equipment'
+            'trims.equipment',
+            'trims.extraEquipmentPackages.equipment'
             ])->orderBy('name')->paginate();
     }
 

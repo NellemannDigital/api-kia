@@ -6,6 +6,7 @@ use App\Services\PimService;
 use App\Models\Car;
 use App\Models\Trim;
 use App\Models\Equipment;
+use App\Models\ExtraEquipmentPackage;
 use App\Data\TrimData;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -50,6 +51,7 @@ class SyncTrimJob implements ShouldQueue
                 $this->mapPowertrains($this->trimData, $trim);
                 $this->mapLeasingPowertrains($this->trimData, $trim);
                 $this->mapEquipment($this->trimData, $trim);
+                $this->mapExtraEquipmentPackages($this->trimData, $trim);
             });
 
         } catch (Throwable $e) {
@@ -197,6 +199,36 @@ class SyncTrimJob implements ShouldQueue
         }
 
         $trim->equipment()->sync($equipmentIds->all());
+    }
+
+    private function mapExtraEquipmentPackages(TrimData $trimData, Trim $trim): void
+    {
+        $extraEquipmentPackageIds = collect();
+
+        foreach ($trimData->extra_equipment_packages as $package) {
+
+            $extraEquipmentPackage = $trim->extraEquipmentPackages()->updateOrCreate(
+                ['code' => $package->code],
+                $package->toArray()
+            );
+
+            $equipmentIds = collect($package->equipment)
+                ->map(fn ($e) => Equipment::withoutGlobalScopes()
+                    ->where('code', $e->code)
+                    ->value('id'))
+                ->filter()
+                ->all();
+
+            $extraEquipmentPackage->equipment()->sync($equipmentIds);
+
+            Log::info('extraEquipmentPackage synced to database', [
+                'code' => $package->code,
+            ]);
+
+            $extraEquipmentPackageIds->push($extraEquipmentPackage->id);
+        }
+
+         $trim->extraEquipmentPackages()->whereNotIn('id', $extraEquipmentPackageIds)->delete();
     }
 
 

@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Trim;
+use App\Models\Accesory;
 
 return new class extends Migration
 {
@@ -13,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('accessory_trim', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('trim_id')->constrained()->onDelete('cascade');
-            $table->foreignId('accessory_id')->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Trim::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Accesory::class)->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
