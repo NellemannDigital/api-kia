@@ -39,11 +39,11 @@ class ExtraEquipmentPackage extends Model
         'interior_override_to' => InteriorOverrideToData::class,
         'model_change_code' => ModelChangeCodeData::class,
         'transmission_required' => TransmissionRequiredData::class,
-        'color_required' => ColorRequiredData::class,
-        'requires' => DataCollection::class . ':' . RequiresData::class,
-        'excludes' => DataCollection::class . ':' . ExcludesData::class,
-        'excludes_standard_equipment' => DataCollection::class . ':' . ExcludesStandardEquipmentData::class,
-        'engine_required' => DataCollection::class . ':' . EngineRequiredData::class,
+        'engine_required' => 'array',
+        'color_required' => 'array',
+        'requires' => 'array',
+        'excludes' => 'array',
+        'excludes_standard_equipment'=> 'array',
     ];
 
     /**

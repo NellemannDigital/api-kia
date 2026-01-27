@@ -29,15 +29,13 @@ class ExtraEquipmentPackageData extends Data
         public ?InteriorOverrideToData $interior_override_to = null,
         public ?ModelChangeCodeData $model_change_code = null,
         public ?TransmissionRequiredData $transmission_required = null,
+        public array $requires = [],
 
         #[DataCollectionOf(ColorRequiredData::class)]
         public array $color_required = [],
 
         #[DataCollectionOf(EquipmentData::class)]
         public array $equipment = [],
-
-        #[DataCollectionOf(RequiresData::class)]
-        public array $requires = [],
 
         #[DataCollectionOf(ExcludesData::class)]
         public array $excludes = [],

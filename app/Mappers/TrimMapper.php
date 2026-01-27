@@ -24,7 +24,11 @@ use App\Data\Trim\{
     ExtraEquipmentPackage\InteriorOverrideToData,
     ExtraEquipmentPackage\ModelChangeCodeData,
     ExtraEquipmentPackage\TransmissionRequiredData,
+    ExtraEquipmentPackage\EngineRequiredData,
     ExtraEquipmentPackage\ColorRequiredData,
+    ExtraEquipmentPackage\RequiresData,
+    ExtraEquipmentPackage\ExcludesData,
+    ExtraEquipmentPackage\ExcludesStandardEquipmentData
 };
 use App\Mappers\Trim\ChannelsMapper;
 use Illuminate\Support\Collection;
@@ -253,9 +257,19 @@ class TrimMapper
                 $interiorOverrideTo = self::mapInteriorOverrideTo(Arr::get($item, 'InteriorOverrideTo'));
                 $modelChangeCode = self::mapModelChangeCode(Arr::get($item, 'ModelChangeCode'));
                 $transmissionRequired = self::mapTransmissionRequired(Arr::get($item, 'TransmissionRequired'));
+                $engineRequired = self::mapEngineRequired(Arr::get($item, 'EngineRequired'));
                 
                 $colorRequiredData = Arr::get($item, 'ColorRequired');
                 $colorRequired = self::mapColorRequired($colorRequiredData);
+
+                $requiresData = Arr::get($item, 'Requires');
+                $requires = self::mapRequires($requiresData);
+
+                $excludesData = Arr::get($item, 'Excludes');
+                $excludes = self::mapExcludes($excludesData);
+
+                $excludesStandardEquipmentData = Arr::get($item, 'ExcludesStandardEquipment');
+                $excludesStandardEquipment = self::mapExcludesStandardEquipment($excludesStandardEquipmentData);
 
                 $equipmentData = Arr::get($item, 'Equipment');
                 $equipment = self::mapEquipment($equipmentData, $getAssets);
@@ -272,7 +286,11 @@ class TrimMapper
                     interior_override_to: $interiorOverrideTo,
                     model_change_code: $modelChangeCode,
                     transmission_required: $transmissionRequired,
+                    engine_required: $engineRequired,
                     color_required: $colorRequired,
+                    requires: $requires,
+                    excludes: $excludes,
+                    excludes_standard_equipment: $excludesStandardEquipment,
                     equipment: $equipment
                 );
             })
@@ -316,18 +334,140 @@ class TrimMapper
 
         return new TransmissionRequiredData(name: $name, code: $code);
     }
-
-    protected static function mapColorRequired(array|Collection|null $reguiredColors): array
+    
+    protected static function mapEngineRequired(array|Collection|null $requiredEngines): array
     {
-        if (!$reguiredColors) return [];
-        $data = $reguiredColors instanceof Collection ? $reguiredColors : collect($reguiredColors);
+        if (!$requiredEngines) return [];
 
-        return $data->map(fn($item) => new ColorRequiredData(
-            code: Arr::get($item, 'Code'),
-            primary_color: Arr::get($item, 'PrimaryColor'),
-            secondary_color: Arr::get($item, 'SecondaryColor'),
-        ))->values()->all();
+        $data = $requiredEngines instanceof Collection ? $requiredEngines : collect($requiredEngines);
+
+        return $data
+            ->map(function ($item) {
+                $name = Arr::get($item, 'Name');
+                $code = Arr::get($item, 'Code');
+
+                if (!$name || !$code) return null;
+
+                return new EngineRequiredData(
+                    code: $code,
+                    name: $name
+                );
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
+
+    protected static function mapColorRequired(array|Collection|null $requiredColors): array
+    {
+        if (!$requiredColors) return [];
+
+        $data = $requiredColors instanceof Collection ? $requiredColors : collect($requiredColors);
+
+        return $data
+            ->map(function ($item) {
+                $code = Arr::get($item, 'Code');
+                $primaryColor = Arr::get($item, 'PrimaryColor');
+
+                if (!$code || !$primaryColor) {
+                    return null;
+                }
+
+                return new ColorRequiredData(
+                    code: $code,
+                    primary_color: $primaryColor
+                );
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected static function mapRequires(array|Collection|null $requires): array
+    {
+        if (!$requires) return [];
+
+        $data = $requires instanceof Collection ? $requires : collect($requires);
+
+        return $data->map(function ($group) {
+            return collect($group)
+                ->map(function ($item) {
+                    $name = Arr::get($item, 'Name');
+                    $code = Arr::get($item, 'Code');
+                    $category = Arr::get($item, 'Category.Name');
+
+                    if (!$name || !$code) return null;
+
+                    return new RequiresData(
+                        name: $name,
+                        code: $code,
+                        category: $category
+                    );
+                })
+                ->filter() 
+                ->values()
+                ->all();
+        })
+        ->filter(fn($group) => count($group) > 0)
+        ->values()
+        ->all();
+    }
+
+    protected static function mapExcludes(array|Collection|null $excludes): array
+    {
+        if (!$excludes) return [];
+
+        $data = $excludes instanceof Collection ? $excludes : collect($excludes);
+
+        return $data
+            ->map(function ($item) {
+                $name = Arr::get($item, 'Name');
+                $code = Arr::get($item, 'Code');
+                $category = Arr::get($item, 'Category.Name');
+
+                if (!$name || !$code) return null;
+
+                return new ExcludesData(
+                    name: $name,
+                    code: $code,
+                    category: $category
+                );
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected static function mapExcludesStandardEquipment(array|Collection|null $equipment): array
+    {
+        if (!$equipment) return [];
+
+        $data = $equipment instanceof Collection ? $equipment : collect($equipment);
+
+        return $data
+            ->map(function ($item) {
+                $code = Arr::get($item, 'Code');
+                
+                $name = collect(Arr::get($item, 'Name', []))
+                ->firstWhere('CultureCode', 'da-DK')['Data'] ?? '';
+
+                $category = Arr::get($item, 'Category.Name', '');
+
+                if (!$code || !$name) {
+                    return null;
+                }
+
+                return new ExcludesStandardEquipmentData(
+                    code: $code,
+                    name: $name,
+                    category: $category,
+                );
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
 
     protected static function mapColors(array|Collection|null $colors, callable $getAsset, callable $getAssets): array
     {
