@@ -28,7 +28,8 @@ use App\Data\Trim\{
     ExtraEquipmentPackage\ColorRequiredData,
     ExtraEquipmentPackage\RequiresData,
     ExtraEquipmentPackage\ExcludesData,
-    ExtraEquipmentPackage\ExcludesStandardEquipmentData
+    ExtraEquipmentPackage\ExcludesStandardEquipmentData,
+    ExtraEquipmentPackage\PriceData as ExtraEquipmentPackagePriceData,
 };
 use App\Mappers\Trim\ChannelsMapper;
 use Illuminate\Support\Collection;
@@ -274,6 +275,9 @@ class TrimMapper
                 $equipmentData = Arr::get($item, 'Equipment');
                 $equipment = self::mapEquipment($equipmentData, $getAssets);
 
+                $pricesData = Arr::get($item, 'Prices');
+                $prices = self::mapExtraEquipmentPackagePrices($pricesData);
+
                 if (!$code || !$name) {
                     return null;
                 }
@@ -291,7 +295,8 @@ class TrimMapper
                     requires: $requires,
                     excludes: $excludes,
                     excludes_standard_equipment: $excludesStandardEquipment,
-                    equipment: $equipment
+                    equipment: $equipment,
+                    prices: $prices
                 );
             })
             ->filter()
@@ -466,6 +471,22 @@ class TrimMapper
             ->filter()
             ->values()
             ->all();
+    }
+
+    protected static function mapExtraEquipmentPackagePrices(array|Collection|null $prices): array
+    {
+        if (!$prices) return [];
+        $data = $prices instanceof Collection ? $prices : collect($prices);
+
+        return $data->map(fn($item) => new ExtraEquipmentPackagePriceData(
+            dealer_net_price: Arr::get($item, 'DealerNetPrice'),
+            dealer_profit: Arr::get($item, 'DealerProfit'),
+            suggested_retail_price: Arr::get($item, 'SuggestedRetailPrice'),
+            campaign_retail_price: Arr::get($item, 'CampaignRetailPrice'),
+            retail_price_ex_vat: Arr::get($item, 'RetailPriceExVAT'),
+            valid_from: Arr::get($item, 'ValidFrom') ? substr($item['ValidFrom'], 0, 10) : null,
+            valid_to: Arr::get($item, 'ValidTo') ? substr($item['ValidTo'], 0, 10) : null,
+        ))->values()->all();
     }
 
 

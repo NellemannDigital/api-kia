@@ -15,7 +15,8 @@ use App\Data\Trim\ExtraEquipmentPackage\{
     ModelChangeCodeData,
     EngineRequiredData,
     TransmissionRequiredData,
-    ColorRequiredData
+    ColorRequiredData,
+    PriceData
 };
 
 
@@ -44,6 +45,9 @@ class ExtraEquipmentPackageData extends Data
         public array $excludes_standard_equipment = [],
 
         #[DataCollectionOf(EngineRequiredData::class)]
-        public array $engine_required = []
+        public array $engine_required = [],
+
+        #[DataCollectionOf(PriceData::class)]
+        public array $prices = [],
     ) {}
 }

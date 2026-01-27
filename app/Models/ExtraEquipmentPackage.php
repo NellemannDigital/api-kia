@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\LaravelData\DataCollection;
 use App\Data\AssetData;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Data\Trim\ExtraEquipmentPackage\{
     InteriorOverrideToData,
     ModelChangeCodeData,
@@ -52,5 +54,13 @@ class ExtraEquipmentPackage extends Model
     public function equipment()
     {
         return $this->belongsToMany(Equipment::class, 'extra_equipment_package_equipment');
+    }
+
+    /**
+     * @return HasMany<ExtraEquipmentPackagePrice, $this>
+     */
+    public function prices(): HasMany
+    {
+        return $this->hasMany(ExtraEquipmentPackagePrice::class);
     }
 }
