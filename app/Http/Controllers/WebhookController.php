@@ -64,7 +64,7 @@ class WebhookController extends Controller
         }
 
         foreach ($variantIds as $id) {
-            dispatch(new SyncTrimJob($id))->onQueue('pim-sync');
+            dispatch(new SyncTrimJob($id))->onQueue('pim');
         }
     }
 
@@ -79,8 +79,8 @@ class WebhookController extends Controller
             $structureId = $pimService->getProductStructureId($productId);
 
             match ($structureId) {
-                'f81c8095-1c6c-410b-93fc-24c33cda9567' => dispatch(new SyncCarJob($productId))->onQueue('pim-sync'),
-                '944096c2-c7af-4396-ab32-058276a495a2' => dispatch(new SyncConfigurationJob($productId))->onQueue('pim-sync'),
+                'f81c8095-1c6c-410b-93fc-24c33cda9567' => dispatch(new SyncCarJob($productId))->onQueue('pim'),
+                '944096c2-c7af-4396-ab32-058276a495a2' => dispatch(new SyncConfigurationJob($productId))->onQueue('pim'),
                 default => Log::warning("Unknown product structure ID: {$structureId} for product {$productId}"),
             };
         }

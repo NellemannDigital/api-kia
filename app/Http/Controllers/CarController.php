@@ -67,7 +67,7 @@ class CarController extends Controller
             }
 
             $batch = Bus::batch($jobs)
-                ->onQueue('pim-sync')
+                ->onQueue('pim')
                 ->dispatch();
 
             return response()->json([
