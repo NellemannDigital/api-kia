@@ -33,6 +33,7 @@ class SyncStockCars extends Command
         Bus::chain([
             new SyncStockCarsJob('Klar,Igangsat,Produktion,Klar til vognmand,Afhentet,Forhandler')
         ])
-            ->dispatch();
+        ->onQueue('azure-sync')
+        ->dispatch();
     }
 }

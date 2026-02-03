@@ -26,7 +26,7 @@ class SyncDealerJob implements ShouldQueue
         try {
             $this->dealerData = $dynamicsService->getDealer($this->dealer);
 
-            Dealer::updateOrCreate(
+            Dealer::withoutGlobalScopes()->updateOrCreate(
                 ['dynamics_id' => $this->dealerData->dynamics_id],
                 $this->dealerData->toArray()
             );

@@ -33,6 +33,7 @@ class SyncDealers extends Command
         Bus::chain([
             new SyncDealersJob()
         ])
+            ->onQueue('dynamics-sync')
             ->dispatch();
     }
 }

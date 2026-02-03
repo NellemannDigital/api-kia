@@ -3,8 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Trim;
-use App\Models\Accessory;
+use App\Models\Configuration;
+use App\Models\ExtraEquipmentPackage;
 
 return new class extends Migration
 {
@@ -13,10 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('accessory_trim', function (Blueprint $table) {
+        Schema::create('configuration_extra_equipment_package', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Trim::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Accessory::class)->constrained()->cascadeOnDelete();
+            
+            $table->foreignIdFor(Configuration::class);
+            $table->foreignIdFor(ExtraEquipmentPackage::class);
+                        
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('accessory_trim');
+        Schema::dropIfExists('configuration_extra_equipment_package');
     }
 };

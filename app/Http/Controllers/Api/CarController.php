@@ -14,9 +14,7 @@ class CarController extends Controller
     public function index()
     {
         return Car::with([
-            'trims.colors.prices',
-            'trims.equipment',
-            'trims.extraEquipmentPackages.equipment'
+            'trims.powertrains.prices'
             ])->orderBy('name')->paginate();
     }
 

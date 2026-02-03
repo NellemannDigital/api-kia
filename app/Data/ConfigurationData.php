@@ -10,7 +10,8 @@ use App\Data\Configuration\{
     VariantData,
     EngineData,
     TransmissionData,
-    TechnicalSpecificationsData
+    TechnicalSpecificationsData,
+    ExtraEquipmentPackageData
 };
 
 class ConfigurationData extends Data
@@ -31,6 +32,8 @@ class ConfigurationData extends Data
         public EngineData $engine,
         public TransmissionData $transmission,
         public ?TechnicalSpecificationsData $technical_specifications = null,
+
+        public array $extra_equipment_package_ids = [],
 
         public ?string $model_change_code,
         public ?string $original_model_change_code,

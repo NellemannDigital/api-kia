@@ -10,6 +10,7 @@ use App\Data\Configuration\{
     TechnicalSpecificationsData,
     EngineData,
     TransmissionData,
+    ExtraEquipmentPackageData,
     Engine\ServiceIntervalData,
     TechnicalSpecifications\ConsumptionData
 };
@@ -36,11 +37,12 @@ class ConfigurationMapper
             $year = Arr::get($attributesData, 'KiaModelYear.ModelYear', '');
             $trimName = Arr::get($attributesData, 'KiaEquipmentVariant', '');
             $modelChangeCode = Arr::get($attributesData, 'KiaModelChangeCode.Code', '');
-            $originalModelChangeCode = Arr::get($attributesData, 'KiaOriginalModelChangeCode', '');
+            $originalModelChangeCode = Arr::get($attributesData, 'KiaOriginalModelChangeCode.Code', '');
             $referencedFoundationCarId = Arr::get($attributesData, 'SharedStructFoundationReferenceProductId', '');
             $referencedFoundationTrimId = Arr::get($attributesData, 'SharedStructFoundationReferenceVariantId', '');
 
             $technicalSpecifications = self::mapTechnicalSpecifications($attributesData);
+            $extraEquipmentPackages = self::mapExtraEquipmentPackages($attributesData->get('KiaExtraEquipment'));
 
             $car = Car::withoutGlobalScopes()
                 ->where('struct_id', $referencedFoundationCarId)
@@ -102,6 +104,13 @@ class ConfigurationMapper
                 return null;
             }
 
+            $extraEquipmentPackageIds = $trim
+                ->extraEquipmentPackages()
+                ->whereIn('code', collect($extraEquipmentPackages)->pluck('code'))
+                ->get()
+                ->pluck('id')
+                ->toArray();
+
             return new ConfigurationData(
                 struct_id: $configurationId,
                 car_id: $car->id,
@@ -122,6 +131,7 @@ class ConfigurationMapper
                 variant: $variant,
                 engine: $engine,
                 transmission: $transmission,
+                extra_equipment_package_ids: $extraEquipmentPackageIds
             );
 
         } catch (Throwable $e) {
@@ -272,5 +282,33 @@ class ConfigurationMapper
         }
 
         return new TransmissionData(...$data);
+    }
+
+
+    protected static function mapExtraEquipmentPackages(array|Collection|null $packages): array
+    {
+        if (!$packages) return [];
+
+        $data = $packages instanceof Collection ? $packages : collect($packages);
+
+        return $data
+            ->map(function ($item) {
+                $code = Arr::get($item, 'Code');
+                $name = Arr::get($item, 'Name');
+                $category = Arr::get($item, 'Category.Name', '');
+
+                if (!$code || !$name) {
+                    return null;
+                }
+
+                return new ExtraEquipmentPackageData(
+                    code: $code,
+                    name: $name,
+                    category: $category,
+                );
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
 }

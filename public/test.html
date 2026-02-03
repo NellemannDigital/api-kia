@@ -1,0 +1,14 @@
+<div id="model-widget"></div>
+<script type="module">
+
+    import { init } from "https://widgets.test/dist/model-widget/widget.js";
+
+window.ModelWidget = { init };
+
+init({
+    targetId: "model-widget",
+    apiUrl: "https://api-kia.test/api/cars",
+    bearerToken: "1|XkoPSoea1Rvigqhm6KIU1WGed3mlJcNITGq2Zejne2e76cc2",
+    selectedCategory: "",
+});
+</script>

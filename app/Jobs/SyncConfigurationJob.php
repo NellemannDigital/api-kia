@@ -5,15 +5,19 @@ namespace App\Jobs;
 use App\Services\PimService;
 use App\Models\Configuration;
 use App\Data\ConfigurationData;
-use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Bus\Batchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class SyncConfigurationJob implements ShouldQueue
 {
-    use Batchable, Queueable;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected ?ConfigurationData $configurationData = null;
 
@@ -24,20 +28,33 @@ class SyncConfigurationJob implements ShouldQueue
     public function handle(PimService $pimService): void
     {
         try {
-            $this->configurationData = $pimService->getConfiguration($this->productId);
 
-            if (! $this->configurationData) {
-                return;
-            }
+            DB::transaction(function () use ($pimService) {
 
-              Log::info('Configuration synced to database', [
-                'configuration_id' => $this->productId,
-            ]);
+                $this->configurationData = $pimService->getConfiguration($this->productId);
 
-            Configuration::withoutGlobalScopes()->updateOrCreate(
-                ['struct_id' => $this->configurationData->struct_id],
-                $this->configurationData->toArray()
-            );
+                if (! $this->configurationData) {
+                    return;
+                }
+
+                $configuration = Configuration::withoutGlobalScopes()->updateOrCreate(
+                    ['struct_id' => $this->configurationData->struct_id],
+                    $this->configurationData->toArray()
+                );
+
+                
+                Log::info('Configuration synced to database', [
+                    'configuration_id' => $this->productId,
+                ]);
+
+                $configuration
+                    ->extraEquipmentPackages()
+                    ->sync($this->configurationData->extra_equipment_package_ids);
+                });
+
+                Log::info('Configuration Extra Equipment Packages synced to database', [
+                    'configuration_id' => $this->productId,
+                ]);
 
         } catch (Throwable $e) {
             $this->handleFailure($e);

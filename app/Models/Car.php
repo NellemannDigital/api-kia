@@ -24,6 +24,8 @@ use Carbon\Carbon;
 
 class Car extends Model
 {
+    protected $appends = ['from_price'];
+
     protected $fillable = [
         'struct_id',
         'web_id',
@@ -61,7 +63,7 @@ class Car extends Model
         'categories' => 'array'
     ];
 
-  protected static function booted()
+    protected static function booted()
     {
         static::addGlobalScope(new OpenChannels(['channels->master_channel']));
 
@@ -76,6 +78,19 @@ class Car extends Model
         static::deleted(function() {
             Cache::forget('cars_all');
         });
+    }
+
+    public function getFromPriceAttribute()
+    {
+        $this->loadMissing('trims.powertrains.prices');
+
+        $prices = $this->trims->flatMap(function ($trim) {
+            return $trim->powertrains->flatMap(function ($powertrain) {
+                return $powertrain->prices->pluck('suggested_retail_price');
+            });
+        });
+
+        return $prices->min();
     }
 
     /**

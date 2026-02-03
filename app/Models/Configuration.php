@@ -14,6 +14,7 @@ use App\Data\Configuration\{
     TechnicalSpecificationsData
 };
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMeny;
 
 class Configuration extends Model
 {
@@ -53,6 +54,14 @@ class Configuration extends Model
     public function powertrain(): BelongsTo
     {
         return $this->belongsTo(Powertrain::class);
+    }
+
+    /**
+     * @return BelongsToMeny<ExtraEquipmentPackage, $this>
+     */
+    public function extraEquipmentPackages()
+    {
+        return $this->belongsToMany(ExtraEquipmentPackage::class);
     }
 
 }

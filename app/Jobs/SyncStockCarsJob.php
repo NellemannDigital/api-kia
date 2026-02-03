@@ -4,7 +4,10 @@ namespace App\Jobs;
 
 use Throwable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Bus\Batchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Bus;
@@ -12,7 +15,7 @@ use App\Requests\StockCarsRequest;
 
 class SyncStockCarsJob implements ShouldQueue
 {
-    use Batchable, Queueable;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
         protected string $stockStatuses,
@@ -33,7 +36,7 @@ class SyncStockCarsJob implements ShouldQueue
 
         $jobs = [];
 
-        foreach ($stockCars->slice(0, 3) as $stockCar) {
+        foreach ($stockCars as $stockCar) {
             $jobs[] = new SyncStockCarJob($stockCar);
         };
 
