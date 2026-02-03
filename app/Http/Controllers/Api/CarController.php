@@ -13,7 +13,7 @@ class CarController extends Controller
      */
     public function index()
     {
-        return Car::with([
+        return Car::where('variant->b2b', false)->with([
             'trims.powertrains.prices'
             ])->orderBy('name')->paginate();
     }
