@@ -36,7 +36,7 @@ class SyncPimData extends Command
             new SyncConfigurationsJob(),
             new SyncAccessoriesJob(),
         ])
-        ->onQueue('pim-sync')
+        ->onQueue('pim')
         ->dispatch();
 
     }

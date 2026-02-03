@@ -27,7 +27,7 @@ class SyncDealersJob implements ShouldQueue
         };
 
         Bus::batch($jobs)
-            ->onQueue('dynamics-sync')
+            ->onQueue('dynamics')
             ->allowFailures()
             ->dispatch();
 

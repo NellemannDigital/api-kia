@@ -25,7 +25,7 @@ class SyncCarsJob implements ShouldQueue
                 new SyncCarJob($id),
                 new SyncTrimsJob($id),
             ])
-                ->onQueue('pim-sync')
+                ->onQueue('pim')
                 ->allowFailures()
                 ->dispatch();
         }

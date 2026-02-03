@@ -31,7 +31,7 @@ class SyncUsedCarsJob implements ShouldQueue
         };
 
         Bus::batch($jobs)
-            ->onQueue('bilinfo-sync')
+            ->onQueue('bilinfo')
             ->allowFailures()
             ->dispatch();
 

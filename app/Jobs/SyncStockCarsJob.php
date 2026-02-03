@@ -41,7 +41,7 @@ class SyncStockCarsJob implements ShouldQueue
         };
 
         Bus::batch($jobs)
-            ->onQueue('azure-sync')
+            ->onQueue('azure')
             ->allowFailures()
             ->dispatch();
 

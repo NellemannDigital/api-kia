@@ -31,7 +31,7 @@ class SyncTrimsJob implements ShouldQueue
         }
 
         Bus::batch($jobs)
-            ->onQueue('pim-sync')
+            ->onQueue('pim')
             ->allowFailures()
             ->dispatch();
     }
