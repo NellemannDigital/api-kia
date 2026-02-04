@@ -24,7 +24,7 @@ use Carbon\Carbon;
 
 class Car extends Model
 {
-    protected $appends = ['from_price'];
+    protected $appends = ['from_price', 'electric_range', 'dc_charging_time_range'];
 
     protected $fillable = [
         'struct_id',
@@ -93,12 +93,18 @@ class Car extends Model
         return $prices->min();
     }
 
-    /**
-     * @return HasMany<Trim, $this>
-     */
-    public function trims(): HasMany
+    public function getElectricRangeAttribute()
     {
-        return $this->hasMany(Trim::class);
+        $this->loadMissing('trims.powertrains.configuration');
+
+        return $this->specRange('pure_electric_range');
+    }
+
+    public function getDcChargingTimeRangeAttribute()
+    {
+        $this->loadMissing('trims.powertrains.configuration');
+
+        return $this->specRange('dc_charging_time');
     }
 
     public function specRange(string $key): ?array
@@ -123,7 +129,6 @@ class Car extends Model
         ];
     }
 
-
     public function formattedSpecRange(string $key, int $decimals = 0, string $unit = ''): ?string
     {
         $range = $this->specRange($key);
@@ -140,6 +145,14 @@ class Car extends Model
         }
 
         return $min . ' - ' . $max . ($unit ? ' ' . $unit : '');
+    }
+
+    /**
+     * @return HasMany<Trim, $this>
+     */
+    public function trims(): HasMany
+    {
+        return $this->hasMany(Trim::class);
     }
 
 

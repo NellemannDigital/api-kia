@@ -98,6 +98,6 @@ class Powertrain extends Model
      */
     public function configuration(): HasOne
     {
-        return $this->hasOne(Configuration::class, 'struct_id', 'struct_id');
+        return $this->hasOne(Configuration::class, 'struct_id', 'configuration_id');
     }
 }
