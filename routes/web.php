@@ -5,7 +5,7 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\CarController;
-use App\Http\Controllers\CommandController;
+use App\Http\Controllers\SynchronizationController;
 use App\Http\Controllers\Settings\ApiTokenController;
 use Illuminate\Support\Facades\Bus;
 
@@ -28,7 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
     Route::post('/cars/sync/{id}', [CarController::class, 'sync']);
 
-    Route::post('/sync-pim-data', [CommandController::class, 'syncPimData']);
+    Route::get('/synchronization', [SynchronizationController::class, 'index'])->name('synchronization.index');
+    Route::post('/synchronization/pim', [SynchronizationController::class, 'run']);
 
 });
 
