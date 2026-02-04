@@ -34,7 +34,7 @@ class SyncPimData extends Command
         Bus::chain([
             new SyncCarsJob(),
             new SyncConfigurationsJob(),
-            new SyncAccessoriesJob(),
+            //new SyncAccessoriesJob(),
         ])
         ->onQueue('pim')
         ->dispatch();
