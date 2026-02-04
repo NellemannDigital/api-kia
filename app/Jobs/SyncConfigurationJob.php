@@ -17,7 +17,7 @@ use Throwable;
 
 class SyncConfigurationJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected ?ConfigurationData $configurationData = null;
 
