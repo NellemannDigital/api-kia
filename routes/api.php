@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CarController;
 use App\Http\Controllers\DealerController;
+use App\Http\Controllers\Api\ComplianceTextController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -16,3 +17,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dealers', [DealerController::class, 'index']);
     Route::get('/dealers/{dealer}', [DealerController::class, 'show']);
 });
+
+Route::get('/compliance-text', [ComplianceTextController::class, 'show']);

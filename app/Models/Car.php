@@ -24,7 +24,7 @@ use Carbon\Carbon;
 
 class Car extends Model
 {
-    protected $appends = ['from_price', 'electric_range', 'dc_charging_time_range'];
+    protected $appends = ['from_price', 'electric_range', 'consumption_range', 'co2_emission_range', 'ac_charging_time_range', 'dc_charging_time_range', 'ac_charging_speed_range', 'dc_charging_speed_range', 'owner_tax_range'];
 
     protected $fillable = [
         'struct_id',
@@ -100,11 +100,53 @@ class Car extends Model
         return $this->specRange('pure_electric_range');
     }
 
+    public function getConsumptionRangeAttribute()
+    {
+        $this->loadMissing('trims.powertrains.configuration');
+
+        return $this->specRange('consumption.number');
+    }
+
+    public function getCo2EmissionRangeAttribute()
+    {
+        $this->loadMissing('trims.powertrains.configuration');
+
+        return $this->specRange('co2_emission');
+    }
+
+    public function getAcChargingTimeRangeAttribute()
+    {
+        $this->loadMissing('trims.powertrains.configuration');
+
+        return $this->specRange('ac_charging_time');
+    }
+
     public function getDcChargingTimeRangeAttribute()
     {
         $this->loadMissing('trims.powertrains.configuration');
 
         return $this->specRange('dc_charging_time');
+    }
+
+    public function getAcChargingSpeedRangeAttribute()
+    {
+        $this->loadMissing('trims.powertrains.configuration');
+
+        return $this->specRange('ac_charging_speed');
+    }
+
+    public function getDcChargingSpeedRangeAttribute()
+    {
+        $this->loadMissing('trims.powertrains.configuration');
+
+        return $this->specRange('dc_charging_speed');
+    }
+
+    public function getOwnerTaxRangeAttribute()
+    {
+        $this->loadMissing('trims.powertrains.configuration');
+
+        return $this->specRange('owner_tax');
     }
 
     public function specRange(string $key): ?array
@@ -116,7 +158,7 @@ class Car extends Model
 
                 return $configValue ?? data_get($powertrain->technical_specifications, $key);
             })
-            ->filter()
+            ->filter(fn($v) => $v !== null)
             ->values();
 
         if ($values->isEmpty()) {
