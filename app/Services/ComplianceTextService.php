@@ -35,7 +35,7 @@ class ComplianceTextService
     public function getForConfiguration(Configuration $configuration, string $variant = 'default'): string
     {
         return $this->renderForScope([
-            ['scope' => 'powertrain'],
+            ['scope' => 'configuration'],
         ], $configuration, $variant);
     }
 
@@ -108,31 +108,18 @@ class ComplianceTextService
 
      protected function mapFromConfiguration(Configuration $configuration): array
     {
-        
-        $powertrain = $configuration->powertrain;
         return [
-            'car' => $powertrain->trim->car->name,
-            'trim' => $powertrain->trim->name,
-            'powertrain' => $powertrain->engine->name,
-            'consumption_min' => $powertrain->consumption_range['min'],
-            'consumption_max' => $powertrain->consumption_range['max'],
-            'electric_range_min' => $powertrain->electric_range['min'],
-            'electric_range_max' => $powertrain->electric_range['max'],
-            'co2_emission_min' => $powertrain->co2_emission_range['min'],
-            'ac_charging_time_min' => $this->formatChargeTime($powertrain->ac_charging_time_range['min']),
-            'ac_charging_time_max' => $this->formatChargeTime($powertrain->ac_charging_time_range['max']),
-            'dc_charging_time_min' => $this->formatChargeTime($powertrain->dc_charging_time_range['min']),
-            'dc_charging_time_max' => $this->formatChargeTime($powertrain->dc_charging_time_range['max']),
-            'ac_charging_time_min' => $this->formatChargeTime($powertrain->ac_charging_time_range['min']),
-            'ac_charging_time_max' => $this->formatChargeTime($powertrain->ac_charging_time_range['max']),
-            'dc_charging_time_min' => $this->formatChargeTime($powertrain->dc_charging_time_range['min']),
-            'dc_charging_time_max' => $this->formatChargeTime($powertrain->dc_charging_time_range['max']),
-            'ac_charging_speed_min' => $powertrain->ac_charging_speed_range['min'],
-            'ac_charging_speed_max' => $powertrain->ac_charging_speed_range['max'],
-            'dc_charging_speed_min' => $powertrain->dc_charging_speed_range['min'],
-            'dc_charging_speed_max' => $powertrain->dc_charging_speed_range['max'],
-            'owner_tax_min' => $powertrain->owner_tax_range['min'],
-            'owner_tax_max' => $powertrain->owner_tax_range['max'],
+            'car' => $configuration->powertrain->trim->car->name,
+            'trim' => $configuration->powertrain->trim->name,
+            'powertrain' => $configuration->powertrain->engine->name,
+            'consumption' => $configuration->technical_specifications->consumption->number,
+            'electric_range' => $configuration->technical_specifications->pure_electric_range,
+            'co2_emission' => $configuration->technical_specifications->co2_emission,
+            'ac_charging_time' => $this->formatChargeTime($configuration->powertrain->technical_specifications->ac_charging_time),
+            'dc_charging_time' => $this->formatChargeTime($configuration->powertrain->technical_specifications->dc_charging_time),
+            'ac_charging_speed' => $configuration->powertrain->technical_specifications->ac_charging_speed,
+            'dc_charging_speed' => $configuration->powertrain->technical_specifications->dc_charging_speed,
+            'owner_tax' => $configuration->technical_specifications->owner_tax,
         ];
     }
 
@@ -142,25 +129,14 @@ class ComplianceTextService
             'car' => $powertrain->trim->car->name,
             'trim' => $powertrain->trim->name,
             'powertrain' => $powertrain->engine->name,
-            'consumption_min' => $powertrain->consumption_range['min'],
-            'consumption_max' => $powertrain->consumption_range['max'],
-            'electric_range_min' => $powertrain->electric_range['min'],
-            'electric_range_max' => $powertrain->electric_range['max'],
-            'co2_emission_min' => $powertrain->co2_emission_range['min'],
-            'ac_charging_time_min' => $this->formatChargeTime($powertrain->ac_charging_time_range['min']),
-            'ac_charging_time_max' => $this->formatChargeTime($powertrain->ac_charging_time_range['max']),
-            'dc_charging_time_min' => $this->formatChargeTime($powertrain->dc_charging_time_range['min']),
-            'dc_charging_time_max' => $this->formatChargeTime($powertrain->dc_charging_time_range['max']),
-            'ac_charging_time_min' => $this->formatChargeTime($powertrain->ac_charging_time_range['min']),
-            'ac_charging_time_max' => $this->formatChargeTime($powertrain->ac_charging_time_range['max']),
-            'dc_charging_time_min' => $this->formatChargeTime($powertrain->dc_charging_time_range['min']),
-            'dc_charging_time_max' => $this->formatChargeTime($powertrain->dc_charging_time_range['max']),
-            'ac_charging_speed_min' => $powertrain->ac_charging_speed_range['min'],
-            'ac_charging_speed_max' => $powertrain->ac_charging_speed_range['max'],
-            'dc_charging_speed_min' => $powertrain->dc_charging_speed_range['min'],
-            'dc_charging_speed_max' => $powertrain->dc_charging_speed_range['max'],
-            'owner_tax_min' => $powertrain->owner_tax_range['min'],
-            'owner_tax_max' => $powertrain->owner_tax_range['max'],
+            'consumption' => $powertrain->configuration->technical_specifications->consumption->number,
+            'electric_range' => $powertrain->configuration->technical_specifications->pure_electric_range,
+            'co2_emission' => $powertrain->configuration->technical_specifications->co2_emission,
+            'ac_charging_time' => $this->formatChargeTime($powertrain->technical_specifications->ac_charging_time),
+            'dc_charging_time' => $this->formatChargeTime($powertrain->technical_specifications->dc_charging_time),
+            'ac_charging_speed' => $powertrain->configuration->powertrain->ac_charging_speed,
+            'dc_charging_speed' => $powertrain->configuration->powertrain->dc_charging_speed,
+            'owner_tax' => $powertrain->configuration->owner_tax,
         ];
     }
 
@@ -174,10 +150,6 @@ class ComplianceTextService
             'electric_range_min' => $trim->electric_range['min'],
             'electric_range_max' => $trim->electric_range['max'],
             'co2_emission_min' => $trim->co2_emission_range['min'],
-            'ac_charging_time_min' => $this->formatChargeTime($trim->ac_charging_time_range['min']),
-            'ac_charging_time_max' => $this->formatChargeTime($trim->ac_charging_time_range['max']),
-            'dc_charging_time_min' => $this->formatChargeTime($trim->dc_charging_time_range['min']),
-            'dc_charging_time_max' => $this->formatChargeTime($trim->dc_charging_time_range['max']),
             'ac_charging_time_min' => $this->formatChargeTime($trim->ac_charging_time_range['min']),
             'ac_charging_time_max' => $this->formatChargeTime($trim->ac_charging_time_range['max']),
             'dc_charging_time_min' => $this->formatChargeTime($trim->dc_charging_time_range['min']),
@@ -200,10 +172,6 @@ class ComplianceTextService
             'electric_range_min' => $car->electric_range['min'],
             'electric_range_max' => $car->electric_range['max'],
             'co2_emission_min' => $car->co2_emission_range['min'],
-            'ac_charging_time_min' => $this->formatChargeTime($car->ac_charging_time_range['min']),
-            'ac_charging_time_max' => $this->formatChargeTime($car->ac_charging_time_range['max']),
-            'dc_charging_time_min' => $this->formatChargeTime($car->dc_charging_time_range['min']),
-            'dc_charging_time_max' => $this->formatChargeTime($car->dc_charging_time_range['max']),
             'ac_charging_time_min' => $this->formatChargeTime($car->ac_charging_time_range['min']),
             'ac_charging_time_max' => $this->formatChargeTime($car->ac_charging_time_range['max']),
             'dc_charging_time_min' => $this->formatChargeTime($car->dc_charging_time_range['min']),
