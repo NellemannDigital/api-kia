@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Car;
 use App\Models\Trim;
 use App\Models\Powertrain;
+use App\Models\Configuration;
 use App\Models\ComplianceTextTemplate;
 use Illuminate\Support\Str;
 
@@ -13,25 +14,29 @@ class ComplianceTextService
     public function getForCar(Car $car, string $variant = 'default'): string
     {
         return $this->renderForScope([
-            ['scope' => 'car', 'id' => $car->id],
+            ['scope' => 'car'],
         ], $car, $variant);
     }
 
     public function getForTrim(Trim $trim, string $variant = 'default'): string
     {
         return $this->renderForScope([
-            ['scope' => 'trim', 'id' => $trim->id],
-            ['scope' => 'car', 'id' => $trim->car_id],
+            ['scope' => 'trim'],
         ], $trim, $variant);
     }
 
     public function getForPowertrain(Powertrain $powertrain, string $variant = 'default'): string
     {
         return $this->renderForScope([
-            ['scope' => 'powertrain', 'id' => $powertrain->id],
-            ['scope' => 'trim', 'id' => $powertrain->trim_id],
-            ['scope' => 'car', 'id' => $powertrain->car_id],
+            ['scope' => 'powertrain'],
         ], $powertrain, $variant);
+    }
+
+    public function getForConfiguration(Configuration $configuration, string $variant = 'default'): string
+    {
+        return $this->renderForScope([
+            ['scope' => 'powertrain'],
+        ], $configuration, $variant);
     }
 
     protected function renderForScope(array $scopes, $context, string $variant): string
@@ -48,10 +53,6 @@ class ComplianceTextService
                 foreach ($scopes as $scope) {
                     $q->orWhere(fn ($q) =>
                         $q->where('scope', $scope['scope'])
-                          ->where(function ($q) use ($scope) {
-                              $q->where('scope_id', $scope['id'])
-                                ->orWhereNull('scope_id'); // fallback til generisk
-                          })
                     );
                 }
             })
@@ -85,6 +86,11 @@ class ComplianceTextService
 
     protected function buildValueMap($context): array
     {
+
+        if ($context instanceof Configuration) {
+            return $this->mapFromConfiguration($context);
+        }
+
         if ($context instanceof Powertrain) {
             return $this->mapFromPowertrain($context);
         }
@@ -98,6 +104,36 @@ class ComplianceTextService
         }
 
         return [];
+    }
+
+     protected function mapFromConfiguration(Configuration $configuration): array
+    {
+        
+        $powertrain = $configuration->powertrain;
+        return [
+            'car' => $powertrain->trim->car->name,
+            'trim' => $powertrain->trim->name,
+            'powertrain' => $powertrain->engine->name,
+            'consumption_min' => $powertrain->consumption_range['min'],
+            'consumption_max' => $powertrain->consumption_range['max'],
+            'electric_range_min' => $powertrain->electric_range['min'],
+            'electric_range_max' => $powertrain->electric_range['max'],
+            'co2_emission_min' => $powertrain->co2_emission_range['min'],
+            'ac_charging_time_min' => $this->formatChargeTime($powertrain->ac_charging_time_range['min']),
+            'ac_charging_time_max' => $this->formatChargeTime($powertrain->ac_charging_time_range['max']),
+            'dc_charging_time_min' => $this->formatChargeTime($powertrain->dc_charging_time_range['min']),
+            'dc_charging_time_max' => $this->formatChargeTime($powertrain->dc_charging_time_range['max']),
+            'ac_charging_time_min' => $this->formatChargeTime($powertrain->ac_charging_time_range['min']),
+            'ac_charging_time_max' => $this->formatChargeTime($powertrain->ac_charging_time_range['max']),
+            'dc_charging_time_min' => $this->formatChargeTime($powertrain->dc_charging_time_range['min']),
+            'dc_charging_time_max' => $this->formatChargeTime($powertrain->dc_charging_time_range['max']),
+            'ac_charging_speed_min' => $powertrain->ac_charging_speed_range['min'],
+            'ac_charging_speed_max' => $powertrain->ac_charging_speed_range['max'],
+            'dc_charging_speed_min' => $powertrain->dc_charging_speed_range['min'],
+            'dc_charging_speed_max' => $powertrain->dc_charging_speed_range['max'],
+            'owner_tax_min' => $powertrain->owner_tax_range['min'],
+            'owner_tax_max' => $powertrain->owner_tax_range['max'],
+        ];
     }
 
     protected function mapFromPowertrain(Powertrain $powertrain): array

@@ -15,6 +15,7 @@ use App\Data\Configuration\{
 };
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMeny;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Configuration extends Model
 {
