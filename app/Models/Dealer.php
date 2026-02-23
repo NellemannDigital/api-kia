@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
+use App\Data\Dealer\ChannelsData;
+use App\Data\Dealer\EmailsData;
+use App\Data\Dealer\OpeningHoursData;
+use App\Data\Dealer\PostalCodesData;
+use App\Data\Dealer\TypesData;
+use App\Data\Dealer\UrlsData;
 use Illuminate\Database\Eloquent\Model;
-use App\Data\Dealer\{
-    ChannelsData,
-    EmailsData,
-    UrlsData,
-    TypesData,
-    OpeningHoursData,
-    PostalCodesData
-};
 
 class Dealer extends Model
 {
@@ -42,10 +40,11 @@ class Dealer extends Model
         'urls',
         'types',
         'opening_hours',
-        'postal_codes'
+        'postal_codes',
+        'synced_at',
     ];
 
-     protected $casts = [
+    protected $casts = [
         'channels' => ChannelsData::class,
         'emails' => EmailsData::class,
         'urls' => UrlsData::class,

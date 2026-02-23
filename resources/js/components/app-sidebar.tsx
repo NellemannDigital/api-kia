@@ -27,6 +27,11 @@ const mainNavItems: NavItem[] = [
         href: '/cars',
         icon: List,
     },
+     {
+        title: 'Dealers',
+        href: '/dealers',
+        icon: List,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

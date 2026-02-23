@@ -28,7 +28,9 @@ class SyncDealerJob implements ShouldQueue
 
             Dealer::withoutGlobalScopes()->updateOrCreate(
                 ['dynamics_id' => $this->dealerData->dynamics_id],
-                $this->dealerData->toArray()
+                array_merge($this->dealerData->toArray(), [
+                    'synced_at' => now(),
+                ])
             );
 
         } catch (Throwable $e) {

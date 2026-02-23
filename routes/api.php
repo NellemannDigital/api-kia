@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CarController;
-use App\Http\Controllers\DealerController;
+use App\Http\Controllers\Api\DealerController;
 use App\Http\Controllers\Api\ComplianceTextController;
 
 Route::get('/user', function (Request $request) {

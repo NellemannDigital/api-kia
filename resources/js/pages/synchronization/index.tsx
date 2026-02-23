@@ -24,24 +24,35 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Index() {
-  const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
+  const [selectedPimJobs, setSelectedPimJobs] = useState<string[]>([]);
 
-  const toggleJob = (job: string) => {
-    setSelectedJobs(prev =>
+  const togglePimJob = (job: string) => {
+    setSelectedPimJobs(prev =>
       prev.includes(job) ? prev.filter(j => j !== job) : [...prev, job]
     );
   };
 
-  const startSync = async () => {
-    if (selectedJobs.length === 0) {
-      toast.error('Vælg mindst ét job før sync');
+  const startPimSync = async () => {
+    if (selectedPimJobs.length === 0) {
+      toast.error('Select at least one job before syncing.');
       return;
     }
 
     try {
       const { data } = await axios.post(
         '/synchronization/pim',
-        { jobs: selectedJobs }
+        { jobs: selectedPimJobs }
+      );
+      toast.success(`Sync started: ${data.output}`);
+    } catch (err: any) {
+      toast.error(`Failed to start sync: ${err.message}`);
+    } finally {}
+  };
+
+  const startDealerSync = async () => {
+    try {
+      const { data } = await axios.post(
+        '/synchronization/dealers'
       );
       toast.success(`Sync started: ${data.output}`);
     } catch (err: any) {
@@ -57,7 +68,7 @@ export default function Index() {
           <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-4 space-y-4">
             <HeadingSmall
                 title="Struct PIM"
-                description="Start synchronization from Struct PIM"
+                description="Start Struct PIM synchronization"
             />
               <FieldGroup className="border rounded-lg gap-3 p-3">
                 {['cars', 'configurations', 'accessories'].map(job => (
@@ -65,8 +76,8 @@ export default function Index() {
                     <Checkbox
                       id={`job-${job}`}
                       name={`job-${job}`}
-                      checked={selectedJobs.includes(job)}
-                      onCheckedChange={() => toggleJob(job)}
+                      checked={selectedPimJobs.includes(job)}
+                      onCheckedChange={() => togglePimJob(job)}
                       className="cursor-pointer"
                     />
                     <Label htmlFor={`job-${job}`} className="cursor-pointer capitalize">{job}</Label>
@@ -74,16 +85,26 @@ export default function Index() {
                 ))}
               </FieldGroup>
               <Button
-                  onClick={startSync}
-                  disabled={selectedJobs.length === 0}
+                  onClick={startPimSync}
+                  disabled={selectedPimJobs.length === 0}
                   className="flex items-center gap-2 cursor-pointer"
               >
                   <RefreshCcw className="h-5 w-5" />
                   Start Sync
               </Button>
           </div>
-          <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-            
+          <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-4 space-y-4">
+            <HeadingSmall
+                title="Dealers"
+                description="Start dealers synchronization"
+            />
+              <Button
+                  onClick={startDealerSync}
+                  className="flex items-center gap-2 cursor-pointer"
+              >
+                  <RefreshCcw className="h-5 w-5" />
+                  Start Sync
+              </Button>
           </div>
           <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
             

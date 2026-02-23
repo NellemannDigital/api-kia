@@ -14,8 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Powertrain extends Model
 {
-    protected $appends = ['electric_range', 'consumption_range', 'co2_emission_range', 'ac_charging_time_range', 'dc_charging_time_range', 'ac_charging_speed_range', 'dc_charging_speed_range', 'owner_tax_range'];
-
     protected $fillable = [
         'trim_id',
         'configuration_id',

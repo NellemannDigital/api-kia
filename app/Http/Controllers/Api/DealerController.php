@@ -1,13 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Models\Dealer;
-use Inertia\Inertia;
-use App\Jobs\SyncDealerJob;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Bus\Batch;
+use App\Http\Controllers\Controller;
 
 class DealerController extends Controller
 {
@@ -16,9 +13,7 @@ class DealerController extends Controller
      */
     public function index()
     {
-        return Inertia::render('dealers/index', [
-            'dealers' => Dealer::orderBy('name')->get(),
-        ]);
+        return Dealer::orderBy('name')->paginate();
     }
 
     /**
@@ -34,7 +29,7 @@ class DealerController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return Car::where('web_id', $id)->firstOrFail();
     }
 
     /**
@@ -53,17 +48,4 @@ class DealerController extends Controller
         //
     }
 
-    public function sync($id)
-    {
-        $dealer = Dealer::find($id)->get()->toArray();
-
-        $jobs = [
-            new SyncDealerJob($dealer),
-        ];
-
-        Bus::batch($jobs)
-            ->onQueue('dynamics')
-            ->allowFailures()
-            ->dispatch();
-    }
 }

@@ -18,9 +18,9 @@ class ComplianceTextController extends Controller
 
         if ($request->has('configuration_id')) {
 
-            $powertrain = Powertrain::where('configuration_id', $request->configuration_id)->firstOrFail();
-
-            $query = Configuration::query()
+            $powertrain = Powertrain::withoutGlobalScopes()->where('configuration_id', $request->configuration_id)->firstOrFail();
+            
+            $query = Configuration::withoutGlobalScopes()
                 ->where('powertrain_id', $powertrain->id);
 
             if ($request->filled('package_codes')) {
@@ -42,15 +42,19 @@ class ComplianceTextController extends Controller
 
             $config = $query->firstOrFail();
 
-            $text = app(ComplianceTextService::class)->getForConfiguration($config, $variant);
+            if($config->technical_specifications) {
+                $text = app(ComplianceTextService::class)->getForConfiguration($config, $variant);
+            } else {
+                $text = app(ComplianceTextService::class)->getForPowertrain($powertrain, $variant);
+            }
         } elseif ($request->has('powertrain_id')) {
-            $powertrain = Powertrain::where('configuration_id', $request->powertrain_id)->firstOrFail();
+            $powertrain = Powertrain::withoutGlobalScopes()->where('configuration_id', $request->powertrain_id)->firstOrFail();
             $text = app(ComplianceTextService::class)->getForPowertrain($powertrain, $variant);
         } elseif ($request->has('trim_id')) {
-            $trim = Trim::where('struct_id', $request->trim_id)->firstOrFail();
+            $trim = Trim::withoutGlobalScopes()->where('struct_id', $request->trim_id)->firstOrFail();
             $text = app(ComplianceTextService::class)->getForTrim($trim, $variant);
         } elseif ($request->has('car_id')) {
-            $car = Car::where('struct_id', $request->car_id)->firstOrFail();
+            $car = Car::withoutGlobalScopes()->where('struct_id', $request->car_id)->firstOrFail();
             $text = app(ComplianceTextService::class)->getForCar($car, $variant);
         } else {
             abort(422, 'No valid scope provided.');

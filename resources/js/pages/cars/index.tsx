@@ -1,7 +1,7 @@
 "use client"
 
-import { Head } from '@inertiajs/react'
-import { Car } from '@/types/Car'
+import { Head } from '@inertiajs/react';
+import { Car } from '@/types/Car';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { toast } from "sonner"

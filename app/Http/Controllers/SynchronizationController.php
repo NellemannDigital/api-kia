@@ -18,20 +18,31 @@ class SynchronizationController extends Controller
         return Inertia::render('synchronization/index');
     }
     
-    public function run(Request $request)
+    public function syncPim(Request $request)
     {
         $request->validate([
             'jobs' => 'sometimes|array',
             'jobs.*' => 'string|in:cars,configurations,accessories',
         ]);
 
-        $jobs = $request->input('jobs', []); // default: []
+        $jobs = $request->input('jobs', []);
 
         $jobsOption = empty($jobs) ? [] : $jobs;
 
         $exitCode = Artisan::call('nellemann:sync-pim-data', [
             '--jobs' => $jobsOption
         ]);
+
+        return response()->json([
+            'success' => $exitCode === 0,
+            'message' => 'Jobs dispatched',
+            'output' => Artisan::output(),
+        ]);
+    }
+
+    public function syncDealers(Request $request)
+    {
+        $exitCode = Artisan::call('nellemann:sync-dealers');
 
         return response()->json([
             'success' => $exitCode === 0,

@@ -50,6 +50,7 @@ return new class extends Migration
             $table->json('opening_hours')->nullable(); // sales, workshop
             $table->json('postal_codes')->nullable(); // b2c, b2b
 
+            $table->timestamp('synced_at')->nullable();
             $table->timestamps();
         });
     }
