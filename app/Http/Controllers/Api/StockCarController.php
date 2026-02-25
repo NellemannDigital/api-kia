@@ -13,7 +13,12 @@ class StockCarController extends Controller
      */
     public function index()
     {
-        return StockCar::paginate();
+        return StockCar::with([
+            'dealer',
+            'configuration.extraEquipmentPackages',
+            'configuration.powertrain.trim.car',
+            'configuration.powertrain.prices'
+        ])->paginate();
     }
 
     /**

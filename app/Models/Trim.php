@@ -106,58 +106,74 @@ class Trim extends Model
 
     public function getElectricRangeAttribute()
     {
-        $this->loadMissing('powertrains.configuration');
+        if ($this->relationLoaded('powertrains')) {
+            return $this->specRange('pure_electric_range');
+        }
 
-        return $this->specRange('pure_electric_range');
+        return null;
     }
 
     public function getConsumptionRangeAttribute()
     {
-        $this->loadMissing('powertrains.configuration');
+        if ($this->relationLoaded('powertrains')) {
+            return $this->specRange('consumption.number');
+        }
 
-        return $this->specRange('consumption.number');
+        return null;
     }
 
     public function getCo2EmissionRangeAttribute()
     {
-        $this->loadMissing('powertrains.configuration');
+        if ($this->relationLoaded('powertrains')) {
+            return $this->specRange('co2_emission');
+        }
 
-        return $this->specRange('co2_emission');
+        return null;
     }
 
     public function getAcChargingTimeRangeAttribute()
     {
-        $this->loadMissing('powertrains.configuration');
+        if ($this->relationLoaded('powertrains')) {
+            return $this->specRange('ac_charging_time');
+        }
 
-        return $this->specRange('ac_charging_time');
+        return null;
     }
 
     public function getDcChargingTimeRangeAttribute()
     {
-        $this->loadMissing('powertrains.configuration');
+        if ($this->relationLoaded('powertrains')) {
+            return $this->specRange('dc_charging_time');
+        }
 
-        return $this->specRange('dc_charging_time');
+        return null;
     }
 
     public function getAcChargingSpeedRangeAttribute()
     {
-        $this->loadMissing('powertrains.configuration');
+        if ($this->relationLoaded('powertrains')) {
+            return $this->specRange('ac_charging_speed');
+        }
 
-        return $this->specRange('ac_charging_speed');
+        return null;
     }
 
     public function getDcChargingSpeedRangeAttribute()
     {
-        $this->loadMissing('powertrains.configuration');
+        if ($this->relationLoaded('powertrains')) {
+            return $this->specRange('dc_charging_speed');
+        }
 
-        return $this->specRange('dc_charging_speed');
+        return null;
     }
 
     public function getOwnerTaxRangeAttribute()
     {
-        $this->loadMissing('powertrains.configuration');
+        if ($this->relationLoaded('powertrains')) {
+            return $this->specRange('owner_tax');
+        }
 
-        return $this->specRange('owner_tax');
+        return null;
     }
 
     public function specRange(string $key): ?array

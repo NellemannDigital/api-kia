@@ -10,6 +10,7 @@ use App\Data\StockCar\{
     TransmissionData,
     TechnicalSpecificationsData
 };
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class StockCar extends Model
 {
@@ -32,4 +33,21 @@ class StockCar extends Model
         'interior' => InteriorData::class,
         'exterior' => ExteriorData::class
     ];
+
+     /**
+     * @return HasOne<Configuration, $this>
+     */
+    public function configuration(): HasOne
+    {
+        return $this->hasOne(Configuration::class, 'id', 'configuration_id');
+    }
+
+    
+     /**
+     * @return HasOne<Dealer, $this>
+     */
+    public function dealer(): HasOne
+    {
+        return $this->hasOne(Dealer::class, 'id', 'dealer_id');
+    }
 }

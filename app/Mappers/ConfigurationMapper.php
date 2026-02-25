@@ -54,6 +54,10 @@ class ConfigurationMapper
                     ->where('model->name', $model->name)
                     ->where('year', $year)
                     ->where('variant->code', $variant->code)
+                    ->with([
+                        'trims.powertrains',
+                        'trims.extraEquipmentPackages',
+                    ])
                     ->first();
             }
 
@@ -66,11 +70,13 @@ class ConfigurationMapper
             }
 
             $trim = $car->trims()
+                ->withoutGlobalScopes()
                 ->where('struct_id', $referencedFoundationTrimId)
                 ->first();
 
             if (! $trim) {
                 $trim = $car->trims()
+                    ->withoutGlobalScopes()
                     ->where('name', $trimName)
                     ->first();
             }
@@ -84,11 +90,13 @@ class ConfigurationMapper
             }
 
             $powertrain = $trim->powertrains()
+                ->withoutGlobalScopes()
                 ->where('configuration_id', $configurationId)
                 ->first();
 
             if (! $powertrain) {
                 $powertrain = $trim->powertrains()
+                    ->withoutGlobalScopes()
                     ->where('engine->name', $engine->name)
                     ->where('engine->code', $engine->code)
                     ->where('engine->horse_power', $engine->horse_power)
@@ -106,6 +114,7 @@ class ConfigurationMapper
 
             $extraEquipmentPackageIds = $trim
                 ->extraEquipmentPackages()
+                ->withoutGlobalScopes()
                 ->whereIn('code', collect($extraEquipmentPackages)->pluck('code'))
                 ->get()
                 ->pluck('id')
