@@ -30,12 +30,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/cars/sync/{id}', [CarController::class, 'sync']);
 
     Route::get('/dealers', [DealerController::class, 'index'])->name('dealers.index');
-    Route::post('/dealers/sync/{id}', [DealerController::class, 'sync']);
 
     Route::get('/synchronization', [SynchronizationController::class, 'index'])->name('synchronization.index');
     Route::post('/synchronization/pim', [SynchronizationController::class, 'syncPim']);
     Route::post('/synchronization/dealers', [SynchronizationController::class, 'syncDealers']);
-
+    Route::post('/synchronization/used-cars', [SynchronizationController::class, 'syncUsedCars']);
+    Route::post('/synchronization/stock-cars', [SynchronizationController::class, 'syncStockCars']);
 });
 
 Route::middleware('auth')->prefix('settings')->group(function () {

@@ -50,4 +50,26 @@ class SynchronizationController extends Controller
             'output' => Artisan::output(),
         ]);
     }
+
+    public function syncUsedCars(Request $request)
+    {
+        $exitCode = Artisan::call('nellemann:sync-used-cars');
+
+        return response()->json([
+            'success' => $exitCode === 0,
+            'message' => 'Jobs dispatched',
+            'output' => Artisan::output(),
+        ]);
+    }
+
+    public function syncStockCars(Request $request)
+    {
+        $exitCode = Artisan::call('nellemann:sync-stock-cars');
+
+        return response()->json([
+            'success' => $exitCode === 0,
+            'message' => 'Jobs dispatched',
+            'output' => Artisan::output(),
+        ]);
+    }
 }

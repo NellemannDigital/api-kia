@@ -60,6 +60,28 @@ export default function Index() {
     } finally {}
   };
 
+  const startUsedCarsSync = async () => {
+    try {
+      const { data } = await axios.post(
+        '/synchronization/used-cars'
+      );
+      toast.success(`Sync started: ${data.output}`);
+    } catch (err: any) {
+      toast.error(`Failed to start sync: ${err.message}`);
+    } finally {}
+  };
+
+  const startStockCarsSync = async () => {
+    try {
+      const { data } = await axios.post(
+        '/synchronization/stock-cars'
+      );
+      toast.success(`Sync started: ${data.output}`);
+    } catch (err: any) {
+      toast.error(`Failed to start sync: ${err.message}`);
+    } finally {}
+  };
+
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Synchronization" />
@@ -106,8 +128,31 @@ export default function Index() {
                   Start Sync
               </Button>
           </div>
-          <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-            
+          <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-4 space-y-4">
+            <HeadingSmall
+                title="Used Cars"
+                description="Start used cars synchronization"
+            />
+              <Button
+                  onClick={startUsedCarsSync}
+                  className="flex items-center gap-2 cursor-pointer"
+              >
+                  <RefreshCcw className="h-5 w-5" />
+                  Start Sync
+              </Button>
+          </div>
+          <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-4 space-y-4">
+            <HeadingSmall
+                title="Stock Cars"
+                description="Start stock cars synchronization"
+            />
+              <Button
+                  onClick={startStockCarsSync}
+                  className="flex items-center gap-2 cursor-pointer"
+              >
+                  <RefreshCcw className="h-5 w-5" />
+                  Start Sync
+              </Button>
           </div>
         </div>
         <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">

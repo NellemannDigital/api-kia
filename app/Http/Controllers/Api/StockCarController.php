@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use App\Models\Dealer;
+use App\Models\StockCar;
 use App\Http\Controllers\Controller;
 
-class DealerController extends Controller
+class StockCarController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Dealer::orderBy('name')->paginate();
+        return StockCar::paginate();
     }
 
     /**
