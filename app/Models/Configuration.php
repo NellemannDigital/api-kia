@@ -50,6 +50,22 @@ class Configuration extends Model
     ];
 
     /**
+     * @return BelongsTo<Car, $this>
+     */
+    public function car(): BelongsTo
+    {
+        return $this->belongsTo(Car::class);
+    }
+
+    /**
+     * @return BelongsTo<Trim, $this>
+     */
+    public function trim(): BelongsTo
+    {
+        return $this->belongsTo(Trim::class);
+    }
+
+    /**
      * @return BelongsTo<Powertrain, $this>
      */
     public function powertrain(): BelongsTo

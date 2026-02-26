@@ -13,12 +13,23 @@ class StockCarController extends Controller
      */
     public function index()
     {
-        return StockCar::with([
-            'dealer',
-            'configuration.extraEquipmentPackages',
-            'configuration.powertrain.trim.car',
-            'configuration.powertrain.prices'
-        ])->paginate();
+        return StockCar::withoutGlobalScopes()
+            ->with([
+                'dealer' => fn ($q) => $q->withoutGlobalScopes(),
+
+                'configuration' => fn ($q) => $q->withoutGlobalScopes(),
+
+                'configuration.extraEquipmentPackages' => fn ($q) => $q->withoutGlobalScopes(),
+
+                'configuration.car' => fn ($q) => $q->withoutGlobalScopes(),
+
+                'configuration.trim' => fn ($q) => $q->withoutGlobalScopes(),
+
+                'configuration.powertrain' => fn ($q) => $q->withoutGlobalScopes(),
+
+                'configuration.powertrain.prices',
+            ])
+            ->paginate();
     }
 
     /**

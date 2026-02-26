@@ -198,7 +198,7 @@ class SyncTrimJob implements ShouldQueue
             $equipmentIds->push($equipment->id);
         }
 
-        $trim->equipment()->sync($equipmentIds->all());
+        $trim->equipment()->withoutGlobalScopes()->sync($equipmentIds->all());
     }
 
     private function mapExtraEquipmentPackages(TrimData $trimData, Trim $trim): void
@@ -219,7 +219,7 @@ class SyncTrimJob implements ShouldQueue
                 ->filter()
                 ->all();
 
-            $extraEquipmentPackage->equipment()->sync($equipmentIds);
+            $extraEquipmentPackage->equipment()->withoutGlobalScopes()->sync($equipmentIds);
 
             Log::info('ExtraEquipmentPackage synced to database', [
                 'code' => $package->code,

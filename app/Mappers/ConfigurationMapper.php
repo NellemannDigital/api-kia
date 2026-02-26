@@ -45,6 +45,10 @@ class ConfigurationMapper
             $extraEquipmentPackages = self::mapExtraEquipmentPackages($attributesData->get('KiaExtraEquipment'));
 
             $car = Car::withoutGlobalScopes()
+                ->with([
+                    'trims.powertrains',
+                    'trims.extraEquipmentPackages',
+                ])
                 ->where('struct_id', $referencedFoundationCarId)
                 ->first();
 
