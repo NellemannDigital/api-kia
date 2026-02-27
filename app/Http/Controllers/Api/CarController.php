@@ -13,7 +13,12 @@ class CarController extends Controller
      */
     public function index()
     {
-        return Car::where('variant->b2b', false)->with('trims.powertrains.configuration')->orderBy('name')->paginate();
+        return Car::query()
+           ->addChannels(['web_channel'])
+            ->where('variant->b2b', false)
+            ->with('trims.powertrains.configuration')
+            ->orderBy('name')
+            ->paginate();
     }
 
     /**

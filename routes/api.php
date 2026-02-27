@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/used-cars', [UsedCarController::class, 'index']);
 
     Route::get('/stock-cars', [StockCarController::class, 'index']);
+    Route::get('/stock-cars-price-range', [StockCarController::class, 'priceRange']);
 });
 
 Route::get('/compliance-text', [ComplianceTextController::class, 'show']);

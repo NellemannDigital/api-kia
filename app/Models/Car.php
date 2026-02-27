@@ -63,9 +63,11 @@ class Car extends Model
         'categories' => 'array'
     ];
 
+    protected array $extraChannels = [];
+
     protected static function booted()
     {
-        static::addGlobalScope(new OpenChannels(['channels->master_channel']));
+        static::addGlobalScope(new OpenChannels());
 
         static::addGlobalScope('hasTrims', function ($builder) {
             $builder->has('trims');
@@ -78,6 +80,25 @@ class Car extends Model
         static::deleted(function() {
             Cache::forget('cars_all');
         });
+    }
+
+    public function getActiveChannels(): array
+    {
+        return array_merge(['channels->master_channel'], $this->extraChannels);
+    }
+
+    public function scopeAddChannel($query, string $channel)
+    {
+        $this->extraChannels[] = "channels->{$channel}";
+        return $query;
+    }
+
+    public function scopeAddChannels($query, array $channels)
+    {
+        foreach ($channels as $channel) {
+            $this->extraChannels[] = "channels->{$channel}";
+        }
+        return $query;
     }
 
     public function getFromPriceAttribute()

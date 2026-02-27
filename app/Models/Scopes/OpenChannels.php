@@ -10,30 +10,22 @@ use Illuminate\Support\Facades\Log;
 
 class OpenChannels implements Scope
 {
-    protected array $channels;
-
-    public function __construct(array $channels = ['channels->master_channel'])
-    {
-        $this->channels = $channels;
-    }
-
     public function apply(Builder $builder, Model $model)
     {
-        $today = Carbon::parse(now())->toDateString();
+        $today = now()->toDateString();
+        $channels = $model->getActiveChannels();
 
-        $builder->where(function ($q) use ($today) {
-            foreach ($this->channels as $channel) {
-                $this->applyChannelCondition($q, $channel, $today);
+        $builder->where(function ($q) use ($channels, $today) {
+            foreach ($channels as $channel) {
+                $q->where(function ($subQuery) use ($channel, $today) {
+                    $subQuery
+                        ->where("{$channel}->open_from", '<=', $today)
+                        ->where(function ($dateQuery) use ($channel, $today) {
+                            $dateQuery->whereNull("{$channel}->open_to")
+                                      ->orWhere("{$channel}->open_to", '>=', $today);
+                        });
+                });
             }
         });
-    }
-
-    private function applyChannelCondition(Builder $query, string $channel, string $today)
-    {
-        $query->where(function ($subQuery) use ($channel, $today) {
-            $subQuery->whereNull("{$channel}->open_to")
-                     ->orWhere("{$channel}->open_to", '>=', $today);
-        })
-        ->where("{$channel}->open_from", '<=', $today);
     }
 }

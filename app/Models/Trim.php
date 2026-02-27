@@ -43,9 +43,11 @@ class Trim extends Model
         'accessory_mapping' => 'array'
     ];
 
+    protected array $extraChannels = [];
+
     protected static function booted()
     {
-        static::addGlobalScope(new OpenChannels(['channels->master_channel']));
+        static::addGlobalScope(new OpenChannels());
 
         static::addGlobalScope('hasPowertrains', function ($builder) {
             $builder->has('powertrains');
@@ -54,6 +56,25 @@ class Trim extends Model
         static::addGlobalScope('sort_order', function (Builder $builder) {
             $builder->orderBy('sort_order');
         });
+    }
+
+     public function getActiveChannels(): array
+    {
+        return array_merge(['channels->master_channel'], $this->extraChannels);
+    }
+
+    public function scopeAddChannel($query, string $channel)
+    {
+        $this->extraChannels[] = "channels->{$channel}";
+        return $query;
+    }
+
+    public function scopeAddChannels($query, array $channels)
+    {
+        foreach ($channels as $channel) {
+            $this->extraChannels[] = "channels->{$channel}";
+        }
+        return $query;
     }
 
     /**

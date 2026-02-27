@@ -11,9 +11,9 @@ class StockCarController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return StockCar::withoutGlobalScopes()
+        $query = StockCar::withoutGlobalScopes()
             ->with([
                 'dealer' => fn ($q) => $q->withoutGlobalScopes(),
 
@@ -28,8 +28,79 @@ class StockCarController extends Controller
                 'configuration.powertrain' => fn ($q) => $q->withoutGlobalScopes(),
 
                 'configuration.powertrain.prices',
-            ])
-            ->paginate();
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter: Dealer
+        |--------------------------------------------------------------------------
+        */
+        if ($request->filled('dealer_id')) {
+            $query->where('dealer_id', $request->dealer_id);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter: Model (via powertrain -> trim -> car)
+        |--------------------------------------------------------------------------
+        */
+        if ($request->filled('model_id')) {
+            $query->whereHas(
+                'configuration.powertrain.trim.car',
+                fn ($q) => $q->where('id', $request->model_id)
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter: Price
+        |--------------------------------------------------------------------------
+        */
+        if ($request->filled('min_price') || $request->filled('max_price')) {
+
+            $query->whereHas('configuration.powertrain.prices', function ($q) use ($request) {
+
+                if ($request->filled('min_price')) {
+                    $q->where('suggested_retail_price', '>=', $request->min_price);
+                }
+
+                if ($request->filled('max_price')) {
+                    $q->where('suggested_retail_price', '<=', $request->max_price);
+                }
+
+            });
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pagination
+        |--------------------------------------------------------------------------
+        */
+        $perPage = $request->get('per_page', 15);
+
+        return $query->paginate($perPage);
+    }
+
+    public function priceRange()
+    {
+        $min = StockCar::query()
+            ->whereHas('configuration.powertrain.prices')
+            ->with('configuration.powertrain.prices')
+            ->get()
+            ->flatMap(fn($car) => $car->configuration->powertrain->prices ?? [])
+            ->min(fn($price) => $price->suggested_retail_price);
+
+        $max = StockCar::query()
+            ->whereHas('configuration.powertrain.prices')
+            ->with('configuration.powertrain.prices')
+            ->get()
+            ->flatMap(fn($car) => $car->configuration->powertrain->prices ?? [])
+            ->max(fn($price) => $price->suggested_retail_price);
+
+        return response()->json([
+            'min_price' => $min,
+            'max_price' => $max,
+        ]);
     }
 
     /**
