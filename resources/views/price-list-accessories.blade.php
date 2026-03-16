@@ -29,56 +29,73 @@
         @pageBreak
 
 
-       @foreach($groupedAccessories as $category => $accessories)
-            <section class="mx-auto max-w-4xl">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="font-bold text-xl">{{ $category }}</div>
-                    <img src="{{ asset('images/logo.png') }}" class="block w-20">
-                </div>
+       @foreach($pages as $page)
 
-                @foreach($accessories->chunk(9) as $chunk)
-                    <div class="gap-2 grid grid-cols-3 gap-4">
-                        @foreach ($chunk as $accessory)
-                            <div class="flex flex-col rounded-lg border border-primary-low overflow-hidden h-88">
+<section class="mx-auto max-w-4xl space-y-3">
 
-                                <img src="{{ $accessory->primary_image->url }}" 
-                                    alt="{{ $accessory->name }}" 
-                                    class="w-full h-48 object-cover" />
+    @php $currentCategory = null; @endphp
 
-                                <div class="p-4 flex flex-col flex-1">
+    @foreach($page as $row)
 
-                                    <div class="font-bold text-sm line-clamp-2">
-                                        {{ $accessory->name }}
-                                    </div>
+        @if($currentCategory !== $row['category'])
 
-                                    <div class="mt-2 text-[12px] font-bold">
-                                        {{ $accessory->prices->last()->price 
-                                            ? Number::format($accessory->prices->last()->price, locale: 'da').' kr.' 
-                                            : '-' }}
-                                        <span class="text-[10px] font-normal">(inkl. moms og evt. montering)</span>
-                                    </div>
+            <div class="flex justify-between items-center {{ $currentCategory === null ? '' : 'mt-6' }}">
+                <div class="font-bold text-xl">{{ $row['category'] }}</div>
+                <img src="{{ asset('images/logo.png') }}" class="block w-20">
+            </div>
 
-                                    <div class="mt-auto flex flex-wrap gap-1 pt-2">
-                                        @foreach($accessory->trim_names as $trim_name)
-                                            <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
-                                                <span class="mt-px">{{ $trim_name }}</span>
-                                            </span>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
+            @php $currentCategory = $row['category']; @endphp
+
+        @endif
+
+        <div class="grid grid-cols-3 gap-4">
+
+            @foreach ($row['items'] as $accessory)
+
+                <div class="flex flex-col rounded-lg border border-primary-low overflow-hidden h-84">
+
+                    <img src="{{ $accessory->primary_image->url }}"
+                        alt="{{ $accessory->name }}"
+                        class="w-full h-48 object-cover" />
+
+                    <div class="p-4 flex flex-col flex-1">
+
+                        <div class="font-bold text-sm line-clamp-2">
+                            {{ $accessory->name }}
+                        </div>
+
+                        <div class="mt-2 text-[12px] font-bold">
+                            {{ $accessory->prices->last()->price
+                                ? Number::format($accessory->prices->last()->price, locale: 'da').' kr.'
+                                : '-' }}
+                            <span class="text-[10px] font-normal">(inkl. moms og evt. montering)</span>
+                        </div>
+
+                        <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                            @foreach($accessory->trim_names as $trim_name)
+                                <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
+                                    {{ $trim_name }}
+                                </span>
+                            @endforeach
+                        </div>
+
                     </div>
 
-                    @if(!$loop->last)
-                        @pageBreak
-                    @endif
-                    
-                @endforeach
-                
-            </section>
-            @pageBreak
-        @endforeach
+                </div>
+
+            @endforeach
+
+        </div>
+
+    @endforeach
+
+</section>
+
+@if(!$loop->last)
+    @pageBreak
+@endif
+
+@endforeach
 
     </body>
 </html>

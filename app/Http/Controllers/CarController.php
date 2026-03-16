@@ -142,13 +142,26 @@ class CarController extends Controller
                 }
             }
 
+        $rows = collect();
+
+        foreach ($groupedAccessories as $category => $accessories) {
+            foreach ($accessories->chunk(3) as $row) {
+                $rows->push([
+                    'category' => $category,
+                    'items' => $row
+                ]);
+            }
+        }
+
+        $pages = $rows->chunk(3);
+
         $complianceTexts = [
             'price' => app(ComplianceTextService::class)->getForCar($car, 'price'),
             'consumption' => app(ComplianceTextService::class)->getForGlobal('consumption'),
             'changes' => app(ComplianceTextService::class)->getForGlobal('changes'),
         ];
 
-        return view('price-list-accessories', compact('car', 'complianceTexts', 'groupedAccessories'));
+        return view('price-list-accessories', compact('car', 'complianceTexts', 'pages'));
     }
 
     public function priceListAccessoriesDownload()
@@ -190,13 +203,26 @@ class CarController extends Controller
                 }
             }
 
+            $rows = collect();
+
+        foreach ($groupedAccessories as $category => $accessories) {
+            foreach ($accessories->chunk(3) as $row) {
+                $rows->push([
+                    'category' => $category,
+                    'items' => $row
+                ]);
+            }
+        }
+
+        $pages = $rows->chunk(3);
+
         $complianceTexts = [
             'price' => app(ComplianceTextService::class)->getForCar($car, 'price'),
             'consumption' => app(ComplianceTextService::class)->getForGlobal('consumption'),
             'changes' => app(ComplianceTextService::class)->getForGlobal('changes'),
         ];
 
-        return pdf('price-list-accessories', compact('car', 'complianceTexts', 'groupedAccessories'))
+        return pdf('price-list-accessories', compact('car', 'complianceTexts', 'pages'))
         ->format(Format::A4)
         ->name('Prisliste')
         ->margins(10, 10, 10, 10)
