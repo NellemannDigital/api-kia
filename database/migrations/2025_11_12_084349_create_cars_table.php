@@ -19,9 +19,9 @@ return new class extends Migration
 
             $table->string('name');
             $table->string('year')->nullable();
-            $table->string('delivery_year')->nullable();
             $table->text('disclaimer')->nullable();
 
+            $table->json('delivery')->nullable();
             $table->json('model')->nullable();
             $table->json('variant')->nullable();
             $table->json('primary_image')->nullable();

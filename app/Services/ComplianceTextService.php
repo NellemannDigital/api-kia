@@ -14,56 +14,58 @@ class ComplianceTextService
     public function getForCar(Car $car, string $variant = 'default'): string
     {
         return $this->renderForScope([
-            ['scope' => 'car'],
+            'car'
         ], $car, $variant);
     }
 
     public function getForTrim(Trim $trim, string $variant = 'default'): string
     {
         return $this->renderForScope([
-            ['scope' => 'trim'],
+            'trim'
         ], $trim, $variant);
     }
 
     public function getForPowertrain(Powertrain $powertrain, string $variant = 'default'): string
     {
         return $this->renderForScope([
-            ['scope' => 'powertrain'],
+            'powertrain'
         ], $powertrain, $variant);
     }
 
     public function getForConfiguration(Configuration $configuration, string $variant = 'default'): string
     {
         return $this->renderForScope([
-            ['scope' => 'configuration'],
+            'configuration'
         ], $configuration, $variant);
+    }
+
+    public function getForGlobal(string $variant = 'default'): string
+    {
+        return $this->renderForScope([
+            'global'
+        ], null, $variant);
     }
 
     protected function renderForScope(array $scopes, $context, string $variant): string
     {
         $template = $this->resolveTemplate($scopes, $variant);
+
+        if (!$template) {
+            return '';
+        }
+
         return $this->renderTemplate($template->template, $context);
     }
 
-    protected function resolveTemplate(array $scopes, string $variant): ComplianceTextTemplate
+    protected function resolveTemplate(array $scopes, string $variant): ?ComplianceTextTemplate
     {
         return ComplianceTextTemplate::active()
             ->where('variant', $variant)
-            ->where(function ($q) use ($scopes) {
-                foreach ($scopes as $scope) {
-                    $q->orWhere(fn ($q) =>
-                        $q->where('scope', $scope['scope'])
-                    );
-                }
-            })
+            ->whereIn('scope', $scopes)
             ->orderByRaw("
-                CASE scope
-                    WHEN 'powertrain' THEN 2
-                    WHEN 'trim' THEN 3
-                    WHEN 'car' THEN 4
-                END
+                FIELD(scope, '".implode("','", $scopes)."')
             ")
-            ->firstOrFail();
+            ->first();
     }
 
     protected function renderTemplate(string $template, $context): string
@@ -86,6 +88,9 @@ class ComplianceTextService
 
     protected function buildValueMap($context): array
     {
+        if (is_null($context)) {
+            return [];
+        }
 
         if ($context instanceof Configuration) {
             return $this->mapFromConfiguration($context);
@@ -167,6 +172,9 @@ class ComplianceTextService
     {
         return [
             'car' => $car->name,
+            'year' => $car->year,
+            'delivery_year' => $car->delivery->year,
+            'delivery_fee' => $this->formatNumber($car->delivery->fee),
             'consumption_min' => $car->consumption_range['min'],
             'consumption_max' => $car->consumption_range['max'],
             'electric_range_min' => $car->electric_range['min'],
@@ -203,6 +211,13 @@ class ComplianceTextService
         }
 
         return $parts ? implode(' ', $parts) : '0 min';
+    }
+
+    function formatNumber(string $value): string
+    {
+        $number = (float) str_replace(',', '.', $value);
+
+        return number_format($number, 0, ',', '.');
     }
 
 }

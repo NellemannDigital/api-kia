@@ -57,7 +57,7 @@ class ComplianceTextController extends Controller
             $car = Car::withoutGlobalScopes()->with('trims.powertrains.configuration')->where('struct_id', $request->car_id)->firstOrFail();
             $text = app(ComplianceTextService::class)->getForCar($car, $variant);
         } else {
-            abort(422, 'No valid scope provided.');
+            $text = app(ComplianceTextService::class)->getForGlobal($variant);
         }
 
         return response()->json([

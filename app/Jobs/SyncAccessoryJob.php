@@ -34,7 +34,7 @@ class SyncAccessoryJob implements ShouldQueue
                 if (! $this->accessoryData) {
                     return;
                 }
-
+                
                 Log::info('Accessory synced to database', [
                     'accessory_id' => $this->productId,
                 ]);
@@ -44,7 +44,29 @@ class SyncAccessoryJob implements ShouldQueue
                     $this->accessoryData->toArray()
                 );
 
-                $trims = Trim::whereJsonContains('accessory_mapping', $this->accessoryData->accessory_mapping)->get();
+                $existingPriceIds = collect();
+
+                foreach ($this->accessoryData->prices as $p) {
+                    $price = $accessory->prices()->withoutGlobalScopes()->updateOrCreate(
+                        $p->toArray()
+                    );
+
+                    $existingPriceIds->push($price->id);
+                }
+
+                $accessory->prices()->withoutGlobalScopes()->whereNotIn('id', $existingPriceIds)->delete();
+
+                $mapping = $this->accessoryData->accessory_mapping ?? [];
+
+                $trims = Trim::query()
+                    ->when($mapping, function ($query) use ($mapping) {
+                        $query->where(function ($q) use ($mapping) {
+                            foreach ($mapping as $value) {
+                                $q->orWhereJsonContains('accessory_mapping', $value);
+                            }
+                        });
+                    })
+                    ->get();
 
                 foreach ($trims as $trim) {
                     $trim->accessories()->syncWithoutDetaching([$accessory->id]);
@@ -56,6 +78,7 @@ class SyncAccessoryJob implements ShouldQueue
             throw $e;
         }
     }
+
 
     protected function handleFailure(Throwable $exception): void
     {

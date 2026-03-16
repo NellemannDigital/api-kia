@@ -214,9 +214,8 @@ class SyncTrimJob implements ShouldQueue
 
             $equipmentIds = collect($package->equipment)
                 ->map(fn ($e) => Equipment::withoutGlobalScopes()
-                    ->where('code', $e->code)
-                    ->value('id'))
-                ->filter()
+                    ->updateOrCreate(['code' => $e->code], $e->toArray())
+                    ->id)
                 ->all();
 
             $extraEquipmentPackage->equipment()->withoutGlobalScopes()->sync($equipmentIds);

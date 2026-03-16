@@ -22,22 +22,20 @@ class AccessoryMapper
             $name = Arr::get($attributesData, 'SharedAccessoryPartNameOverride') ?: Arr::get($attributesData, 'SharedAccessoryPartName', '');
             $description = Arr::get($attributesData, 'SharedAccessoryDescription', '');
             $partNumber = Arr::get($attributesData, 'SharedAccessoryPartNumber', '');
-            $categoryOne = Arr::get($attributesData, 'SharedAccessoryPNCGroup1.Group', '');
-            $categoryTwo = Arr::get($attributesData, 'SharedAccessoryPNCGroup2.Group', '');
+            $categories = Arr::get($attributesData, 'SharedAccessoryMarketingCategory', '');
             $disclaimer = Arr::get($attributesData, 'Pligttekst', '');
             $prices = self::mapPrices($attributesData->get('SharedAccessoryRetailPrice'));
             $primaryImage = self::resolveAsset($attributesData, 'PrimaryImage', $getAsset);
             $overrideImage = self::resolveAsset($attributesData, 'NellemannImage', $getAsset);
             $additional_images = self::mapAdditionalImages($attributesData->get('ExtraImages'), $getAsset);
-            $accessoryMapping = self::mapAccessoryMapping($variantAttributesReferencesData->get('MobisModelMapping'));
+            $accessoryMapping = self::mapAccessoryMapping($variantAttributesReferencesData->get('KiaAccessoriesModels'));
 
             return new AccessoryData(
                 struct_id: $accessoryId,
                 name: $name,
                 description: $description,
                 part_number: $partNumber,
-                category_one: $categoryOne,
-                category_two: $categoryTwo,
+                categories: $categories,
                 disclaimer: $disclaimer,
                 prices: $prices,
                 primary_image: $primaryImage,

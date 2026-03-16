@@ -92,8 +92,34 @@ class ProductsSearchRequest extends PimRequest
                         'BooleanOperator' => 0,
                         'QueryModelType' => 'SimpleQueryModel',
                     ],
+                    [
+                        'Filters' => [
+                            [
+                                'FieldUid' => 'PIM_ProductStructureUid',
+                                'QueryOperator' => 0,
+                                'FilterValue' => $structureId,
+                            ],
+                            [
+                                'FieldUid' => 'CategoryNEW.Id_NA_NA',
+                                'QueryOperator' => 0,
+                                'FilterValue' => '5637155076',
+                            ],
+                            [
+                                'FieldUid' => 'KiaAccessoriesModels_NA_NA',
+                                'QueryOperator' => 1,
+                                'FilterValue' => '',
+                            ],
+                            [
+                                'FieldUid' => 'SharedAccessoryRetailPrice_NA_NA',
+                                'QueryOperator' => 1,
+                                'FilterValue' => '',
+                            ]
+                        ],
+                        'BooleanOperator' => 0,
+                        'QueryModelType' => 'SimpleQueryModel',
+                    ],
                 ],
-                'BooleanOperator' => 0,
+                'BooleanOperator' => 1, 
                 'QueryModelType' => 'BooleanQueryModel',
             ],
         ];

@@ -2,30 +2,29 @@
 
 namespace App\Jobs;
 
-use Throwable;
-use Illuminate\Bus\Queueable;
+use App\Models\Car;
 use Illuminate\Bus\Batchable;
+use Illuminate\Bus\Queueable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Bus;
-use App\Requests\ProductsSearchRequest;
+use Throwable;
 
-class SyncCarsJob implements ShouldQueue
+class GeneratePriceListsJob implements ShouldQueue
 {
-    use Batchable, Queueable;
+    use Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct() {}
-
-    public function handle(ProductsSearchRequest $productsSearchRequest): void
+    public function handle(): void
     {
-        $ids = $productsSearchRequest->getProductIds('f81c8095-1c6c-410b-93fc-24c33cda9567');
+        $ids = [46];
 
-        foreach ([2188884] as $id) {
+        foreach ($ids as $id) {
             Bus::batch([
-                new SyncCarJob($id),
-                new SyncTrimsJob($id),
+                new GeneratePriceListJob($id),
             ])
-                ->onQueue('pim')
+                ->onQueue('price-lists')
                 ->allowFailures()
                 ->dispatch();
         }
@@ -35,7 +34,7 @@ class SyncCarsJob implements ShouldQueue
     {
         report($exception);
 
-        Log::error('SyncCarsJob failed', [
+        Log::error('GeneratePriceListsJob failed', [
             'exception'  => $exception->getMessage(),
             'trace'      => $exception->getTraceAsString(),
         ]);
@@ -46,6 +45,6 @@ class SyncCarsJob implements ShouldQueue
      */
     public function tags(): array
     {
-        return ['sync', 'pim', 'cars'];
+        return ['generate', 'price-list', 'car', 'id:' . $this->carId];
     }
 }

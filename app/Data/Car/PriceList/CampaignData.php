@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Data\Accessory;
+namespace App\Data\Car\PriceList;
 
 use Spatie\LaravelData\Data;
-use Illuminate\Support\Collection;
+use App\Data\AssetData;
 
-class PriceData extends Data
+class CampaignData extends Data
 {
     public function __construct(
-        public ?float $price = null,
+        public ?AssetData $image = null,
         public ?string $valid_from = null,
         public ?string $valid_to = null,
     ) {}
 }
+

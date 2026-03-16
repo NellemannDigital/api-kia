@@ -48,6 +48,15 @@ class ExtraEquipmentPackage extends Model
         'excludes_standard_equipment'=> 'array',
     ];
 
+      protected static function booted()
+    {
+        static::addGlobalScope('hasAnyPrices', function ($query) {
+            $query->where(function ($q) {
+                $q->whereHas('prices');
+            });
+        });
+    }
+
     /**
      * @return BelongsToMany<Equipment, $this>
      */

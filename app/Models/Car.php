@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Spatie\LaravelData\DataCollection;
 use App\Data\AssetData;
 use App\Data\Car\{
+    DeliveryData,
     ModelData,
     VariantData,
     TechnicalSpecificationsData,
@@ -31,7 +32,7 @@ class Car extends Model
         'web_id',
         'name',
         'year',
-        'delivery_year',
+        'delivery',
         'disclaimer',
         'model',
         'variant',
@@ -49,6 +50,7 @@ class Car extends Model
     ];
 
     protected $casts = [
+        'delivery' => DeliveryData::class,
         'model' => ModelData::class,
         'variant' => VariantData::class,
         'primary_image' => AssetData::class,

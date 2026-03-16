@@ -14,6 +14,9 @@ Route::post('/struct/webhook', [WebhookController::class, 'handle']);
 
 Route::view('/test', 'test');
 
+Route::get('/price-list', [CarController::class, 'priceList'])->name('price-list');
+Route::get('/price-list-accessories', [CarController::class, 'priceListAccessories'])->name('price-list-accessories');
+Route::get('/price-list-accessories-download', [CarController::class, 'priceListAccessoriesDownload'])->name('price-list-accessories-download');
 
 Route::get('/', function () {
     return Inertia::render('welcome', [

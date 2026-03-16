@@ -10,6 +10,7 @@ use App\Data\Accessory\{
     PriceData
 };
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Accessory extends Model
 {
@@ -18,21 +19,30 @@ class Accessory extends Model
         'name',
         'description',
         'part_number',
-        'category_one',
-        'category_two',
+        'categories',
         'disclaimer',
         'primary_image',
         'override_image',
-        'prices',
         'additional_images'
     ];
 
     protected $casts = [
+        'categories' => 'array',
         'primary_image' => AssetData::class,
         'override_image' => AssetData::class,
-        'prices' => DataCollection::class . ':' . PriceData::class,
         'additional_images' => DataCollection::class . ':' . AssetData::class,
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope('hasPrices', function ($builder) {
+            $builder->has('prices');
+        });
+
+        static::addGlobalScope('hasImage', function ($builder) {
+            $builder->whereNotNull('primary_image');
+        });
+    }
 
     /**
      * @return BelongsToMany<Trim, $this>
@@ -40,5 +50,13 @@ class Accessory extends Model
     public function trims()
     {
         return $this->belongsToMany(Trim::class, 'accessory_trim');
+    }
+
+    /**
+     * @return HasMany<AccessoryPrice, $this>
+     */
+    public function prices(): HasMany
+    {
+        return $this->hasMany(AccessoryPrice::class);
     }
 }

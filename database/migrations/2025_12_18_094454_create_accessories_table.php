@@ -18,12 +18,10 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('part_number')->nullable();
-            $table->string('category_one')->nullable();
-            $table->string('category_two')->nullable();
+            $table->json('categories')->nullable();
             $table->string('disclaimer')->nullable();
             $table->json('primary_image')->nullable();
             $table->json('override_image')->nullable();
-            $table->json('prices')->nullable();
             $table->json('additional_images')->nullable();
 
             $table->timestamps();

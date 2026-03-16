@@ -9,6 +9,7 @@ use App\Data\Car\{
     VariantData,
     TechnicalSpecificationsData,
     DimensionsData,
+    DeliveryData,
     CampaignData,
     UrlsData,
     FileData,
@@ -16,6 +17,7 @@ use App\Data\Car\{
     PriceListData,
     InsuranceRateData
 };
+use App\Data\Car\PriceList\CampaignData as PriceListCampaignData;
 use App\Mappers\Car\ChannelsMapper;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
@@ -34,9 +36,9 @@ class CarMapper
             $webId = Arr::get($attributesData, 'ModelWebID', '');
             $name = Arr::get($attributesData, 'ModelWebName') ?? $model->name;
             $year = Arr::get($attributesData, 'KiaModelYear.ModelYear', '');
-            $deliveryYear = Arr::get($attributesData, 'DeliveryYear.DeliveryYear', '');
             $disclaimer = Arr::get($attributesData, 'CustomPligttekst', '');
 
+            $delivery = self::mapDelivery($attributesData->get('DeliveryYear'));
             $technicalSpecifications = self::mapTechnicalSpecifications($attributesData);
             $dimensions = self::mapDimensions($attributesData->get('Dimmensions'));
             $urls = self::mapUrls($attributesData);
@@ -53,7 +55,7 @@ class CarMapper
                 web_id: $webId,
                 name: $name,
                 year: $year,
-                delivery_year: $deliveryYear,
+                delivery: $delivery,
                 disclaimer: $disclaimer,
                 model: $model,
                 variant: $variant,
@@ -87,6 +89,29 @@ class CarMapper
     }
 
     // --- Mapping helpers ---
+
+    protected static function mapDelivery(array|Collection|null $attributes): ?DeliveryData
+    {
+        if (!$attributes) return null;
+
+        $vehicleType = Arr::get($attributes, 'VehicleType.Type', '');
+        $year = Arr::get($attributes, 'DeliveryYear', '');
+        $fee = Arr::get($attributes, 'DeliveryFee', '');
+        $evTaxThreshold = Arr::get($attributes, 'EVTaxThreshold', '');
+        $taxFase = Arr::get($attributes, 'TaxFase', '');
+        $totalTaxEv = Arr::get($attributes, 'TotalTaxEV', '');
+
+        if (!$vehicleType && !$year && !$fee && !$evTaxThreshold && !$taxFase && !$totalTaxEv) return null;
+
+        return new DeliveryData(
+            vehicle_type: $vehicleType,
+            year: $year,
+            fee: $fee,
+            ev_tax_threshold: $evTaxThreshold,
+            tax_fase: $taxFase,
+            total_tax_ev: $totalTaxEv
+        );
+    }
 
     protected static function mapModel(array|Collection|null $attributes): ?ModelData
     {
@@ -248,13 +273,28 @@ class CarMapper
         if (!$attributes) return null;
 
         $primaryImageId = Arr::get($attributes, 'PrimaryImagePricelist');
-        $campaignImageId = Arr::get($attributes, 'CampaignImagePricelist');
-
         $primaryImage = is_numeric($primaryImageId) ? $getAsset($primaryImageId) : null;
+
+        $campaign = self::mapPriceListCampaign($attributes, $getAsset);
+
+
+        if (!$primaryImage && !$campaign) return null;
+
+        return new PriceListData(primary_image: $primaryImage, campaign: $campaign);
+    }
+
+    protected static function mapPriceListCampaign(array|Collection|null $attributes, callable $getAsset): ?PriceListCampaignData
+    {
+        if (!$attributes) return null;
+
+        $campaignImageId = Arr::get($attributes, 'CampaignImagePricelist');
         $campaignImage = is_numeric($campaignImageId) ? $getAsset($campaignImageId) : null;
 
-        if (!$primaryImage && !$campaignImage) return null;
+        $validFrom = Arr::get($attributes, 'CampaignImagePricelistDate.CampaignImagePricelistValidFrom') ? substr(Arr::get($attributes, 'CampaignImagePricelistDate.CampaignImagePricelistValidFrom'), 0, 10) : null;
+        $validTo = Arr::get($attributes, 'CampaignImagePricelistDate.CampaignImagePricelistValidTo') ? substr(Arr::get($attributes, 'CampaignImagePricelistDate.CampaignImagePricelistValidTo'), 0, 10) : null;
 
-        return new PriceListData(primary_image: $primaryImage, campaign_image: $campaignImage);
+        if (!$campaignImage && !$validFrom && !$validTo) return null;
+
+        return new PriceListCampaignData(image: $campaignImage, valid_from: $validFrom, valid_to: $validTo);
     }
 }

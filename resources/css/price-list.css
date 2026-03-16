@@ -1,0 +1,67 @@
+@font-face {
+    font-family: "KiaSignature";
+    src: url(/resources/fonts/KiaSignatureRegular.woff2) format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "KiaSignature";
+    src: url(/resources/fonts/KiaSignatureBold.woff2) format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "KiaSignature";
+    src: url(/resources/fonts/KiaSignatureLight.woff2) format("woff2");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@import 'tailwindcss';
+@source "../views/price-list.blade.php";
+
+
+@theme {
+    --font-sans: "KiaSignature", sans-serif;
+    --text-xs: 10px;
+
+    --color-primary: #05141f;
+    --color-primary-lowest: #f3f4f5;
+    --color-primary-low: #e8eaeb;
+    --color-primary-mid: #cdd0d2;
+    --color-primary-high: #8d959a;
+    --color-primary-highest: #303e48;
+    --color-primary-ultimate: #172630;
+
+    --color-secondary: #418611;
+    --color-secondary-lowest: #f1f8e9;
+    --color-secondary-low: #dcedc8;
+    --color-secondary-mid: #8bc34a;
+    --color-secondary-high: #77b239;
+    --color-secondary-highest: #5fa91e;
+    --color-secondary-ultimate: #33691e;
+}
+
+thead {
+    display: table-header-group;
+}
+
+tfoot {
+    display: table-footer-group;
+}
+
+table {
+    page-break-inside: auto;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+}
