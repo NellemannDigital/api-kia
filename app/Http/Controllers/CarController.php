@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Bus\Batch;
 use App\Requests\ProductRequest;
 use App\Services\ComplianceTextService;
-use App\Services\OptionMatrixBuilder;
 use function Spatie\LaravelPdf\Support\pdf;
 use Spatie\LaravelPdf\Enums\Format;
+use Illuminate\Support\Collection;
+use App\ViewModels\Specifications;
 
 class CarController extends Controller
 {
@@ -80,7 +81,94 @@ class CarController extends Controller
         ]);
     }
 
+    public function specifications()
+    {
+        $car = Car::with([
+            'trims.powertrains'
+        ])->findOrFail(1);
+
+        $trims = $car->trims->values(); 
+
+        $sections = new Specifications($trims)->sections();
+
+        return view('specifications', compact('car', 'trims', 'sections'));
+    }
+
+    public function specificationsDownload()
+    {
+        $car = Car::findOrFail(1);
+
+        $trims = $car->trims->values(); 
+
+        return pdf('specifications', compact('car', 'trims'))
+        ->landscape()
+        ->format(Format::A4)
+        ->name('Specifications')
+        ->margins(5, 5, 5, 5)
+        ->download();
+    }
+
     public function priceList()
+    {
+        $car = Car::with([
+            'trims.extraEquipmentPackages.latestPrice',
+            'trims.colors.latestPrice'
+        ])->findOrFail(1);
+
+        $trims = $car->trims->values(); 
+
+        $colorMatrix = $this->matrix(
+            $trims, 
+            'colors', 
+            'code'
+        );
+
+        $extraEquipmentPackageMatrix = $this->matrix(
+            $trims, 
+            'extraEquipmentPackages',
+            'code'
+        );
+        
+       $groupedEquipment = $this->group(
+            $trims,
+            'equipment',
+            fn ($item) => $item->images
+        );
+
+        $groupedExtraEquipmentPackages = $this->group(
+            $trims,
+            'extraEquipmentPackages',
+            fn ($item) => $item->image
+        );
+
+        $interiors = $trims
+            ->filter->interior
+            ->groupBy(fn($trim) => $trim->interior->code)
+            ->map(function ($group) {
+                $interior = $group->first()->interior;
+
+                $interior->trim_names = $group
+                    ->pluck('name')
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                return $interior;
+            })
+            ->values();
+
+        $complianceService = app(ComplianceTextService::class);
+
+        $complianceTexts = [
+            'price' => $complianceService->getForCar($car, 'price'),
+            'consumption' => $complianceService->getForGlobal('consumption'),
+            'changes' => $complianceService->getForGlobal('changes'),
+        ];
+
+        return view('price-list', compact('car', 'trims', 'complianceTexts', 'colorMatrix',  'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'));
+    }
+
+    public function priceListDownload()
     {
 
         $car = Car::with([
@@ -100,7 +188,11 @@ class CarController extends Controller
             'changes' => app(ComplianceTextService::class)->getForGlobal('changes'),
         ];
 
-        return view('price-list', compact('car', 'complianceTexts', 'colorMatrix',  'extraEquipmentPackageMatrix'));
+        return pdf('price-list', compact('car', 'complianceTexts', 'colorMatrix',  'extraEquipmentPackageMatrix'))
+        ->format(Format::A4)
+        ->name('Prisliste')
+        ->margins(6, 6, 6, 6)
+        ->download();
     }
 
     public function priceListAccessories()
@@ -226,6 +318,104 @@ class CarController extends Controller
         ->format(Format::A4)
         ->name('Prisliste')
         ->margins(10, 10, 10, 10)
-        ->download();;
+        ->download();
+    }
+
+
+    private function group($trims, $relation, $filter)
+    {
+        return $trims
+            ->flatMap(function ($trim) use ($relation, $filter) {
+                return $trim->{$relation}
+                    ->filter($filter)
+                    ->map(function ($item) use ($trim) {
+                        $item->trim_names = [$trim->name];
+                        return $item;
+                    });
+            })
+            ->groupBy('code')
+            ->map(function ($items) {
+                $first = $items->first();
+
+                $first->trim_names = $items
+                    ->flatMap->trim_names
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                return $first;
+            })
+            ->sortBy('name')
+            ->groupBy('category');
+    }
+
+    private function matrix(
+        Collection $trims,
+        string $relation,
+        string $optionIdentifier = 'id',
+        string $priceField = 'suggested_retail_price'
+    ): Collection {
+
+        $trimEquipmentCodes = $trims->mapWithKeys(fn ($trim) => [
+            $trim->id => $trim->equipment->pluck('code')->all()
+        ]);
+
+        $flatOptions = $trims->flatMap(function ($trim) use (
+            $relation,
+            $optionIdentifier,
+            $priceField
+        ) {
+            $options = $trim->$relation ?? collect();
+
+            return $options->map(function ($option) use (
+                $trim,
+                $optionIdentifier,
+                $priceField
+            ) {
+                return [
+                    'option_id' => $option->$optionIdentifier,
+                    'option_obj' => $option,
+                    'trim_id'   => $trim->id,
+                    'price'     => $option->latestPrice?->$priceField,
+                ];
+            });
+        });
+
+        return $flatOptions
+            ->groupBy('option_id')
+            ->map(function ($rows) use ($trims, $relation, $trimEquipmentCodes) {
+
+                $option = $rows->first()['option_obj'];
+
+                $rowsByTrim = $rows->keyBy('trim_id');
+
+                $packageCodes = $option->equipment?->pluck('code')->all() ?? [];
+
+                $prices = [];
+                $included = [];
+
+                foreach ($trims as $trim) {
+
+                    $row = $rowsByTrim[$trim->id] ?? null;
+
+                    $prices[$trim->id] = $row['price'] ?? null;
+
+                    if (empty($packageCodes)) {
+                        $included[$trim->id] = false;
+                        continue;
+                    }
+
+                    $trimCodes = $trimEquipmentCodes[$trim->id];
+
+                    $included[$trim->id] = !array_diff($packageCodes, $trimCodes);
+                }
+
+                return [
+                    $relation => $option,
+                    'prices' => $prices,
+                    'included' => $included,
+                ];
+            })
+            ->values();
     }
 }

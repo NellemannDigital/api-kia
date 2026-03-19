@@ -49,4 +49,12 @@ class Color extends Model
     {
         return $this->hasMany(ColorPrice::class);
     }
+
+     /**
+     * @return HasOne<ColorPrice, $this>
+     */
+    public function latestPrice(): HasOne
+    {
+        return $this->hasOne(ColorPrice::class)->latestOfMany();
+    }
 }

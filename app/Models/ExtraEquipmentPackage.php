@@ -7,6 +7,7 @@ use Spatie\LaravelData\DataCollection;
 use App\Data\AssetData;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Data\Trim\ExtraEquipmentPackage\{
     InteriorOverrideToData,
     ModelChangeCodeData,
@@ -71,5 +72,13 @@ class ExtraEquipmentPackage extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(ExtraEquipmentPackagePrice::class);
+    }
+
+    /**
+     * @return HaoOne<ExtraEquipmentPackagePrice, $this>
+     */
+    public function latestPrice(): HasOne
+    {
+        return $this->hasOne(ExtraEquipmentPackagePrice::class)->latestOfMany();
     }
 }

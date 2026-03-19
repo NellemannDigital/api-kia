@@ -17,7 +17,7 @@
                 <img src="{{ asset('images/logo-white.png') }}" width="125" class="right-6 bottom-4 absolute">
                 <div class="top-9 left-21 absolute font-bold text-white text-6xl">
                     {{ $car->name ?? '' }} 
-                    <div class="mt-2 text-3xl">Tilbehør</div>
+                    <div class="mt-2 text-4xl">Tilbehør</div>
                 </div>
                 @if($car->campaign != null)
                     <img src="{{ $car->campaign->image->url }}?width=175" width="175" height="175" class="bottom-8 left-8 absolute">
