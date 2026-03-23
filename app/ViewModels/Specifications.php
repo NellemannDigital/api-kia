@@ -101,12 +101,8 @@ class Specifications
                     ],
                     [
                         'label' => 'Batterivægt', 
-                        'value' => fn($col) => "{$col->powertrain->technical_specifications->battery_weight} kg"
-                    ],
-                    [
-                        'label' => 'Test', 
-                        'value' => fn($col) => '-'
-                    ],
+                        'value' => fn($col) => formatNumber($col->powertrain->technical_specifications->battery_weight, 1) . ' kg'
+                    ]
                 ],
             ],
             [
@@ -116,24 +112,24 @@ class Specifications
                 'columns' => $columns,
                 'rows' => [
                     [
-                        'label' => 'Normalopladning (AC) Ladehastighed', 
+                        'label' => 'Normalopladning (AC) <br> Ladehastighed', 
                         'value' => fn($col) => "{$col->powertrain->technical_specifications->ac_charging_speed} kW"
                     ],
                     [
-                        'label' => 'Normalopladning (AC) Ladetid (0-100%)', 
+                        'label' => 'Normalopladning (AC) <br> Ladetid (0-100%)', 
                         'value' => fn($col) => formatTimeString($col->powertrain->technical_specifications->ac_charging_time)
                     ],
                     [
-                        'label' => 'Hurtigopladning (DC) Ladehastighed', 
+                        'label' => 'Hurtigopladning (DC) <br> Ladehastighed', 
                          'value' => fn($col) => "{$col->powertrain->technical_specifications->dc_charging_speed} kW"
                     ],
                     [
-                        'label' => 'Hurtigopladning (DC) Ladetid (10%-80%)', 
+                        'label' => 'Hurtigopladning (DC) <br> Ladetid (10%-80%)', 
                         'value' => fn($col) => formatTimeString($col->powertrain->technical_specifications->dc_charging_time)
                     ],
                     [
                         'label' => 'Ladetype',
-                        'value' => fn($col) => "{$col->powertrain->transmission->charge_plug_type} kg"
+                        'value' => fn($col) => $col->powertrain->transmission->charge_plug_type
                     ],
                 ],
             ],
@@ -145,7 +141,7 @@ class Specifications
                 'rows' => [
                     [
                         'label' => 'Acceleration fra 0-100 km/t', 
-                        'value' => fn($col) => "{$col->powertrain->technical_specifications->zero_to_hundred_time} s"
+                        'value' => fn($col) => formatNumber($col->powertrain->technical_specifications->zero_to_hundred_time, 1) . ' sek'
                     ],
                     [
                         'label' => 'Tophastighed', 
@@ -177,30 +173,30 @@ class Specifications
                 'rows' => [
                     [
                         'label' => 'Egenvægt', 
-                        'value' => fn($col) => "{$col->powertrain->technical_specifications->net_weight} kg"
+                        'value' => fn($col) => formatNumber($col->powertrain->technical_specifications->net_weight) . ' kg'
                     ],
                     [
                         'label' => 'Køreklar vægt', 
-                        'value' => fn($col) => "{$col->powertrain->technical_specifications->driving_ready_weight} kg"
+                        'value' => fn($col) => formatNumber($col->powertrain->technical_specifications->driving_ready_weight) . ' kg'
                     ],
                     [
                         'label' => 'Totalvægt', 
-                        'value' => fn($col) => "{$col->powertrain->technical_specifications->maximum_total_weight} kg"
+                        'value' => fn($col) => formatNumber($col->powertrain->technical_specifications->maximum_total_weight) . ' kg'
                     ],
                     [
                         'label' => 'Påhængsvægt med bremser', 
-                        'value' => fn($col) => "{$col->powertrain->technical_specifications->towing_capacity_braked} kg"
+                        'value' => fn($col) => formatNumber($col->powertrain->technical_specifications->towing_capacity_braked) . ' kg'
                     ],
                     [
                         'label' => 'Påhængsvægt uden bremser', 
-                        'value' => fn($col) => "{$col->powertrain->technical_specifications->towing_capacity_unbraked} kg"
+                        'value' => fn($col) => formatNumber($col->powertrain->technical_specifications->towing_capacity_unbraked) . ' kg'
                     ],
                 ],
             ],
             [
                 'title' => 'Udvendige mål',
                 'show_header' => false,
-                'page_break' => true,
+                'page_break' => false,
                 'columns' => $columns,
                 'rows' => [
                     [

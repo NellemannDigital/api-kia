@@ -7,7 +7,7 @@
         @vite(['resources/css/price-list.css'])
     </head>
     <body>
-        <section class="mx-auto max-w-6xl my-8 space-y-8">
+        <section class="mx-auto max-w-6xl space-y-8">
             <div class="flex justify-between items-center mb-3">
                 <div class="font-bold text-xl">
                     {{ $car->name }} - Tekniske specifikationer
@@ -19,20 +19,18 @@
         <section class="mx-auto max-w-6xl space-y-6">
             @foreach($sections as $section)
                 <div>
-                    <div class="bg-primary p-2 rounded text-white">
-                        <div class="flex items-center gap-2">
-                            <div class="{{ $section['show_header'] ? 'w-38' : 'w-full' }}">
-                                <span class="block font-bold text-xs">{{ $section['title'] }}</span>
-                            </div>
-
-                            @if($section['show_header'])
-                                @foreach($section['columns'] as $group)
-                                    <div class="flex-1 text-center text-xs">
-                                        {!! $group->label !!}
-                                    </div>
-                                @endforeach
-                            @endif
+                     @if($section['show_header'])
+                        <div class="flex items-center gap-2 p-2">
+                            <div class="w-38"></div>
+                            @foreach($section['columns'] as $group)
+                                <div class="flex-1 text-center text-xs">
+                                    {!! $group->label !!}
+                                </div>
+                            @endforeach
                         </div>
+                    @endif
+                    <div class="bg-primary p-2 rounded">
+                        <span class="block font-bold text-xs text-white">{{ $section['title'] }}</span>
                     </div>
 
                     @foreach($section['rows'] as $row)
@@ -40,7 +38,7 @@
 
                             <div class="flex items-center gap-2">
                                 <div class="w-38">
-                                    <span class="block text-xs">{{ $row['label'] }}</span>
+                                    <span class="block text-xs">{!! $row['label'] !!}</span>
                                 </div>
 
                                 @foreach($section['columns'] as $col)
