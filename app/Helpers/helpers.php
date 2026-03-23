@@ -19,3 +19,17 @@ if (! function_exists('formatTimeString')) {
         }
     }
 }
+
+if (! function_exists('formatNumber')) {
+    function formatNumber($number, $decimals = 0, $decimalSeparator = ',', $thousandSeparator = '.') {
+        try {
+            if (!is_numeric($number)) {
+                return '-';
+            }
+
+            return number_format($number, $decimals, $decimalSeparator, $thousandSeparator);
+        } catch (\Exception $e) {
+            return '-';
+        }
+    }
+}

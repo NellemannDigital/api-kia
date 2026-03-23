@@ -96,11 +96,15 @@ class CarController extends Controller
 
     public function specificationsDownload()
     {
-        $car = Car::findOrFail(1);
+        $car = Car::with([
+            'trims.powertrains'
+        ])->findOrFail(1);
 
         $trims = $car->trims->values(); 
 
-        return pdf('specifications', compact('car', 'trims'))
+        $sections = new Specifications($trims)->sections();
+
+        return pdf('specifications', compact('car', 'trims', 'sections'))
         ->landscape()
         ->format(Format::A4)
         ->name('Specifications')

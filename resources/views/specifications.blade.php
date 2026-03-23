@@ -7,42 +7,47 @@
         @vite(['resources/css/price-list.css'])
     </head>
     <body>
-
         <section class="mx-auto max-w-6xl my-8 space-y-8">
+            <div class="flex justify-between items-center mb-3">
+                <div class="font-bold text-xl">
+                    {{ $car->name }} - Tekniske specifikationer
+                </div>
+                <img src="{{ asset('images/logo.png') }}" class="block w-20">
+            </div>
+        </section>
+
+        <section class="mx-auto max-w-6xl space-y-6">
             @foreach($sections as $section)
                 <div>
-                    <div class="flex gap-4 mb-2">
-                        <div class="font-bold text-sm w-32 flex items-end">
-                            {{ $section['title'] }}
-                        </div>
+                    <div class="bg-primary p-2 rounded text-white">
+                        <div class="flex items-center gap-2">
+                            <div class="{{ $section['show_header'] ? 'w-38' : 'w-full' }}">
+                                <span class="block font-bold text-xs">{{ $section['title'] }}</span>
+                            </div>
 
-                        @if($section['show_header'])
-                            @foreach($section['columns'] as $col)
-                                <div class="flex-1 text-xs">
-                                    <span class="block font-bold">
-                                        {{ $col->trim->name }}
-                                    </span>
-                                    <span class="block font-normal">
-                                        {{ $col->powertrain->engine->name }}
-                                    </span>
-                                </div>
-                            @endforeach
-                        @endif
+                            @if($section['show_header'])
+                                @foreach($section['columns'] as $group)
+                                    <div class="flex-1 text-center text-xs">
+                                        {!! $group->label !!}
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
                     </div>
 
                     @foreach($section['rows'] as $row)
-                        <div class="relative">
+                        <div class="p-2 not-last:border-b border-primary-low">
 
-                            <div class="z-20 absolute inset-0 flex items-center border-primary-low @if(!$loop->last) border-b @endif h-full text-xs">
-                                {{ $row['label'] }}
-                            </div>
-
-                            <div class="flex gap-4">
-                                <div class="w-32"></div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-38">
+                                    <span class="block text-xs">{{ $row['label'] }}</span>
+                                </div>
 
                                 @foreach($section['columns'] as $col)
-                                    <div class="flex-1 text-xs text-center p-2 {{ $row['class'] }}">
-                                        {{ $row['value']($col) }} 
+                                    @php $col = $group->columns->first(); @endphp
+                                    
+                                    <div class="flex-1">
+                                        <span class="block text-center text-xs">{{ $row['value']($col) }}</span>
                                     </div>
                                 @endforeach
                             </div>
@@ -50,6 +55,10 @@
                         </div>
                     @endforeach
                 </div>
+
+                @if($section['page_break'])
+                    @pageBreak
+                @endif
             @endforeach
         </section>
 
