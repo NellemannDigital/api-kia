@@ -7,25 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 class ComplianceTextTemplate extends Model
 {
     protected $fillable = [
-        'scope',
-        'scope_id',
         'variant',
         'template',
         'version',
         'valid_from',
-        'valid_to',
-        'active',
+        'valid_to'
     ];
 
-    public function scopeActive($query)
+    protected $casts = [
+        'valid_from' => 'date',
+        'valid_to' => 'date'
+    ];
+
+    public function scopeValid($query)
     {
         return $query
-            ->where('active', true)
             ->where(function ($q) {
-                $q->whereNull('valid_from')->orWhere('valid_from', '<=', now());
+                $q->whereNull('valid_from')
+                  ->orWhere('valid_from', '<=', now());
             })
             ->where(function ($q) {
-                $q->whereNull('valid_to')->orWhere('valid_to', '>=', now());
+                $q->whereNull('valid_to')
+                  ->orWhere('valid_to', '>=', now());
             });
     }
 }

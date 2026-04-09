@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 
 if (! function_exists('formatTimeString')) {
+    
     function formatTimeString($time) {
         try {
             $carbonTime = Carbon::createFromFormat('H:i', $time);
@@ -21,6 +22,7 @@ if (! function_exists('formatTimeString')) {
 }
 
 if (! function_exists('formatNumber')) {
+
     function formatNumber($number, $decimals = 0, $decimalSeparator = ',', $thousandSeparator = '.') {
         try {
             if (!is_numeric($number)) {
@@ -31,5 +33,13 @@ if (! function_exists('formatNumber')) {
         } catch (\Exception $e) {
             return '-';
         }
+    }
+}
+
+if (!function_exists('compliance_text_for')) {
+
+    function compliance_text_for(array $roots, string $variant)
+    {
+        return \App\Services\ComplianceTextResolver::resolve($roots, $variant);
     }
 }

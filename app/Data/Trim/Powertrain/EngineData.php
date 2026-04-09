@@ -11,6 +11,7 @@ class EngineData extends Data
     public function __construct(
         public string $name,
         public string $code,
+        public ?string $drive,
         public int $horse_power,
         public string $fuel_type,
         public ?int $amount_of_cylinders,

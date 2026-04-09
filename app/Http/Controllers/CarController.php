@@ -67,6 +67,7 @@ class CarController extends Controller
         ];
 
         $productVariantIds = (new ProductRequest)->getProductVariantsIdsByProductId($id);
+
         foreach ($productVariantIds as $variantId) {
             $jobs[] = new SyncTrimJob($variantId);
         }
@@ -75,7 +76,7 @@ class CarController extends Controller
             ->onQueue('pim')
             ->dispatch();
 
-        return response()->json([
+        return redirect()->back()->with([
             'batch_id' => $batch->id,
             'message' => 'Sync started',
         ]);
@@ -112,12 +113,12 @@ class CarController extends Controller
         ->download();
     }
 
-    public function priceList()
+    public function priceList($id)
     {
         $car = Car::with([
             'trims.extraEquipmentPackages.latestPrice',
             'trims.colors.latestPrice'
-        ])->findOrFail(1);
+        ])->findOrFail($id);
 
         $trims = $car->trims->values(); 
 
@@ -164,10 +165,16 @@ class CarController extends Controller
         $complianceService = app(ComplianceTextService::class);
 
         $complianceTexts = [
+            //$complianceService->get($car, 'price'),
+            'consumption' => '',
+            'changes' => '',
+        ];
+
+       /* $complianceTexts = [
             'price' => $complianceService->getForCar($car, 'price'),
             'consumption' => $complianceService->getForGlobal('consumption'),
             'changes' => $complianceService->getForGlobal('changes'),
-        ];
+        ];*/
 
         return view('price-list', compact('car', 'trims', 'complianceTexts', 'colorMatrix',  'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'));
     }

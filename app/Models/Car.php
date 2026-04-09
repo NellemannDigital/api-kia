@@ -17,7 +17,8 @@ use App\Data\Car\{
     ChannelsData,
     PriceListData,
     InsuranceRateData,
-    FileData
+    FileData,
+    WarrantyData
 };
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Scopes\OpenChannels;
@@ -46,6 +47,7 @@ class Car extends Model
         'files',
         'insurance_rates',
         'categories',
+        'warranties',
         'synced_at'
     ];
 
@@ -62,7 +64,8 @@ class Car extends Model
         'price_list' => PriceListData::class,
         'files' => DataCollection::class . ':' . FileData::class,
         'insurance_rates' => DataCollection::class . ':' . InsuranceRateData::class,
-        'categories' => 'array'
+        'categories' => 'array',
+        'warranties' => DataCollection::class . ':' . WarrantyData::class,
     ];
 
     protected array $extraChannels = [];

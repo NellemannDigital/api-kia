@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('dealer_guid')->nullable();
             $table->string('owner_guid')->nullable();
 
-            $table->json('channels')->nullable();
+            $table->json('tools')->nullable();
 
             $table->string('name');
             $table->string('display_name')->nullable();

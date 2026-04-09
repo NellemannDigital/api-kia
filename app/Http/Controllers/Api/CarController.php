@@ -34,7 +34,11 @@ class CarController extends Controller
      */
     public function show(string $id)
     {
-        return Car::where('web_id', $id)->firstOrFail();
+        $car = Car::with([
+            'trims.powertrains'
+        ])->findOrFail(1);
+
+        return $car;
     }
 
     /**

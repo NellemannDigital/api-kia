@@ -1,0 +1,223 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Car;
+use App\Models\Trim;
+use App\Models\Powertrain;
+use App\Models\Configuration;
+use App\Models\ComplianceTextTemplate;
+use Illuminate\Support\Str;
+
+class ComplianceTextService
+{
+    public function getForCar(Car $car, string $variant = 'default'): string
+    {
+        return $this->renderForScope([
+            'car'
+        ], $car, $variant);
+    }
+
+    public function getForTrim(Trim $trim, string $variant = 'default'): string
+    {
+        return $this->renderForScope([
+            'trim'
+        ], $trim, $variant);
+    }
+
+    public function getForPowertrain(Powertrain $powertrain, string $variant = 'default'): string
+    {
+        return $this->renderForScope([
+            'powertrain'
+        ], $powertrain, $variant);
+    }
+
+    public function getForConfiguration(Configuration $configuration, string $variant = 'default'): string
+    {
+        return $this->renderForScope([
+            'configuration'
+        ], $configuration, $variant);
+    }
+
+    public function getForGlobal(string $variant = 'default'): string
+    {
+        return $this->renderForScope([
+            'global'
+        ], null, $variant);
+    }
+
+    protected function renderForScope(array $scopes, $context, string $variant): string
+    {
+        $template = $this->resolveTemplate($scopes, $variant);
+
+        if (!$template) {
+            return '';
+        }
+
+        return $this->renderTemplate($template->template, $context);
+    }
+
+    protected function resolveTemplate(array $scopes, string $variant): ?ComplianceTextTemplate
+    {
+        return ComplianceTextTemplate::active()
+            ->where('variant', $variant)
+            ->whereIn('scope', $scopes)
+            ->orderByRaw("
+                FIELD(scope, '".implode("','", $scopes)."')
+            ")
+            ->first();
+    }
+
+    protected function renderTemplate(string $template, $context): string
+    {
+        $values = $this->buildValueMap($context);
+
+        foreach (['consumption', 'electric_range', 'co2_emission', 'owner_tax'] as $key) {
+            if (isset($values[$key . '_min'])) {
+                $values[$key] = $this->formatRange($values[$key . '_min'], $values[$key . '_max'] ?? null);
+            }
+        }
+
+        return Str::of($template)->replaceMatches('/\{(\w+)\}/', fn($m) => $values[$m[1]] ?? '');
+    }
+
+    protected function formatRange($min, $max)
+    {
+        return $min === $max || is_null($max) ? $min : $min . '–' . $max;
+    }
+
+    protected function buildValueMap($context): array
+    {
+        if (is_null($context)) {
+            return [];
+        }
+
+        if ($context instanceof Configuration) {
+            return $this->mapFromConfiguration($context);
+        }
+
+        if ($context instanceof Powertrain) {
+            return $this->mapFromPowertrain($context);
+        }
+
+        if ($context instanceof Trim) {
+            return $this->mapFromTrim($context);
+        }
+
+        if ($context instanceof Car) {
+            return $this->mapFromCar($context);
+        }
+
+        return [];
+    }
+
+     protected function mapFromConfiguration(Configuration $configuration): array
+    {
+        return [
+            'car' => $configuration->powertrain->trim->car->name,
+            'trim' => $configuration->powertrain->trim->name,
+            'powertrain' => $configuration->powertrain->engine->name,
+            'consumption' => $configuration->technical_specifications->consumption->number,
+            'electric_range' => $configuration->technical_specifications->pure_electric_range,
+            'co2_emission' => $configuration->technical_specifications->co2_emission,
+            'ac_charging_time' => $this->formatChargeTime($configuration->powertrain->technical_specifications->ac_charging_time),
+            'dc_charging_time' => $this->formatChargeTime($configuration->powertrain->technical_specifications->dc_charging_time),
+            'ac_charging_speed' => $configuration->powertrain->technical_specifications->ac_charging_speed,
+            'dc_charging_speed' => $configuration->powertrain->technical_specifications->dc_charging_speed,
+            'owner_tax' => $configuration->technical_specifications->owner_tax,
+        ];
+    }
+
+    protected function mapFromPowertrain(Powertrain $powertrain): array
+    {
+        return [
+            'car' => $powertrain->trim->car->name,
+            'trim' => $powertrain->trim->name,
+            'powertrain' => $powertrain->engine->name,
+            'consumption' => $powertrain->configuration->technical_specifications->consumption->number,
+            'electric_range' => $powertrain->configuration->technical_specifications->pure_electric_range,
+            'co2_emission' => $powertrain->configuration->technical_specifications->co2_emission,
+            'ac_charging_time' => $this->formatChargeTime($powertrain->technical_specifications->ac_charging_time),
+            'dc_charging_time' => $this->formatChargeTime($powertrain->technical_specifications->dc_charging_time),
+            'ac_charging_speed' => $powertrain->configuration->powertrain->ac_charging_speed,
+            'dc_charging_speed' => $powertrain->configuration->powertrain->dc_charging_speed,
+            'owner_tax' => $powertrain->configuration->owner_tax,
+        ];
+    }
+
+    protected function mapFromTrim(Trim $trim): array
+    {
+        return [
+            'car' => $trim->car->name,
+            'trim' => $trim->name,
+            'consumption_min' => $trim->consumption_range['min'],
+            'consumption_max' => $trim->consumption_range['max'],
+            'electric_range_min' => $trim->electric_range['min'],
+            'electric_range_max' => $trim->electric_range['max'],
+            'co2_emission_min' => $trim->co2_emission_range['min'],
+            'ac_charging_time_min' => $this->formatChargeTime($trim->ac_charging_time_range['min']),
+            'ac_charging_time_max' => $this->formatChargeTime($trim->ac_charging_time_range['max']),
+            'dc_charging_time_min' => $this->formatChargeTime($trim->dc_charging_time_range['min']),
+            'dc_charging_time_max' => $this->formatChargeTime($trim->dc_charging_time_range['max']),
+            'ac_charging_speed_min' => $trim->ac_charging_speed_range['min'],
+            'ac_charging_speed_max' => $trim->ac_charging_speed_range['max'],
+            'dc_charging_speed_min' => $trim->dc_charging_speed_range['min'],
+            'dc_charging_speed_max' => $trim->dc_charging_speed_range['max'],
+            'owner_tax_min' => $trim->owner_tax_range['min'],
+            'owner_tax_max' => $trim->owner_tax_range['max'],
+        ];
+    }
+
+    protected function mapFromCar(Car $car): array
+    {
+        return [
+            'car' => $car->name,
+            'year' => $car->year,
+            'delivery_year' => $car->delivery->year,
+            'delivery_fee' => $this->formatNumber($car->delivery->fee),
+            'consumption_min' => $car->consumption_range['min'],
+            'consumption_max' => $car->consumption_range['max'],
+            'electric_range_min' => $car->electric_range['min'],
+            'electric_range_max' => $car->electric_range['max'],
+            'co2_emission_min' => $car->co2_emission_range['min'],
+            'ac_charging_time_min' => $this->formatChargeTime($car->ac_charging_time_range['min']),
+            'ac_charging_time_max' => $this->formatChargeTime($car->ac_charging_time_range['max']),
+            'dc_charging_time_min' => $this->formatChargeTime($car->dc_charging_time_range['min']),
+            'dc_charging_time_max' => $this->formatChargeTime($car->dc_charging_time_range['max']),
+            'ac_charging_speed_min' => $car->ac_charging_speed_range['min'],
+            'ac_charging_speed_max' => $car->ac_charging_speed_range['max'],
+            'dc_charging_speed_min' => $car->dc_charging_speed_range['min'],
+            'dc_charging_speed_max' => $car->dc_charging_speed_range['max'],
+            'owner_tax_min' => $car->owner_tax_range['min'],
+            'owner_tax_max' => $car->owner_tax_range['max'],
+        ];
+    }
+
+    protected function formatChargeTime(string $time): string
+    {
+        [$hours, $minutes] = explode(':', $time);
+
+        $hours = (int) $hours;
+        $minutes = (int) $minutes;
+
+        $parts = [];
+
+        if ($hours > 0) {
+            $parts[] = $hours . ' t';
+        }
+
+        if ($minutes > 0) {
+            $parts[] = $minutes . ' min';
+        }
+
+        return $parts ? implode(' ', $parts) : '0 min';
+    }
+
+    function formatNumber(string $value): string
+    {
+        $number = (float) str_replace(',', '.', $value);
+
+        return number_format($number, 0, ',', '.');
+    }
+
+}

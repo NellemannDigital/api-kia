@@ -9,15 +9,17 @@ use Illuminate\Support\Facades\Artisan;
 
 class SynchronizationController extends Controller
 {
-    
     /**
-     * Display a listing of the resource.
+     * Display the synchronization page.
      */
     public function index()
     {
         return Inertia::render('synchronization/index');
     }
-    
+
+    /**
+     * Start PIM synchronization.
+     */
     public function syncPim(Request $request)
     {
         $request->validate([
@@ -27,49 +29,40 @@ class SynchronizationController extends Controller
 
         $jobs = $request->input('jobs', []);
 
-        $jobsOption = empty($jobs) ? [] : $jobs;
-
-        $exitCode = Artisan::call('nellemann:sync-pim-data', [
-            '--jobs' => $jobsOption
+        Artisan::call('nellemann:sync-pim-data', [
+            '--jobs' => $jobs,
         ]);
 
-        return response()->json([
-            'success' => $exitCode === 0,
-            'message' => 'Jobs dispatched',
-            'output' => Artisan::output(),
-        ]);
+        return redirect()->back()->with('success', 'PIM sync started!');
     }
 
-    public function syncDealers(Request $request)
+    /**
+     * Start dealer synchronization.
+     */
+    public function syncDealers()
     {
-        $exitCode = Artisan::call('nellemann:sync-dealers');
+        Artisan::call('nellemann:sync-dealers');
 
-        return response()->json([
-            'success' => $exitCode === 0,
-            'message' => 'Jobs dispatched',
-            'output' => Artisan::output(),
-        ]);
+        return redirect()->back()->with('success', 'Dealer sync started!');
     }
 
-    public function syncUsedCars(Request $request)
+    /**
+     * Start used cars synchronization.
+     */
+    public function syncUsedCars()
     {
-        $exitCode = Artisan::call('nellemann:sync-used-cars');
+        Artisan::call('nellemann:sync-used-cars');
 
-        return response()->json([
-            'success' => $exitCode === 0,
-            'message' => 'Jobs dispatched',
-            'output' => Artisan::output(),
-        ]);
+        return redirect()->back()->with('success', 'Used cars sync started!');
     }
 
-    public function syncStockCars(Request $request)
+    /**
+     * Start stock cars synchronization.
+     */
+    public function syncStockCars()
     {
-        $exitCode = Artisan::call('nellemann:sync-stock-cars');
+        Artisan::call('nellemann:sync-stock-cars');
 
-        return response()->json([
-            'success' => $exitCode === 0,
-            'message' => 'Jobs dispatched',
-            'output' => Artisan::output(),
-        ]);
+        return redirect()->back()->with('success', 'Stock cars sync started!');
     }
 }

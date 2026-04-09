@@ -23,7 +23,7 @@ class AssetMapper
             return new AssetData(
                 struct_id: $assetData->get('Id', ''),
                 name: $assetData->get('Name', ''),
-                url: $assetData->get('Url', ''),
+                url: str_replace('https://nellemann.cloud12.structpim.com', 'https://pim.nellemann.dk', $assetData->get('Url', '')),
                 file_type: $assetData->get('FileType', ''),
                 type: $assetData->get('Type', ''),
             );

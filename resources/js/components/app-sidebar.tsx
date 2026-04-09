@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Braces, LayoutGrid, List, RefreshCcw } from 'lucide-react';
+import { Braces, LayoutGrid, User, Car, ShieldCheck, RefreshCcw } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -25,16 +25,21 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Cars',
         href: '/cars',
-        icon: List,
+        icon: Car,
     },
      {
         title: 'Dealers',
         href: '/dealers',
-        icon: List,
+        icon: User,
     },
 ];
 
 const footerNavItems: NavItem[] = [
+     {
+        title: 'Compliance text templates',
+        href: '/compliance-text-templates',
+        icon: ShieldCheck  ,
+    },
     {
         title: 'Synchronization',
         href: '/synchronization',

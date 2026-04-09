@@ -13,8 +13,18 @@
             <div class="relative w-full h-full">
 
                 <img src="{{ $car->price_list?->primary_image?->url }}" class="w-full h-full object-cover rounded-lg">
-
-                <img src="{{ asset('images/logo-white.png') }}" width="125" class="right-6 bottom-4 absolute">
+                
+                <div class="right-6 bottom-6 absolute space-y-3">
+                    <div class="bg-primary p-1.5 inline-block space-y-1.5 rounded-lg">
+                        <div class="rounded-lg overflow-hidden">
+                            <x-qr-code
+                                data="{{ $car->urls->test_drive }}"
+                                size="90"
+                            />
+                        </div>
+                        <div class="text-white text-xs font-bold text-center">Book prøvetur</div>
+                    </div>
+                </div>
                
                 <div class="top-9 left-21 absolute font-bold text-white text-6xl">
                     {{ $car->name }}
@@ -50,7 +60,7 @@
         @endif
 
         <!-- Models & Prices -->
-        <section class="mx-auto max-w-4xl">
+        <section class="mx-auto max-w-[210mm]">
 
             <div class="flex justify-between items-center mb-3">
                 <div class="font-bold text-xl">
@@ -62,8 +72,8 @@
             <div class="text-xs text-primary">
                 @php
                     $headers = [
-                        ['label' => 'Udstyrsvariant', 'col' => 'col-span-4 text-left'],
-                        ['label' => 'Ydelse', 'col' => 'col-span-2 text-center'],
+                        ['label' => 'Udstyrsvariant', 'col' => 'w-[130px] text-left'],
+                        ['label' => 'Ydelse', 'col' => 'w-[35px] text-center'],
                         ['label' => 'Batteri', 'col' => 'col-span-2 text-center'],
                         ['label' => 'Rækkevidde*', 'col' => 'col-span-2 text-center'],
                         ['label' => 'Forbrug*', 'col' => 'col-span-2 text-center'],
@@ -75,12 +85,17 @@
                 @endphp
 
                 <div class="bg-primary p-2 rounded">
-                    <div class="grid grid-cols-23 gap-2 items-center">
-                        @foreach ($headers as $header)
-                            <div class="{{ $header['col'] }}">
-                                <p class="font-bold text-white leading-tight">{!! $header['label'] !!}</p>
-                            </div>
-                        @endforeach
+                    <div class="flex gap-2 items-center text-white font-bold leading-tight">
+                        <span class="w-[130px] text-left">Udstyrsvariant</span>
+                        <span class="w-[50px] text-center">Drivaksel</span>
+                        <span class="w-[50px] text-center">Ydelse</span>
+                        <span class="w-[55px] text-center">Batteri</span>
+                        <span class="w-[75px] text-center">Rækkevidde*</span>
+                        <span class="w-[65px] text-center">Forbrug*</span>
+                        <span class="w-[100px] text-center">Normalopladning <br><span class="font-light text-[9px]">(AC 0-100%)</span></span>
+                        <span class="w-[100px] text-center">Hurtigopladning <br><span class="font-light text-[9px]">(DC 10-80%)</span></span>
+                        <span class="w-[60px] text-center">Halvårlig CO<sub>2</sub>-afgift</span>
+                        <span class="w-[60px] text-center">Pris</span>
                     </div>
                 </div>
 
@@ -99,45 +114,49 @@
                             $price = $powertrain->prices->last();
                         @endphp
 
-                        <div class="grid grid-cols-23 gap-2 items-center p-2 border-b border-primary-low">
+                        <div class="flex gap-2 items-center p-2 border-b border-primary-low">
 
-                            <div class="col-span-4 text-left">
+                            <div class="w-[130px] text-left">
                                 {{ $engine->name ?? '-' }}
                             </div>
 
-                            <div class="col-span-2 text-center">
+                            <div class="w-[50px] text-center">
+                                {{ $engine->drive }}
+                            </div>
+
+                            <div class="w-[50px] text-center">
                                 {{ $engine->horse_power ? $engine->horse_power.' hk' : '-' }}
                             </div>
 
-                            <div class="col-span-2 text-center">
+                            <div class="w-[55px] text-center">
                                 {{ $tech->battery_size ? $tech->battery_size.' kWh' : '-' }}
                             </div>
 
-                            <div class="col-span-2 text-center">
+                            <div class="w-[75px] text-center">
                                 {{ $configTech?->pure_electric_range ? $configTech->pure_electric_range.' km' : '-' }}
                             </div>
 
-                            <div class="col-span-2 text-center">
+                            <div class="w-[65px] text-center">
                                 {{ $configTech?->consumption?->number ? $configTech->consumption->number.' Wh/km' : '-' }}
                             </div>
 
-                            <div class="col-span-3 text-center">
+                            <div class="w-[100px] text-center">
                                 {{ $tech->ac_charging_speed && $tech->ac_charging_time
                                     ? $tech->ac_charging_speed.' kW / '. formatTimeString($tech->ac_charging_time)
                                     : '-' }}
                             </div>
 
-                            <div class="col-span-3 text-center">
+                            <div class="w-[100px] text-center">
                                 {{ $tech->dc_charging_speed && $tech->dc_charging_time
                                     ? $tech->dc_charging_speed.' kW / '. formatTimeString($tech->dc_charging_time)
                                     : '-' }}
                             </div>
 
-                            <div class="col-span-2 text-center">
+                            <div class="w-[60px] text-center">
                                 {{ $configTech?->owner_tax ? $configTech->owner_tax.' kr.' : '-' }}
                             </div>
 
-                            <div class="col-span-3 text-center">
+                            <div class="w-[60px] text-center">
                                 {{ $price && $price->suggested_retail_price != 0
                                     ? Number::format($price->suggested_retail_price, locale: 'da').' kr.'
                                     : '-' }}
@@ -151,11 +170,24 @@
             </div>
 
             <div class="space-y-2 text-xs text-primary mt-4">
-                @foreach (['price', 'consumption', 'changes'] as $key)
-                    @if(!empty($complianceTexts[$key]))
-                        <div>{!! $complianceTexts[$key] !!}</div>
-                    @endif
-                @endforeach
+                @php
+                    $pricingYear = compliance_text_for(['car' => $car], 'pricing_validity_year');
+                    $deliveryYear = compliance_text_for(['car' => $car], 'pricing_validity_delivery_year');
+                    $wltp = compliance_text_for(['car' => $car], 'wltp_disclaimer');
+                @endphp
+
+                @if($pricingYear || $deliveryYear)
+                    <div>
+                        {{ $pricingYear }}
+                        {{ $deliveryYear }}
+                    </div>
+                @endif
+
+                @if($wltp)
+                    <div>
+                        {{ $wltp }}
+                    </div>
+                @endif
             </div>
 
             <div class="grid grid-cols-2 gap-8 text-xs text-primary mt-10">
@@ -165,24 +197,28 @@
                     </div>
 
                     <div class="divide-y divide-primary-low border-b border-primary-low">
+                        @php
+                            $warranties = $car->warranties['primary']
+                        @endphp
+                        
                         <div class="grid grid-cols-2 p-2">
                             <p>Garanti</p>
-                            <p>7 år / 150.000 km</p>
+                            <p>{{ $warranties->base_warranty }}</p>
                         </div>
 
                         <div class="grid grid-cols-2 p-2">
                             <p>Batterigaranti</p>
-                            <p>8 år / 160.000 km</p>
+                            <p>{{ $warranties->hv_battery_warranty }}</p>
                         </div>
 
                         <div class="grid grid-cols-2 p-2">
                             <p>Lakgaranti</p>
-                            <p>5 år / 150.000 km</p>
+                            <p>{{ $warranties->paint_warranty }}</p>
                         </div>
 
                         <div class="grid grid-cols-2 p-2">
                             <p>Gennemtæringsgaranti</p>
-                            <p>12 år / ubegrænset km</p>
+                             <p>{{ $warranties->corrosion_warranty }}</p>
                         </div>
                     </div>
                 </div>
@@ -206,8 +242,7 @@
         @pageBreak
 
         <!-- Colors & Prices -->
-        
-        <section class="mx-auto max-w-4xl">
+        <section class="mx-auto max-w-[210mm]">
 
             <div class="flex justify-between items-center mb-3">
                 <div class="font-bold text-xl">
@@ -284,7 +319,7 @@
         @pageBreak
 
         <!-- Extra Equipment Packages-->
-        <section class="mx-auto max-w-4xl">
+        <section class="mx-auto max-w-[210mm]">
 
             <div class="flex justify-between items-center mb-3">
                 <div class="font-bold text-xl">
@@ -352,7 +387,7 @@
 
         @pageBreak
 
-        <section class="mx-auto max-w-4xl">
+        <section class="mx-auto max-w-[210mm]">
 
             <div class="flex justify-between items-center mb-3">
                 <div class="font-bold text-xl">
@@ -413,7 +448,7 @@
 
         @pageBreak
 
-        <section class="mx-auto max-w-4xl">
+        <section class="mx-auto max-w-[210mm]">
 
             <div class="flex justify-between items-center mb-3">
                 <div class="font-bold text-xl">
@@ -480,7 +515,7 @@
         @endphp
 
         @foreach($trims as $trim)
-            <section class="mx-auto max-w-4xl">
+            <section class="mx-auto max-w-[210mm]">
 
                 <div class="flex justify-between items-center mb-3">
                     <div class="font-bold text-xl">

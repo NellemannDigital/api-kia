@@ -16,7 +16,8 @@ use App\Data\Car\{
     ChannelsData,
     PriceListData,
     InsuranceRateData,
-    FileData
+    FileData,
+    WarrantyData
 };
 
 class CarData extends Data
@@ -38,6 +39,9 @@ class CarData extends Data
         public ChannelsData $channels,
         public ?PriceListData $price_list = null,
         public ?array $categories = [],
+        
+        #[DataCollectionOf(WarrantyData::class)]
+        public array $warranties = [],
 
         #[DataCollectionOf(FileData::class)]
         public array $files = [],

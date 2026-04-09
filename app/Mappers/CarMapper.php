@@ -15,7 +15,8 @@ use App\Data\Car\{
     FileData,
     ChannelsData,
     PriceListData,
-    InsuranceRateData
+    InsuranceRateData,
+    WarrantyData
 };
 use App\Data\Car\PriceList\CampaignData as PriceListCampaignData;
 use App\Mappers\Car\ChannelsMapper;
@@ -49,6 +50,7 @@ class CarMapper
             $primaryImage = self::resolveAsset($attributesData, 'PrimaryImage', $getAsset);
             $channels = ChannelsMapper::map($attributesData);
             $priceList = self::mapPriceList($attributesData, $getAsset);
+            $warranties = self::mapWarranties($attributesData->get('KiaVariant'));
 
             return new CarData(
                 struct_id: $structId,
@@ -68,7 +70,8 @@ class CarMapper
                 categories: $categories,
                 urls: $urls,
                 channels: $channels,
-                price_list: $priceList
+                price_list: $priceList,
+                warranties: $warranties
             );
 
         } catch (Throwable $e) {
@@ -296,5 +299,38 @@ class CarMapper
         if (!$campaignImage && !$validFrom && !$validTo) return null;
 
         return new PriceListCampaignData(image: $campaignImage, valid_from: $validFrom, valid_to: $validTo);
+    }
+
+    protected static function mapWarranties(array|Collection|null $attributes): ?array
+    {
+        if (!$attributes) {
+            return null;
+        }
+
+        $primary = Arr::get($attributes, 'PrimaryWarranty');
+        $secondary = Arr::get($attributes, 'SecondaryWarranty');
+
+        if (!$primary && !$secondary) {
+            return null;
+        }
+
+        $mapWarranty = function ($warranty): ?WarrantyData {
+            if (!$warranty) return null;
+
+            return new WarrantyData(
+                registration_purpose: Arr::get($warranty, 'RegistrationPurpose'),
+                base_warranty: Arr::get($warranty, 'BaseWarranty'),
+                unlimited_period: Arr::get($warranty, 'UnlimitedPeriod'),
+                hv_battery_warranty: Arr::get($warranty, 'HVBatteryWarranty'),
+                paint_warranty: Arr::get($warranty, 'PaintWarranty'),
+                corrosion_warranty: Arr::get($warranty, 'CorrosionWarranty'),
+                vehicle_type: Arr::get($warranty, 'VehicleType.Type')
+            );
+        };
+
+        return [
+            'primary' => $mapWarranty($primary),
+            'secondary' => $mapWarranty($secondary),
+        ];
     }
 }

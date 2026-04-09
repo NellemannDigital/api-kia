@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use App\Data\Dealer\{
-    ChannelsData,
+    ToolsData,
     EmailsData,
     UrlsData,
     TypesData,
@@ -47,7 +47,7 @@ class DealerMapper
             $longitude = $dealerData['pin_longitude'] ?? null;
             $phone = $dealerData['pin_telefon'] ?? '';
 
-            $channels = self::mapChannels($dealerData);
+            $tools = self::mapTools($dealerData);
             $emails = self::mapEmails($dealerData);
             $urls = self::mapUrls($dealerData);
             $types = self::mapTypes($dealerData);
@@ -77,7 +77,7 @@ class DealerMapper
                 latitude: $latitude,
                 longitude: $longitude,
                 phone: $phone,
-                channels: $channels,
+                tools: $tools,
                 emails: $emails,
                 urls: $urls,
                 types: $types,
@@ -96,7 +96,7 @@ class DealerMapper
         }
     }
 
-    protected static function mapChannels(array|Collection|null $attributes): ?ChannelsData
+    protected static function mapTools(array|Collection|null $attributes): ?ToolsData
     {
         if (!$attributes) return null;
 
@@ -107,12 +107,13 @@ class DealerMapper
             'sales_advisor' => Arr::get($attributes, 'pin_salgsraadgiver'),
             'pickup_location' => Arr::get($attributes, 'pin_webshoppickuplocation'),
             'insurance_calculator' => Arr::get($attributes, 'pin_forsikringsberegner'),
-            'pdf_list' => Arr::get($attributes, 'pin_pdfliste')
+            'pdf_list' => Arr::get($attributes, 'pin_pdfliste'),
+            'book_service' => Arr::get($attributes, 'pin_bookserviceenabled')
         ];
 
         if (!array_filter($values)) return null;
 
-        return new ChannelsData(...$values);
+        return new ToolsData(...$values);
     }
 
     protected static function mapEmails(array|Collection|null $attributes): ?EmailsData

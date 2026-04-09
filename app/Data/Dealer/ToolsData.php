@@ -4,7 +4,7 @@ namespace App\Data\Dealer;
 
 use Spatie\LaravelData\Data;
 
-class ChannelsData extends Data
+class ToolsData extends Data
 {
     public function __construct(
         public bool $web = false,
@@ -14,6 +14,7 @@ class ChannelsData extends Data
         public bool $pickup_location = false,
         public bool $insurance_calculator = false,
         public bool $pdf_list = false,
+        public bool $book_service = false,
     ) {}
 }
 

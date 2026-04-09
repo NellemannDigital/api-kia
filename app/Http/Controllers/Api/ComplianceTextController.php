@@ -14,55 +14,26 @@ class ComplianceTextController extends Controller
 {
     public function show(Request $request)
     {
-        $variant = $request->get('variant', 'default');
+        $car = Car::with([
+            'trims.powertrains.configuration'
+        ])->find(1);
 
-        if ($request->has('configuration_id')) {
+        $trim = Trim::with([
+            'powertrains.configuration'
+        ])->find(3);
 
-            $powertrain = Powertrain::withoutGlobalScopes()->where('configuration_id', $request->configuration_id)->firstOrFail();
-            
-            $query = Configuration::withoutGlobalScopes()
-                ->where('powertrain_id', $powertrain->id);
+        $powertrain = Powertrain::with([
+            'configuration'
+        ])->find(5);
 
-            if ($request->filled('package_codes')) {
-                $packageCodes = collect(explode(',', $request->package_codes))
-                    ->map(fn ($c) => trim($c))
-                    ->filter()
-                    ->values();
+        $roots = [
+            'car' => $car,
+            'trim' => $trim,
+            'powertrain' => $powertrain
+        ];
 
-                foreach ($packageCodes as $code) {
-                    $query->whereHas('extraEquipmentPackages', function ($q) use ($code) {
-                        $q->where('code', $code);
-                    });
-                }
+        $text = (new ComplianceTextService())->resolve($roots, 'configurator');
 
-                $query->whereDoesntHave('extraEquipmentPackages', function ($q) use ($packageCodes) {
-                    $q->whereNotIn('code', $packageCodes);
-                });
-            }
-
-            $config = $query->firstOrFail();
-
-            if($config->technical_specifications) {
-                $text = app(ComplianceTextService::class)->getForConfiguration($config, $variant);
-            } else {
-                $text = app(ComplianceTextService::class)->getForPowertrain($powertrain, $variant);
-            }
-        } elseif ($request->has('powertrain_id')) {
-            $powertrain = Powertrain::withoutGlobalScopes()->where('configuration_id', $request->powertrain_id)->firstOrFail();
-            $text = app(ComplianceTextService::class)->getForPowertrain($powertrain, $variant);
-        } elseif ($request->has('trim_id')) {
-            $trim = Trim::withoutGlobalScopes()->with('powertrains.configuration')->where('struct_id', $request->trim_id)->firstOrFail();
-            $text = app(ComplianceTextService::class)->getForTrim($trim, $variant);
-        } elseif ($request->has('car_id')) {
-            $car = Car::withoutGlobalScopes()->with('trims.powertrains.configuration')->where('struct_id', $request->car_id)->firstOrFail();
-            $text = app(ComplianceTextService::class)->getForCar($car, $variant);
-        } else {
-            $text = app(ComplianceTextService::class)->getForGlobal($variant);
-        }
-
-        return response()->json([
-            'text' => $text,
-            'variant' => $variant,
-        ]);
+        dd($text);
     }
 }

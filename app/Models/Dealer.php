@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Data\Dealer\ChannelsData;
+use App\Data\Dealer\ToolsData;
 use App\Data\Dealer\EmailsData;
 use App\Data\Dealer\OpeningHoursData;
 use App\Data\Dealer\PostalCodesData;
@@ -23,7 +23,7 @@ class Dealer extends Model
         'rooftop_id',
         'dealer_guid',
         'owner_guid',
-        'channels',
+        'tools',
         'name',
         'display_name',
         'cvr_number',
@@ -45,7 +45,7 @@ class Dealer extends Model
     ];
 
     protected $casts = [
-        'channels' => ChannelsData::class,
+        'tools' => ToolsData::class,
         'emails' => EmailsData::class,
         'urls' => UrlsData::class,
         'types' => TypesData::class,

@@ -603,6 +603,7 @@ class TrimMapper
         $data = [
             'name' => Arr::get($attributes, 'Name'),
             'code' => Arr::get($attributes, 'Code'),
+            'drive' => Arr::get($attributes, 'Drive'),
             'horse_power' => Arr::get($attributes, 'HorsePower'),
             'amount_of_cylinders' => Arr::get($attributes, 'AmountOfCylinders'),
             'amount_of_valves' => Arr::get($attributes, 'AmountOfValves'),

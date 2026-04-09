@@ -5,7 +5,7 @@ namespace App\Data;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 use App\Data\Dealer\{
-    ChannelsData,
+    ToolsData,
     EmailsData,
     UrlsData,
     TypesData,
@@ -26,7 +26,7 @@ class DealerData extends Data
         public ?string $rooftop_id,
         public ?string $dealer_guid,
         public ?string $owner_guid,
-        public ?ChannelsData $channels = null,
+        public ?ToolsData $tools = null,
         public string $name,
         public ?string $display_name,
         public ?int $cvr_number,

@@ -24,7 +24,7 @@ class SyncConfigurationsJob implements ShouldQueue
         $ids = $productsSearchRequest->getProductIds('944096c2-c7af-4396-ab32-058276a495a2');
         $jobs = [];
 
-        foreach ($ids as $id) {
+        foreach ([2189918, 2196510, 2196511, 2189920, 2189919, 2189916, 2204222] as $id) {
             $jobs[] = new SyncConfigurationJob($id);
         };
 
