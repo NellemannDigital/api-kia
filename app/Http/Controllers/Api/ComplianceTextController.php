@@ -6,6 +6,7 @@ use App\Models\Car;
 use App\Models\Configuration;
 use App\Models\Powertrain;
 use App\Models\Trim;
+use App\Models\ComplianceTextTemplate;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\ComplianceTextService;
@@ -24,13 +25,17 @@ class ComplianceTextController extends Controller
             ? Powertrain::with(['configuration'])->find($request->powertrain_id)
             : null;
 
+        $template = $request->template
+            ? ComplianceTextTemplate::find($request->template)
+            : null;
+
         $roots = [
             'car' => $car,
             'trim' => $trim,
             'powertrain' => $powertrain
         ];
 
-        $text = (new ComplianceTextService())->resolve($roots, 'configurator');
+        $text = (new ComplianceTextService())->resolve($roots, $template->variant ?? 'configurator');
         
 
         return response()->json([

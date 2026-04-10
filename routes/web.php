@@ -53,6 +53,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/compliance-text', [ComplianceTextController::class, 'index'])->name('compliance.index');
 });
 
+Route::get('/embed/compliance.js', function () {
+    return response()->file(public_path('embed/compliance.js'), [
+        'Content-Type' => 'application/javascript',
+    ]);
+});
+
 Route::get('/batches/{id}', function ($id) {
     $batch = Bus::findBatch($id);
 

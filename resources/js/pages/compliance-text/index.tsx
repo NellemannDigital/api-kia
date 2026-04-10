@@ -24,17 +24,23 @@ const breadcrumbs = [
 
 interface Props {
   cars: Car[];
+  templates: {
+    id: number;
+    variant: string;
+  }[];
 }
 
-export default function Index({ cars }: Props) {
+export default function Index({ cars, templates }: Props) {
 
   const [selectedCarId, setSelectedCarId] = useState<number | null>(null);
   const [selectedTrimId, setSelectedTrimId] = useState<number | null>(null);
   const [selectedPowertrainId, setSelectedPowertrainId] = useState<number | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
   const [complianceText, setComplianceText] = useState<string>('');
   const [loadingText, setLoadingText] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedEmbed, setCopiedEmbed] = useState(false);
 
   const selectedCar = useMemo(
     () => cars.find(c => c.id === selectedCarId),
@@ -85,6 +91,39 @@ export default function Index({ cars }: Props) {
     setTimeout(() => setCopied(false), 1500);
   };
 
+  const handleEmbedCopy = async () => {
+    if (!embedCode) return;
+
+    await navigator.clipboard.writeText(embedCode);
+
+    setCopiedEmbed(true);
+
+    setTimeout(() => setCopiedEmbed(false), 1500);
+  };
+
+  const embedCode = useMemo(() => {
+    if (!selectedCarId || !selectedTemplateId) return "";
+
+    return `<style>
+  .kia-compliance {
+    --kia-font: Arial, sans-serif;
+    --kia-color: #111;
+    --kia-font-size: 14px;
+    --kia-line-height: 1.6;
+  }
+</style>
+
+<div
+  id="kia-compliance"
+  data-car="${selectedCarId}"
+  data-trim="${selectedTrimId ?? ""}"
+  data-powertrain="${selectedPowertrainId ?? ""}"
+  data-template="${selectedTemplateId}"
+></div>
+
+<script src="https://api-kia.test/embed/compliance.js"></script>`;
+  }, [selectedCarId, selectedTrimId, selectedPowertrainId, selectedTemplateId]);
+
   useEffect(() => {
     if (!selectedCarId) {
       setComplianceText('');
@@ -102,7 +141,8 @@ export default function Index({ cars }: Props) {
           params: {
             car_id: selectedCarId,
             trim_id: selectedTrimId,
-            powertrain_id: selectedPowertrainId
+            powertrain_id: selectedPowertrainId,
+            template: selectedTemplateId,
           }
         });
 
@@ -123,7 +163,7 @@ export default function Index({ cars }: Props) {
       source.cancel();
     };
 
-  }, [selectedCarId, selectedTrimId, selectedPowertrainId]);
+  }, [selectedCarId, selectedTrimId, selectedPowertrainId, selectedTemplateId]);
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -132,11 +172,32 @@ export default function Index({ cars }: Props) {
       <div className="p-4">
         <div className="grid sm:grid-cols-4 gap-4">
 
+          {/* TEMPLATE */}
+          <div className="sm:col-span-2">
+            <Select
+              value={selectedTemplateId ? String(selectedTemplateId) : ""}
+              onValueChange={(value) => setSelectedTemplateId(Number(value))}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select template" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {templates.map((template) => (
+                  <SelectItem key={template.id} value={String(template.id)}>
+                    {template.variant}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* CAR */}
           <div className="sm:col-span-2">
             <Select
               value={selectedCarId ? String(selectedCarId) : ""}
               onValueChange={handleCarChange}
+              disabled={!selectedTemplateId}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a car" />
@@ -240,6 +301,30 @@ export default function Index({ cars }: Props) {
                 className="absolute top-2 right-2"
               >
                 {copied ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* EMBED OUTPUT */}
+          <div className="sm:col-span-4 space-y-2">
+            <div className="relative">
+              <Textarea
+                value={embedCode}
+                readOnly
+                className="min-h-[120px] font-mono text-xs"
+              />
+
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleEmbedCopy}
+                className="absolute top-2 right-2"
+              >
+                {copiedEmbed? (
                   <Check className="h-4 w-4 text-green-500" />
                 ) : (
                   <Copy className="h-4 w-4" />
