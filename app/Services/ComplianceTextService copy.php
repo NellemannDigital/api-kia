@@ -9,7 +9,7 @@ use App\Models\Configuration;
 use App\Models\ComplianceTextTemplate;
 use Illuminate\Support\Str;
 
-class ComplianceTextService
+class ComplianceTextService2
 {
     public function getForCar(Car $car, string $variant = 'default'): string
     {

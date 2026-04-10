@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\ComplianceTextTemplate;
 use Illuminate\Support\Str;
 
-class ComplianceTextService
+class ComplianceTextService3
 {
     /**
      * Resolve a compliance template dynamically based on roots

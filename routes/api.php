@@ -24,4 +24,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/stock-cars-price-range', [StockCarController::class, 'priceRange']);
 });
 
-Route::get('/compliance-text', [ComplianceTextController::class, 'show']);
+Route::get('/compliance-text', [ComplianceTextController::class, 'show'])->name('compliance.text');

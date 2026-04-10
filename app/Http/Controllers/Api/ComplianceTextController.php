@@ -14,17 +14,15 @@ class ComplianceTextController extends Controller
 {
     public function show(Request $request)
     {
-        $car = Car::with([
-            'trims.powertrains.configuration'
-        ])->find(1);
+        $car = Car::with(['trims.powertrains.configuration'])->findOrFail($request->car_id);
 
-        $trim = Trim::with([
-            'powertrains.configuration'
-        ])->find(3);
+        $trim = $request->trim_id
+            ? Trim::with(['powertrains.configuration'])->find($request->trim_id)
+            : null;
 
-        $powertrain = Powertrain::with([
-            'configuration'
-        ])->find(5);
+        $powertrain = $request->powertrain_id
+            ? Powertrain::with(['configuration'])->find($request->powertrain_id)
+            : null;
 
         $roots = [
             'car' => $car,
@@ -33,7 +31,10 @@ class ComplianceTextController extends Controller
         ];
 
         $text = (new ComplianceTextService())->resolve($roots, 'configurator');
+        
 
-        dd($text);
+        return response()->json([
+            'text' => $text
+        ]);
     }
 }
