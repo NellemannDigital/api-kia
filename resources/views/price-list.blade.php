@@ -41,6 +41,26 @@
 
         @pageBreak
 
+        <style>
+  .kia-compliance {
+    --kia-font: Arial, sans-serif;
+    --kia-color: #111;
+    --kia-font-size: 14px;
+    --kia-line-height: 1.6;
+  }
+</style>
+
+<div
+  class="kia-compliance"
+  data-car="1"
+  data-trim="1"
+  data-powertrain="1"
+  data-extras='6REL,20"'
+  data-template="4"
+></div>
+
+<script src="https://api-kia.test/embed/compliance.js"></script>
+
         <!-- Campaign -->
         @if($car->price_list->campaign?->valid_from
             && $car->price_list->campaign?->valid_to

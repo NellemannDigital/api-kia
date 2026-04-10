@@ -15,6 +15,7 @@ class ComplianceTextController extends Controller
 {
     public function show(Request $request)
     {
+
         $car = Car::with(['trims.powertrains.configuration'])->findOrFail($request->car_id);
 
         $trim = $request->trim_id
@@ -25,6 +26,30 @@ class ComplianceTextController extends Controller
             ? Powertrain::with(['configuration'])->find($request->powertrain_id)
             : null;
 
+        $configuration = null;
+
+        $packageCodes = collect($request->input('package_codes', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->values();
+
+        if ($powertrain && $packageCodes->isNotEmpty()) {
+
+            $query = Configuration::where('powertrain_id', $powertrain->id);
+
+            foreach ($packageCodes as $code) {
+                $query->whereHas('extraEquipmentPackages', function ($q) use ($code) {
+                    $q->where('code', $code);
+                });
+            }
+
+            $query->whereDoesntHave('extraEquipmentPackages', function ($q) use ($packageCodes) {
+                $q->whereNotIn('code', $packageCodes);
+            });
+
+            $configuration = $query->first();
+        }
+
         $template = $request->template
             ? ComplianceTextTemplate::find($request->template)
             : null;
@@ -32,7 +57,8 @@ class ComplianceTextController extends Controller
         $roots = [
             'car' => $car,
             'trim' => $trim,
-            'powertrain' => $powertrain
+            'powertrain' => $powertrain,
+            'configuration' => $configuration,
         ];
 
         $text = (new ComplianceTextService())->resolve($roots, $template->variant ?? 'configurator');

@@ -35,6 +35,7 @@ export default function Index({ cars, templates }: Props) {
   const [selectedCarId, setSelectedCarId] = useState<number | null>(null);
   const [selectedTrimId, setSelectedTrimId] = useState<number | null>(null);
   const [selectedPowertrainId, setSelectedPowertrainId] = useState<number | null>(null);
+  const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
   const [complianceText, setComplianceText] = useState<string>('');
@@ -53,7 +54,7 @@ export default function Index({ cars, templates }: Props) {
   );
 
   const selectedTrim = useMemo(
-    () => trims.find(t => t.id === selectedTrimId),
+    () => trims.find(t => Number(t.id) === Number(selectedTrimId)),
     [trims, selectedTrimId]
   );
 
@@ -62,12 +63,18 @@ export default function Index({ cars, templates }: Props) {
     [selectedTrim]
   );
 
+  const selectedPowertrain = useMemo(
+    () => powertrains.find(pt => pt.id === selectedPowertrainId),
+    [powertrains, selectedPowertrainId]
+  );
+
   const handleCarChange = (value: string) => {
     const id = Number(value);
 
     setSelectedCarId(id);
     setSelectedTrimId(null);
     setSelectedPowertrainId(null);
+    setSelectedExtras([]);
   };
 
   const handleTrimChange = (value: string) => {
@@ -75,10 +82,12 @@ export default function Index({ cars, templates }: Props) {
 
     setSelectedTrimId(id);
     setSelectedPowertrainId(null);
+    setSelectedExtras([]);
   };
 
   const handlePowertrainChange = (value: string) => {
     setSelectedPowertrainId(Number(value));
+    setSelectedExtras([]);
   };
 
   const handleCopy = async () => {
@@ -114,15 +123,16 @@ export default function Index({ cars, templates }: Props) {
 </style>
 
 <div
-  id="kia-compliance"
+  class="kia-compliance"
   data-car="${selectedCarId}"
   data-trim="${selectedTrimId ?? ""}"
   data-powertrain="${selectedPowertrainId ?? ""}"
+  data-extras="${selectedExtras.join(',')}"
   data-template="${selectedTemplateId}"
 ></div>
 
 <script src="https://api-kia.test/embed/compliance.js"></script>`;
-  }, [selectedCarId, selectedTrimId, selectedPowertrainId, selectedTemplateId]);
+  }, [selectedCarId, selectedTrimId, selectedPowertrainId, selectedExtras, selectedTemplateId]);
 
   useEffect(() => {
     if (!selectedCarId) {
@@ -142,6 +152,7 @@ export default function Index({ cars, templates }: Props) {
             car_id: selectedCarId,
             trim_id: selectedTrimId,
             powertrain_id: selectedPowertrainId,
+            package_codes: selectedExtras,
             template: selectedTemplateId,
           }
         });
@@ -163,7 +174,7 @@ export default function Index({ cars, templates }: Props) {
       source.cancel();
     };
 
-  }, [selectedCarId, selectedTrimId, selectedPowertrainId, selectedTemplateId]);
+  }, [selectedCarId, selectedTrimId, selectedPowertrainId, selectedExtras, selectedTemplateId]);
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -250,6 +261,7 @@ export default function Index({ cars, templates }: Props) {
             </Button>
           </div>
 
+        
           {/* POWERTRAIN */}
           <div className="flex gap-2 sm:col-span-2">
             <Select
@@ -283,6 +295,43 @@ export default function Index({ cars, templates }: Props) {
               <X />
             </Button>
           </div>
+
+
+          {/* EXTRAS */}
+          {selectedPowertrainId && (
+            <div className="sm:col-span-4">
+              <div className="border rounded-md p-3 space-y-2">
+                <p className="text-sm font-medium">Extra equipment</p>
+
+                <div className="flex flex-wrap gap-2">
+                  {selectedTrim?.extra_equipment_packages.map(extra => {
+                      const active = selectedExtras.includes(extra.code);
+
+                      return (
+                        <button
+                          key={extra.code}
+                          type="button"
+                          onClick={() => {
+                            setSelectedExtras(prev =>
+                              prev.includes(extra.code)
+                                ? prev.filter(x => x !== extra.code)
+                                : [...prev, extra.code]
+                            );
+                          }}
+                          className={`px-3 py-1 rounded-md border text-sm transition bg-black text-white ${
+                            active
+                              ? "border border-white"
+                              : ""
+                          }`}
+                        >
+                          {extra.name}
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* TEXT OUTPUT */}
           <div className="sm:col-span-4">

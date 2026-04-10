@@ -5,6 +5,7 @@
     const carId = el.dataset.car;
     const trimId = el.dataset.trim || null;
     const powertrainId = el.dataset.powertrain || null;
+    const extras = el.dataset.extras || null;
     const template = el.dataset.template;
 
     if (!carId || !template) {
@@ -49,6 +50,12 @@
 
     if (trimId) params.append("trim_id", trimId);
     if (powertrainId) params.append("powertrain_id", powertrainId);
+   
+    if (extras) {
+        extras.split(",").forEach(code => {
+            params.append("package_codes[]", code);
+        });
+    }
 
     fetch(`${API_URL}?${params.toString()}`)
       .then((res) => res.json())

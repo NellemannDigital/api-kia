@@ -14,7 +14,11 @@ class ComplianceTextController extends Controller
 {
     public function index()
     {
-        $cars = Car::with(['trims.powertrains.configuration'])->get();
+        $cars = Car::with([
+            'trims.powertrains.configuration',
+            'trims.extraEquipmentPackages',
+        ])->get();
+
         $templates = ComplianceTextTemplate::valid()->get();
 
         return Inertia::render('compliance-text/index', [
