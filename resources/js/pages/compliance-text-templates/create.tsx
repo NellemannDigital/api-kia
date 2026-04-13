@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { CalendarIcon, X } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
+import { da } from "date-fns/locale"
 
 import {
   Field,
@@ -38,7 +39,13 @@ const breadcrumbs = [
 ]
 
 function formatDate(date?: Date) {
-  return date?.toISOString().slice(0, 10) || ''
+  if (!date) return ''
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }
 
 export default function Create() {
@@ -144,6 +151,7 @@ export default function Create() {
                     <PopoverContent className="w-auto overflow-hidden p-0" align="end">
                       <Calendar
                         mode="single"
+                        locale={da}
                         selected={dateFrom}
                         onSelect={(date) => {
                           setDateFrom(date)
@@ -180,6 +188,7 @@ export default function Create() {
                         <PopoverContent className="w-auto overflow-hidden p-0" align="end">
                           <Calendar
                             mode="single"
+                            locale={da}
                             selected={dateTo}
                             onSelect={(date) => {
                               setDateTo(date)

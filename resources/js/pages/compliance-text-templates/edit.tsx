@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { CalendarIcon, X } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
+import { da } from "date-fns/locale"
 
 import {
   Field,
@@ -37,9 +38,14 @@ const breadcrumbs = [
   { title: 'Edit compliance text template', href: '/compliance-text-templates' }
 ]
 
-function formatDate(date?: string | Date) {
+function formatDate(date?: Date) {
   if (!date) return ''
-  return new Date(date).toLocaleDateString()
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }
 
 type Props = {
@@ -65,8 +71,8 @@ export default function Edit({ template }: Props) {
     variant: template.variant,
     template: template.template,
     version: template.version,
-    valid_from: formatDate(template.valid_from),
-    valid_to: formatDate(template.valid_to),
+    valid_from: formatDate(template.valid_from ? new Date(template.valid_from) : undefined),
+    valid_to: formatDate(template.valid_to ? new Date(template.valid_to) : undefined),
     show_in_generator: !!template.show_in_generator
   })
 
@@ -155,6 +161,7 @@ export default function Edit({ template }: Props) {
                     <PopoverContent className="w-auto overflow-hidden p-0" align="end">
                       <Calendar
                         mode="single"
+                        locale={da}
                         selected={dateFrom}
                         onSelect={d => { setDateFrom(d); setOpenFrom(false) }}
                       />
@@ -187,6 +194,7 @@ export default function Edit({ template }: Props) {
                       <PopoverContent className="w-auto overflow-hidden p-0" align="end">
                         <Calendar
                           mode="single"
+                          locale={da}
                           selected={dateTo}
                           onSelect={d => { setDateTo(d); setOpenTo(false) }}
                         />
