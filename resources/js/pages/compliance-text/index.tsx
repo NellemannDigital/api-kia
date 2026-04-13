@@ -44,7 +44,7 @@ export default function Index({ cars, templates }: Props) {
   const [copiedEmbed, setCopiedEmbed] = useState(false);
 
   const selectedCar = useMemo(
-    () => cars.find(c => c.id === selectedCarId),
+    () => cars.find(c => c.struct_id === selectedCarId),
     [cars, selectedCarId]
   );
 
@@ -54,7 +54,7 @@ export default function Index({ cars, templates }: Props) {
   );
 
   const selectedTrim = useMemo(
-    () => trims.find(t => Number(t.id) === Number(selectedTrimId)),
+    () => trims.find(t => Number(t.struct_id) === Number(selectedTrimId)),
     [trims, selectedTrimId]
   );
 
@@ -64,7 +64,7 @@ export default function Index({ cars, templates }: Props) {
   );
 
   const selectedPowertrain = useMemo(
-    () => powertrains.find(pt => pt.id === selectedPowertrainId),
+    () => powertrains.find(pt => pt.configuration_id === selectedPowertrainId),
     [powertrains, selectedPowertrainId]
   );
 
@@ -217,7 +217,7 @@ export default function Index({ cars, templates }: Props) {
                 <SelectGroup>
                   <SelectLabel>Cars</SelectLabel>
                   {cars.map(car => (
-                    <SelectItem key={car.id} value={String(car.id)}>
+                    <SelectItem key={car.struct_id} value={String(car.struct_id)}>
                       {car.name}
                     </SelectItem>
                   ))}
@@ -240,7 +240,7 @@ export default function Index({ cars, templates }: Props) {
                 <SelectGroup>
                   <SelectLabel>Trims</SelectLabel>
                   {trims.map(trim => (
-                    <SelectItem key={trim.id} value={String(trim.id)}>
+                    <SelectItem key={trim.struct_id} value={String(trim.struct_id)}>
                       {trim.name}
                     </SelectItem>
                   ))}
@@ -276,7 +276,7 @@ export default function Index({ cars, templates }: Props) {
                 <SelectGroup>
                   <SelectLabel>Powertrains</SelectLabel>
                   {powertrains.map(pt => (
-                    <SelectItem key={pt.id} value={String(pt.id)}>
+                    <SelectItem key={pt.configuration_id} value={String(pt.configuration_id)}>
                       {pt.engine.name}
                     </SelectItem>
                   ))}
@@ -303,14 +303,16 @@ export default function Index({ cars, templates }: Props) {
               <div className="border rounded-md p-3 space-y-2">
                 <p className="text-sm font-medium">Extra equipment</p>
 
-                <div className="flex flex-wrap gap-2">
-                  {selectedTrim?.extra_equipment_packages.map(extra => {
+                  <div className="flex flex-wrap gap-2">
+                    {selectedTrim?.extra_equipment_packages.map(extra => {
                       const active = selectedExtras.includes(extra.code);
 
                       return (
-                        <button
+                        <Button
                           key={extra.code}
                           type="button"
+                          size="sm"
+                          variant="outline"
                           onClick={() => {
                             setSelectedExtras(prev =>
                               prev.includes(extra.code)
@@ -318,17 +320,15 @@ export default function Index({ cars, templates }: Props) {
                                 : [...prev, extra.code]
                             );
                           }}
-                          className={`px-3 py-1 rounded-md border text-sm transition bg-black text-white ${
-                            active
-                              ? "border border-white"
-                              : ""
-                          }`}
                         >
+                          <span className="flex items-center justify-center w-4 h-4 rounded border">
+                            {active && <Check className="w-3 h-3" />}
+                          </span>
                           {extra.name}
-                        </button>
+                        </Button>
                       );
                     })}
-                </div>
+                  </div>
               </div>
             </div>
           )}
@@ -364,7 +364,7 @@ export default function Index({ cars, templates }: Props) {
               <Textarea
                 value={embedCode}
                 readOnly
-                className="min-h-[120px] font-mono text-xs"
+                className="min-h-[200px] bg-muted/30 text-sm font-mono pr-20"
               />
 
               <Button

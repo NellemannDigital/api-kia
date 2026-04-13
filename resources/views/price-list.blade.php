@@ -41,26 +41,6 @@
 
         @pageBreak
 
-        <style>
-  .kia-compliance {
-    --kia-font: Arial, sans-serif;
-    --kia-color: #111;
-    --kia-font-size: 14px;
-    --kia-line-height: 1.6;
-  }
-</style>
-
-<div
-  class="kia-compliance"
-  data-car="1"
-  data-trim="1"
-  data-powertrain="1"
-  data-extras='6REL,20"'
-  data-template="4"
-></div>
-
-<script src="https://api-kia.test/embed/compliance.js"></script>
-
         <!-- Campaign -->
         @if($car->price_list->campaign?->valid_from
             && $car->price_list->campaign?->valid_to
@@ -191,21 +171,21 @@
 
             <div class="space-y-2 text-xs text-primary mt-4">
                 @php
-                    $pricingYear = compliance_text_for(['car' => $car], 'pricing_validity_year');
-                    $deliveryYear = compliance_text_for(['car' => $car], 'pricing_validity_delivery_year');
-                    $wltp = compliance_text_for(['car' => $car], 'wltp_disclaimer');
+                    $priceListYear = compliance_text_for(['car' => $car], 'price_list_year');
+                    $priceListDelivery = compliance_text_for(['car' => $car], 'price_list_delivery');
+                    $priceListWltp = compliance_text_for(['car' => $car], 'price_list_wltp');
                 @endphp
 
-                @if($pricingYear || $deliveryYear)
+                @if($priceListYear || $priceListDelivery)
                     <div>
-                        {{ $pricingYear }}
-                        {{ $deliveryYear }}
+                        {{ $priceListYear }}
+                        {{ $priceListDelivery }}
                     </div>
                 @endif
 
-                @if($wltp)
+                @if($priceListWltp)
                     <div>
-                        {{ $wltp }}
+                        * {{ $priceListWltp }}
                     </div>
                 @endif
             </div>
@@ -256,7 +236,20 @@
                 </div>
             </div>
 
-            <div class="text-xs text-primary mt-10">Prisliste udskrevet pr. {{ date('d-m-Y')}}</div>
+            <div class="space-y-2 text-xs text-primary mt-10">
+                @php
+                    $priceListDisclaimer = compliance_text_for(['car' => $car], 'price_list_disclaimer');
+                @endphp
+
+                @if($priceListDisclaimer)
+                    <div>
+                        {{ $priceListDisclaimer }}
+                    </div>
+                @endif
+
+                <div class="text-xs text-primary">Prisliste udskrevet pr. {{ date('d-m-Y')}}</div>
+            </div>
+
        </section>
 
         @pageBreak
@@ -279,7 +272,18 @@
                     <div class="flex justify-end col-span-8">
                         @foreach ($trims as $trim)
                             <div class="w-24">
-                                <p class="text-center">{{ $trim->name }}</p>
+                                <p class="text-center">
+                                    {{ $trim->name }}
+                                    @if ($trim->uses_high_tax)
+                                        @php
+                                            $usesHighTax = true
+                                        @endphp
+
+                                        **
+                                    @else
+                                        *
+                                    @endif
+                                </p>
                             </div>
                         @endforeach
                     </div>
@@ -311,7 +315,32 @@
                         </div>
                     </div>
                 @endforeach
-            
+            </div>
+
+            <div class="space-y-2 text-xs text-primary mt-4">
+                @php
+                    $priceListMattColorDisclaimer = compliance_text_for(['car' => $car], 'price_list_matt_color_disclaimer');
+                    $priceListColorTax = compliance_text_for(['car' => $car], 'price_list_color_tax');
+                    $priceListColorHighTax = compliance_text_for(['car' => $car], 'price_list_color_high_tax');
+                @endphp
+
+                @if($priceListMattColorDisclaimer)
+                    <div>
+                        {{ $priceListMattColorDisclaimer }}
+                    </div>
+                @endif
+
+                @if($priceListColorTax)
+                    <div>
+                        * {{ $priceListColorTax }}
+                    </div>
+                @endif
+
+                @if($usesHighTax && $priceListColorHighTax)
+                    <div>
+                        ** {{ $priceListColorHighTax }}
+                    </div>
+                @endif
             </div>
 
             <div class="gap-6 grid grid-cols-4">
@@ -356,7 +385,19 @@
                     <div class="flex justify-end col-span-8">
                         @foreach ($trims as $trim)
                             <div class="w-24">
-                                <p class="text-center">{{ $trim->name }}</p>
+                                <p class="text-center">
+                                    {{ $trim->name }}
+
+                                    @if ($trim->uses_high_tax)
+                                        @php
+                                            $usesHighTax = true
+                                        @endphp
+
+                                        **
+                                    @else
+                                        *
+                                    @endif
+                                </p>
                             </div>
                         @endforeach
                     </div>
@@ -399,9 +440,39 @@
                     </div>
                 @endforeach
             </div>
-            <div class="mt-4 text-primary text-xs space-y-2">
+            <div class="space-y-2 text-xs text-primary mt-4">
+                @php
+                    $priceListExtrasDependency = compliance_text_for(['car' => $car], 'price_list_extras_dependency');
+                    $priceListExtrasWltp = compliance_text_for(['car' => $car], 'price_list_extras_wltp');
+                    $priceListExtrasTax = compliance_text_for(['car' => $car], 'price_list_extras_tax');
+                    $priceListExtrasHighTax = compliance_text_for(['car' => $car], 'price_list_extras_high_tax');
+                @endphp
+
                 <div>S = Standardudstyr</div>
-                <div>Nogle udstyrspakker kan kræve tilvalg af andre pakker eller være uforenelige med bestemt udstyr, farver eller andre tilvalg. Se afhængigheder og eventuelle begrænsninger under den enkelte udstyrsvariant.</div>
+
+                @if($priceListExtrasDependency)
+                    <div>
+                        {{ $priceListExtrasDependency }}
+                    </div>
+                @endif
+
+                @if($priceListExtrasWltp)
+                    <div>
+                        {{ $priceListExtrasWltp }}
+                    </div>
+                @endif
+
+                @if($priceListExtrasTax)
+                    <div>
+                        * {{ $priceListExtrasTax }}
+                    </div>
+                @endif
+
+                @if($usesHighTax && $priceListExtrasHighTax)
+                    <div>
+                        ** {{ $priceListExtrasHighTax }}
+                    </div>
+                @endif
             </div>
         </section>
 
@@ -586,7 +657,7 @@
                             Ekstraudstyr
                         </div>
                             <div class="col-span-8 flex justify-end font-bold">
-                            <div class="w-24 text-center">Pris</div>
+                            <div class="w-24 text-center">Pris *</div>
                         </div>
                     </div>
                 </div>
@@ -642,6 +713,31 @@
                         </div>
                     @endforeach
                 </div>
+
+                <div class="space-y-2 text-xs text-primary mt-4">
+                @php
+                    $priceListExtrasWltp = compliance_text_for(['car' => $car], 'price_list_extras_wltp');
+                    $priceListExtrasTax = compliance_text_for(['car' => $car], 'price_list_extras_tax');
+                    $priceListExtrasHighTax = compliance_text_for(['car' => $car], 'price_list_extras_high_tax');
+                @endphp
+
+                @if($priceListExtrasWltp)
+                    <div>
+                        {{ $priceListExtrasWltp }}
+                    </div>
+                @endif
+
+                @if($trim->uses_high_tax && $priceListExtrasHighTax)
+                    <div>
+                        * {{ $priceListExtrasHighTax }}
+                    </div>
+                @elseif($priceListExtrasTax)
+                    <div>
+                        * {{ $priceListExtrasTax }}
+                    </div>
+                @endif
+
+            </div>
 
                 @php
                     $previousTrim = $trim;

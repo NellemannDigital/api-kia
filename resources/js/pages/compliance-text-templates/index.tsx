@@ -45,6 +45,7 @@ export default function Index({ complianceTextTemplates }: Props) {
                 <TableHead>Version</TableHead>
                 <TableHead>Valid from</TableHead>
                 <TableHead>Valid to</TableHead>
+                <TableHead className="text-center">Show in generator</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -61,15 +62,22 @@ export default function Index({ complianceTextTemplates }: Props) {
                     <TableCell>
                       {template.valid_to ? new Date(template.valid_to).toLocaleDateString() : ""}
                     </TableCell>
+                    <TableCell className="text-center">
+                      {template.show_in_generator ? '✅' : '❌'}
+                    </TableCell>
                     <TableCell className="flex gap-2">
                       <Link href={routes.edit(template.id)}>
-                        <Button size="icon">
+                        <Button 
+                          size="icon"
+                          variant="outline"
+                        >
                           <Pencil />
                           <span className="sr-only">Edit</span>
                         </Button>
                       </Link>
                       <Button
                           size="icon"
+                          variant="outline"
                           onClick={() => {
                             if (confirm('Are you sure you want to delete this template?')) {
                               router.delete(routes.destroy(template.id), {

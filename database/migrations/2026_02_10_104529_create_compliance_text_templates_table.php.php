@@ -17,8 +17,11 @@ return new class extends Migration
             $table->string('variant');
             $table->text('template');
             $table->string('version');
-            $table->date('valid_from')->nullable();
+            $table->date('valid_from');
             $table->date('valid_to')->nullable();
+
+            $table->boolean('show_in_generator')->default(false);
+
             $table->timestamps();
 
             $table->unique(['variant', 'version']);

@@ -99,8 +99,8 @@ class CarMapper
 
         $vehicleType = Arr::get($attributes, 'VehicleType.Type', '');
         $year = Arr::get($attributes, 'DeliveryYear', '');
-        $fee = Arr::get($attributes, 'DeliveryFee', '');
-        $evTaxThreshold = Arr::get($attributes, 'EVTaxThreshold', '');
+        $fee = number_format(Arr::get($attributes, 'DeliveryFee', ''), 0, ',', '.');
+        $evTaxThreshold = number_format(Arr::get($attributes, 'EVTaxThreshold', ''), 0, ',', '.');
         $taxFase = Arr::get($attributes, 'TaxFase', '');
         $totalTaxEv = Arr::get($attributes, 'TotalTaxEV', '');
 

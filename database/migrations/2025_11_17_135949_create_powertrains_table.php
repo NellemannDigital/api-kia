@@ -19,9 +19,9 @@ return new class extends Migration
             $table->foreignIdFor(Trim::class)->cascadeOnDelete();
 
             $table->string('ocn')->nullable();
-            $table->boolean('leasing_active')->default(false);
             $table->json('engine')->nullable();
             $table->json('transmission')->nullable();
+            $table->boolean('leasing_active')->default(false);
             $table->json('technical_specifications')->nullable();
 
             $table->timestamps();

@@ -47,6 +47,7 @@ class TrimMapper
             $sortOrder = is_numeric($value = Arr::get($attributesData, 'MarketingSortOrderKia')) ? (int) $value : null;
             $name = Arr::get($attributesData, 'KiaEquipmentVariant', '');
             $leasingReturnFee = Arr::get($attributesData, 'LeasingReturnFee', '');
+            $usesHighTax = Arr::get($attributesData, 'LegalText', '') ?? false;
 
             $interior = self::mapInterior($attributesData, $getAsset);
             $technicalSpecifications = self::mapTechnicalSpecifications($attributesData);
@@ -65,6 +66,7 @@ class TrimMapper
                 car_struct_id: $carStructId,
                 name: $name,
                 sort_order: $sortOrder,
+                uses_high_tax: $usesHighTax,
                 leasing_return_fee: $leasingReturnFee,
                 interior: $interior,
                 technical_specifications: $technicalSpecifications,

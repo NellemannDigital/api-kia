@@ -32,8 +32,9 @@ class ComplianceTextTemplateController extends Controller
             'variant' => 'required|string',
             'template' => 'required|string',
             'version' => 'required|string',
-            'valid_from' => 'nullable|date',
+            'valid_from' => 'required|date',
             'valid_to' => 'nullable|date',
+            'show_in_generator' => 'required|boolean',
         ]);
 
         ComplianceTextTemplate::create($data);
@@ -59,8 +60,9 @@ class ComplianceTextTemplateController extends Controller
             'variant' => 'required|string',
             'template' => 'required|string',
             'version' => 'required|string',
-            'valid_from' => 'nullable|date',
+            'valid_from' => 'required|date',
             'valid_to' => 'nullable|date',
+            'show_in_generator' => 'required|boolean',
         ]);
 
         $complianceTextTemplate->update($data);

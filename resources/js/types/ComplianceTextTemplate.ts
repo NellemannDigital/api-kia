@@ -5,5 +5,6 @@ export interface ComplianceTextTemplate {
   template: string,
   version: string,
   valid_from: string,
-  valid_to: string
+  valid_to: string,
+  show_in_generator: Boolean
 }

@@ -20,12 +20,13 @@ return new class extends Migration
 
             $table->string('name');
             $table->integer('sort_order')->nullable();
-            $table->integer('leasing_return_fee')->nullable();
+            $table->boolean('uses_high_tax')->default(false);
             $table->json('primary_image')->nullable();
             $table->json('interior')->nullable();
             $table->json('technical_specifications')->nullable();
             $table->json('campaign')->nullable();
             $table->json('channels');
+            $table->integer('leasing_return_fee')->nullable();
             $table->json('accessory_mapping')->nullable();
 
             $table->timestamps();

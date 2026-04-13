@@ -16,14 +16,14 @@ class ComplianceTextController extends Controller
     public function show(Request $request)
     {
 
-        $car = Car::with(['trims.powertrains.configuration'])->findOrFail($request->car_id);
+        $car = Car::with(['trims.powertrains.configuration'])->where('struct_id', $request->car_id)->firstOrFail();
 
         $trim = $request->trim_id
-            ? Trim::with(['powertrains.configuration'])->find($request->trim_id)
+            ? Trim::with(['powertrains.configuration'])->where('struct_id', $request->trim_id)->firstOrFail()
             : null;
 
         $powertrain = $request->powertrain_id
-            ? Powertrain::with(['configuration'])->find($request->powertrain_id)
+            ? Powertrain::with(['configuration'])->where('configuration_id', $request->powertrain_id)->firstOrFail()
             : null;
 
         $configuration = null;

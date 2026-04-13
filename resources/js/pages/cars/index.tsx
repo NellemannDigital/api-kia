@@ -159,6 +159,7 @@ export default function Index({ cars }: Props) {
                     <TableCell>
                       <Button
                         size="icon"
+                        variant="outline"
                         onClick={() => startSync(car.struct_id)}
                         disabled={state && !state.finished}
                       >

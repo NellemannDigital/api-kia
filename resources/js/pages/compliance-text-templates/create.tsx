@@ -4,16 +4,20 @@ import * as React from "react"
 import { useForm, Head } from '@inertiajs/react'
 import AppLayout from '@/layouts/app-layout'
 import { toast } from "sonner"
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon, X } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 
 import {
   Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
   FieldLabel,
-  FieldDescription
+  FieldTitle,
 } from "@/components/ui/field"
 
+import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from '@/components/ui/input'
 import {
@@ -28,16 +32,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 const breadcrumbs = [
   { title: 'Create new compliance text template', href: '/compliance-text-templates/create' }
@@ -60,7 +54,8 @@ export default function Create() {
     template: '',
     version: '',
     valid_from: '',
-    valid_to: ''
+    valid_to: '',
+    show_in_generator: false,
   })
 
   React.useEffect(() => {
@@ -163,41 +158,78 @@ export default function Create() {
             </Field>
 
             {/* Valid To */}
-            <Field className="sm:col-span-1" data-invalid={!!form.errors.valid_to}>
-              <FieldLabel htmlFor="valid_to">Valid to</FieldLabel>
-              <InputGroup>
-                <InputGroupInput
-                  id="valid_to"
-                  name="valid_to"
-                  value={form.data.valid_to}
-                  readOnly
-                  placeholder="Select date"
-                />
-                <InputGroupAddon align="inline-end">
-                  <Popover open={openTo} onOpenChange={setOpenTo}>
-                    <PopoverTrigger asChild>
-                      <InputGroupButton variant="ghost" size="icon-xs" aria-label="Select date">
-                        <CalendarIcon />
-                      </InputGroupButton>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto overflow-hidden p-0" align="end">
-                      <Calendar
-                        mode="single"
-                        selected={dateTo}
-                        onSelect={(date) => {
-                          setDateTo(date)
-                          setOpenTo(false)
-                        }}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </InputGroupAddon>
-              </InputGroup>
-              {form.errors.valid_to && <FieldDescription>{form.errors.valid_to}</FieldDescription>}
-            </Field>
+              <Field className="sm:col-span-1" data-invalid={!!form.errors.valid_to}>
+                <FieldLabel htmlFor="valid_to">Valid to</FieldLabel>
+
+                <div className="flex gap-2">
+                  <InputGroup>
+                    <InputGroupInput
+                      id="valid_to"
+                      name="valid_to"
+                      value={form.data.valid_to}
+                      readOnly
+                      placeholder="Select date"
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <Popover open={openTo} onOpenChange={setOpenTo}>
+                        <PopoverTrigger asChild>
+                          <InputGroupButton variant="ghost" size="icon-xs" aria-label="Select date">
+                            <CalendarIcon />
+                          </InputGroupButton>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto overflow-hidden p-0" align="end">
+                          <Calendar
+                            mode="single"
+                            selected={dateTo}
+                            onSelect={(date) => {
+                              setDateTo(date)
+                              setOpenTo(false)
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </InputGroupAddon>
+                  </InputGroup>
+
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={!dateTo}
+                    onClick={() => {
+                      setDateTo(null)
+                      form.setData('valid_to', '')
+                    }}
+                  >
+                    <X />
+                  </Button>
+                </div>
+
+                {form.errors.valid_to && <FieldDescription>{form.errors.valid_to}</FieldDescription>}
+
+              </Field>
+
+              {/* Show in generator */}
+              <FieldGroup>
+                <FieldLabel>
+                  <Field orientation="horizontal" className="cursor-pointer">
+                    <Checkbox
+                      id="show_in_generator"
+                      checked={form.data.show_in_generator}
+                      onCheckedChange={(checked) =>
+                        form.setData('show_in_generator', !!checked)
+                      }
+                    />
+                    <FieldContent>
+                      <FieldTitle>Show in generator</FieldTitle>
+                    </FieldContent>
+                  </Field>
+                </FieldLabel>
+              </FieldGroup>
+
           </div>
 
           <Button type="submit">Create</Button>
+
         </form>
       </div>
     </AppLayout>

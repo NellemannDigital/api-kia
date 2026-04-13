@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Braces, LayoutGrid, User, Car, ShieldCheck, RefreshCcw } from 'lucide-react';
+import { Braces, LayoutGrid, User, Car, Settings2, ShieldCheck, RefreshCcw } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -35,15 +35,20 @@ const mainNavItems: NavItem[] = [
 ];
 
 const footerNavItems: NavItem[] = [
-     {
+    {
+        title: 'Generate compliance text',
+        href: '/compliance-text',
+        icon: Settings2,
+    },
+    {
         title: 'Compliance text templates',
         href: '/compliance-text-templates',
-        icon: ShieldCheck  ,
+        icon: ShieldCheck,
     },
     {
         title: 'Synchronization',
         href: '/synchronization',
-        icon: RefreshCcw ,
+        icon: RefreshCcw,
     },
     {
         title: 'Swagger',

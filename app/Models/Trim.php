@@ -25,6 +25,7 @@ class Trim extends Model
         'car_id',
         'name',
         'sort_order',
+        'uses_high_tax',
         'leasing_return_fee',
         'primary_image',
         'interior',

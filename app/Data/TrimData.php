@@ -25,6 +25,7 @@ class TrimData extends Data
         public string $name,
         public ?int $sort_order = null,
         public ?float $leasing_return_fee = null,
+        public bool $uses_high_tax = false,
         public ?AssetData $primary_image = null,
         public ?InteriorData $interior = null,
         public ?TechnicalSpecificationsData $technical_specifications = null,

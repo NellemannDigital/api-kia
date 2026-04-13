@@ -11,7 +11,8 @@ class ComplianceTextTemplate extends Model
         'template',
         'version',
         'valid_from',
-        'valid_to'
+        'valid_to',
+        'show_in_generator'
     ];
 
     protected $casts = [
