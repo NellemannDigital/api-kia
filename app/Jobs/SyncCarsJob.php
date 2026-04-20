@@ -20,7 +20,7 @@ class SyncCarsJob implements ShouldQueue
     {
         $ids = $productsSearchRequest->getProductIds('f81c8095-1c6c-410b-93fc-24c33cda9567');
 
-        foreach ([2173705] as $id) {
+        foreach ($ids as $id) {
             Bus::batch([
                 new SyncCarJob($id),
                 new SyncTrimsJob($id),
