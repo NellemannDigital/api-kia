@@ -217,7 +217,7 @@ class CarController extends Controller
 
         return pdf('price-list', compact('car', 'trims', 'colorMatrix',  'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'))
             ->withBrowsershot(function (Browsershot $browsershot) {
-                $browsershot->setChromePath('/usr/bin/chromium-browser');
+                $browsershot->setChromePath('/usr/bin/chromium');
             })
             ->format(Format::A4)
             ->name('Prisliste - ' . $car->name)
