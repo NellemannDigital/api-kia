@@ -13,6 +13,7 @@ use App\Requests\ProductRequest;
 use App\Services\ComplianceTextService;
 use function Spatie\LaravelPdf\Support\pdf;
 use Spatie\LaravelPdf\Enums\Format;
+use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Collection;
 use App\ViewModels\Specifications;
 
@@ -215,6 +216,9 @@ class CarController extends Controller
             ->values();
 
         return pdf('price-list', compact('car', 'trims', 'colorMatrix',  'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'))
+            ->withBrowsershot(function (Browsershot $browsershot) {
+                $browsershot->setChromePath('/usr/bin/chromium-browser');
+            })
             ->format(Format::A4)
             ->name('Prisliste - ' . $car->name)
             ->margins(6, 6, 6, 6)
