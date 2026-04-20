@@ -218,8 +218,24 @@ class CarController extends Controller
         return pdf('price-list', compact('car', 'trims', 'colorMatrix',  'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'))
             ->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot->waitUntilNetworkIdle();
-                $browsershot->setOption('args', ['--no-sandbox', '--disable-font-subpixel-positioning','--disable-web-security']);
+
                 $browsershot->setChromePath('/usr/bin/chromium');
+
+                $browsershot->setOption('args', [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+
+                    '--disable-dev-shm-usage',
+                    '--no-zygote',
+                    '--disable-gpu',
+
+                    '--disable-crash-reporter',
+                    '--crash-dumps-dir=/tmp',
+                    '--user-data-dir=/tmp/chrome-profile',
+
+                    '--disable-web-security',
+                    '--disable-font-subpixel-positioning',
+                ]);
             })
             ->format(Format::A4)
             ->name('Prisliste - ' . $car->name)
