@@ -22,7 +22,7 @@
                                 size="90"
                             />
                         </div>
-                        <div class="text-white text-xs font-bold text-center">Book prøvetur</div>
+                        <div class="text-white text-[9px] font-bold text-center">Book en prøvetur</div>
                     </div>
                 </div>
                
@@ -95,7 +95,12 @@
                         <span class="w-[100px] text-center">Normalopladning <br><span class="font-light text-[9px]">(AC 0-100%)</span></span>
                         <span class="w-[100px] text-center">Hurtigopladning <br><span class="font-light text-[9px]">(DC 10-80%)</span></span>
                         <span class="w-[60px] text-center">Halvårlig CO<sub>2</sub>-afgift</span>
-                        <span class="w-[60px] text-center">Pris</span>
+                        <span class="w-[60px] text-center">
+                            Pris 
+                            @if($car->campaign_disclaimer)
+                                **
+                            @endif
+                        </span>
                     </div>
                 </div>
 
@@ -186,6 +191,12 @@
                 @if($priceListWltp)
                     <div>
                         * {{ $priceListWltp }}
+                    </div>
+                @endif
+
+                @if($car->campaign_disclaimer)
+                    <div>
+                        ** {{ $car->campaign_disclaimer }}
                     </div>
                 @endif
             </div>

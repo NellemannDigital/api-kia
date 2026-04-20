@@ -19,7 +19,8 @@ return new class extends Migration
 
             $table->string('name');
             $table->string('year')->nullable();
-            $table->text('disclaimer')->nullable();
+            $table->text('custom_disclaimer')->nullable();
+            $table->text('campaign_disclaimer')->nullable();
 
             $table->json('delivery')->nullable();
             $table->json('model')->nullable();

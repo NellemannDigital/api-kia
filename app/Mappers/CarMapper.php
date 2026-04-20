@@ -37,7 +37,8 @@ class CarMapper
             $webId = Arr::get($attributesData, 'ModelWebID', '');
             $name = Arr::get($attributesData, 'ModelWebName') ?? $model->name;
             $year = Arr::get($attributesData, 'KiaModelYear.ModelYear', '');
-            $disclaimer = Arr::get($attributesData, 'CustomPligttekst', '');
+            $customDisclaimer = Arr::get($attributesData, 'CustomPligttekst', '');
+            $campaignDisclaimer = Arr::get($attributesData, 'CampaignPligttekst', '');
 
             $delivery = self::mapDelivery($attributesData->get('DeliveryYear'));
             $technicalSpecifications = self::mapTechnicalSpecifications($attributesData);
@@ -58,7 +59,8 @@ class CarMapper
                 name: $name,
                 year: $year,
                 delivery: $delivery,
-                disclaimer: $disclaimer,
+                custom_disclaimer: $customDisclaimer,
+                campaign_disclaimer: $campaignDisclaimer,
                 model: $model,
                 variant: $variant,
                 technical_specifications: $technicalSpecifications,
