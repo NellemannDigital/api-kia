@@ -31,6 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
     Route::get('/cars/{id}/price-list/', [CarController::class, 'priceList'])->name('cars.price-list');
+    Route::get('/cars/{id}/price-list-download/', [CarController::class, 'priceListDownload'])->name('cars.price-list-download');
     Route::post('/cars/{id}/sync/', [CarController::class, 'sync'])->name('cars.sync');
     
 

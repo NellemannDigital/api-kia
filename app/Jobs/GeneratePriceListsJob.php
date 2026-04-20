@@ -18,7 +18,7 @@ class GeneratePriceListsJob implements ShouldQueue
 
     public function handle(): void
     {
-        $ids = [46];
+        $ids = [1];
 
         foreach ($ids as $id) {
             Bus::batch([

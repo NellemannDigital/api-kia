@@ -162,48 +162,63 @@ class CarController extends Controller
             })
             ->values();
 
-        $complianceService = app(ComplianceTextService::class);
-
-        $complianceTexts = [
-            //$complianceService->get($car, 'price'),
-            'consumption' => '',
-            'changes' => '',
-        ];
-
-       /* $complianceTexts = [
-            'price' => $complianceService->getForCar($car, 'price'),
-            'consumption' => $complianceService->getForGlobal('consumption'),
-            'changes' => $complianceService->getForGlobal('changes'),
-        ];*/
-
-        return view('price-list', compact('car', 'trims', 'complianceTexts', 'colorMatrix',  'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'));
+        return view('price-list', compact('car', 'trims', 'colorMatrix',  'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'));
     }
 
-    public function priceListDownload()
+    public function priceListDownload($id)
     {
-
         $car = Car::with([
-            'trims.equipment',
-            'trims.powertrains.configuration',
-            'trims.colors.prices',
-            'trims.extraEquipmentPackages.prices',
-            'trims.extraEquipmentPackages.equipment'
-        ])->findOrFail(1);
+            'trims.extraEquipmentPackages.latestPrice',
+            'trims.colors.latestPrice'
+        ])->findOrFail($id);
 
-        $colorMatrix = OptionMatrixBuilder::build($car->trims, 'colors', 'code');
-        $extraEquipmentPackageMatrix = OptionMatrixBuilder::build($car->trims, 'extraEquipmentPackages','code');
+        $trims = $car->trims->values(); 
 
-        $complianceTexts = [
-            'price' => app(ComplianceTextService::class)->getForCar($car, 'price'),
-            'consumption' => app(ComplianceTextService::class)->getForGlobal('consumption'),
-            'changes' => app(ComplianceTextService::class)->getForGlobal('changes'),
-        ];
+        $colorMatrix = $this->matrix(
+            $trims, 
+            'colors', 
+            'code'
+        );
 
-        return pdf('price-list', compact('car', 'complianceTexts', 'colorMatrix',  'extraEquipmentPackageMatrix'))
-        ->format(Format::A4)
-        ->name('Prisliste')
-        ->margins(6, 6, 6, 6)
-        ->download();
+        $extraEquipmentPackageMatrix = $this->matrix(
+            $trims, 
+            'extraEquipmentPackages',
+            'code'
+        );
+        
+       $groupedEquipment = $this->group(
+            $trims,
+            'equipment',
+            fn ($item) => $item->images
+        );
+
+        $groupedExtraEquipmentPackages = $this->group(
+            $trims,
+            'extraEquipmentPackages',
+            fn ($item) => $item->image
+        );
+
+        $interiors = $trims
+            ->filter->interior
+            ->groupBy(fn($trim) => $trim->interior->code)
+            ->map(function ($group) {
+                $interior = $group->first()->interior;
+
+                $interior->trim_names = $group
+                    ->pluck('name')
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                return $interior;
+            })
+            ->values();
+
+        return pdf('price-list', compact('car', 'trims', 'colorMatrix',  'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'))
+            ->format(Format::A4)
+            ->name('Prisliste - ' . $car->name)
+            ->margins(6, 6, 6, 6)
+            ->download();
     }
 
     public function priceListAccessories()

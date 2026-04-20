@@ -162,9 +162,9 @@
                             </div>
 
                             <div class="w-[60px] text-center">
-                                {{ $price && $price->suggested_retail_price != 0
-                                    ? Number::format($price->suggested_retail_price, locale: 'da').' kr.'
-                                    : '-' }}
+                                {!! $price && $price->campaign_retail_price != 0
+                                    ? Number::format($price->campaign_retail_price, locale: 'da') . ' kr. <br>' . '<span class="text-gray-400 line-through">' . Number::format($price->suggested_retail_price, locale: 'da') .' kr. </span>'
+                                    : Number::format($price->suggested_retail_price, locale: 'da') .' kr.' !!}
                             </div>
 
                         </div>
