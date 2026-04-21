@@ -219,7 +219,7 @@ class CarController extends Controller
             ->withBrowsershot(function (Browsershot $browsershot) {
                     $browsershot->waitUntilNetworkIdle();
                     $browsershot->setOption('args', ['--no-sandbox', '--disable-font-subpixel-positioning','--disable-web-security']);
-                    $browsershot->setChromePath('/usr/bin/chromium-browser');
+                    $browsershot->setChromePath('/usr/bin/chromium');
                 })
             ->format(Format::A4)
             ->name('Prisliste - ' . $car->name)
