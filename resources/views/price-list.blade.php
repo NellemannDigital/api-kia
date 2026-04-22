@@ -501,31 +501,59 @@
 
         @pageBreak
 
-        <section class="mx-auto max-w-[210mm]">
+        @if(
+            !empty($groupedEquipment['Fælge']) 
+            || !empty($groupedExtraEquipmentPackages['Fælge'])
+        )
 
-            <div class="flex justify-between items-center mb-3">
-                <div class="font-bold text-xl">
-                    Fælge
+            <section class="mx-auto max-w-[210mm]">
+
+                <div class="flex justify-between items-center mb-3">
+                    <div class="font-bold text-xl">
+                        Fælge
+                    </div>
+                    <img src="{{ asset('images/logo.png') }}" class="block w-20">
                 </div>
-                <img src="{{ asset('images/logo.png') }}" class="block w-20">
-            </div>
 
-            <div class="grid grid-cols-3 gap-4">
-                @foreach($groupedEquipment['Fælge'] as $equipment) 
-                    @if($equipment->images->first())
+                <div class="grid grid-cols-3 gap-4">
+                    @foreach(($groupedEquipment['Fælge'] ?? []) as $equipment)
+                        @if($equipment->images->first())
+                            <div class="flex flex-col rounded-lg overflow-hidden border border-primary-low">
+                                <img src="{{ $equipment->images->first()->url }}?width=300"
+                                    alt="{{ $equipment->name }}"
+                                    class="w-full h-48 object-contain p-4" />
+
+                                <div class="p-4 flex flex-col flex-1 border-t border-primary-low">
+
+                                    <div class="font-bold text-xs line-clamp-2">
+                                        {{ $equipment->name }} (standard)
+                                    </div>
+
+                                    <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                                        @foreach($equipment->trim_names as $trim_name)
+                                            <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
+                                                {{ $trim_name }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+                    @foreach(($groupedExtraEquipmentPackages['Fælge'] ?? []) as $package) 
                         <div class="flex flex-col rounded-lg overflow-hidden border border-primary-low">
-                            <img src="{{ $equipment->images->first()->url }}?width=300"
-                                alt="{{ $equipment->name }}"
+                            <img src="{{ $package->image->url }}?width=300"
+                                alt="{{ $package->name }}"
                                 class="w-full h-48 object-contain p-4" />
 
                             <div class="p-4 flex flex-col flex-1 border-t border-primary-low">
 
                                 <div class="font-bold text-xs line-clamp-2">
-                                    {{ $equipment->name }} (standard)
+                                    {{ $package->name }} (tilvalg)
                                 </div>
 
                                 <div class="mt-auto flex flex-wrap gap-1 pt-2">
-                                    @foreach($equipment->trim_names as $trim_name)
+                                    @foreach($package->trim_names as $trim_name)
                                         <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
                                             {{ $trim_name }}
                                         </span>
@@ -533,34 +561,13 @@
                                 </div>
                             </div>
                         </div>
-                    @endif
-                @endforeach
-                @foreach($groupedExtraEquipmentPackages['Fælge'] as $package) 
-                    <div class="flex flex-col rounded-lg overflow-hidden border border-primary-low">
-                        <img src="{{ $package->image->url }}?width=300"
-                            alt="{{ $package->name }}"
-                            class="w-full h-48 object-contain p-4" />
+                    @endforeach
+                </div>
+            </section>
 
-                        <div class="p-4 flex flex-col flex-1 border-t border-primary-low">
+            @pageBreak
 
-                            <div class="font-bold text-xs line-clamp-2">
-                                {{ $package->name }} (tilvalg)
-                            </div>
-
-                            <div class="mt-auto flex flex-wrap gap-1 pt-2">
-                                @foreach($package->trim_names as $trim_name)
-                                    <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
-                                        {{ $trim_name }}
-                                    </span>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </section>
-
-        @pageBreak
+        @endif
 
         <section class="mx-auto max-w-[210mm]">
 
@@ -595,7 +602,7 @@
                     @endif
                 @endforeach
 
-                @foreach($groupedExtraEquipmentPackages['Interiørfarve'] as $package) 
+                @foreach(($groupedExtraEquipmentPackages['Interiørfarve'] ?? []) as $package) 
                     <div class="flex flex-col rounded-lg overflow-hidden">
                         <img src="{{ $package->image->url }}?width=300"
                             alt="{{ $package->name }}"
