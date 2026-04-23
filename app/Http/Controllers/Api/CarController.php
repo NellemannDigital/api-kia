@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-use App\Models\Car;
 use App\Http\Controllers\Controller;
+use App\Models\Car;
+use Illuminate\Http\Request;
 
 class CarController extends Controller
 {
@@ -14,7 +14,7 @@ class CarController extends Controller
     public function index()
     {
         return Car::query()
-           ->addChannels(['web_channel'])
+            ->addChannels(['web_channel'])
             ->where('variant->b2b', false)
             ->with('trims.powertrains.configuration')
             ->orderBy('name')
@@ -35,7 +35,7 @@ class CarController extends Controller
     public function show(string $id)
     {
         $car = Car::with([
-            'trims.powertrains'
+            'trims.powertrains',
         ])->findOrFail(1);
 
         return $car;
@@ -56,5 +56,4 @@ class CarController extends Controller
     {
         //
     }
-
 }

@@ -88,6 +88,14 @@ class Car extends Model
         });
     }
 
+    public function scopeAvailableForTestDrive($query, $date = null)
+    {
+        $date = $date ? Carbon::parse($date) : Carbon::today();
+
+        return $query->whereNotNull('channels->test_drive_channel->test_start')
+            ->where('channels->test_drive_channel->test_start', '<=', $date->toDateString());
+    }
+
     public function getActiveChannels(): array
     {
         return array_merge(['channels->master_channel'], $this->extraChannels);
