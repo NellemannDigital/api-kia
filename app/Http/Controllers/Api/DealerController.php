@@ -58,7 +58,7 @@ class DealerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Dealer $dealer)
+    public function availability(Request $request, Dealer $dealer)
     {
         $date = Carbon::parse($request->date);
         $weekday = strtolower($date->format('l'));
@@ -143,7 +143,6 @@ class DealerController extends Controller
 
             $hours = data_get($dealer->opening_hours, "sales.$weekday");
 
-            // 🔴 closed
             if (!$hours) {
                 $result[$date->format('Y-m-d')] = [
                     'status' => 'closed',
@@ -152,7 +151,6 @@ class DealerController extends Controller
                 continue;
             }
 
-            // generate slots (1h)
             [$startT, $endT] = explode('-', $hours);
 
             $startTime = Carbon::createFromFormat('H.i', trim($startT));
@@ -172,59 +170,20 @@ class DealerController extends Controller
                 $cursor->addHour();
             }
 
-            // booked
             $booked = [];
 
             $available = array_values(array_diff($slots->toArray(), $booked));
 
+            $count = count($available);
+
             $result[$date->format('Y-m-d')] = [
-                'status' => count($available) ? 'available' : 'full',
-                'available' => count($available),
+                'status' => $count === 0
+                    ? 'full'
+                    : ($count <= 3 ? 'few' : 'available'),
+                'available' => $count,
             ];
         }
 
         return response()->json($result);
     }
-
-
-    public function slots(Request $request, Dealer $dealer)
-    {
-        return response()->json([
-            'data' => app(AvailabilityEngine::class)
-                ->getDaySlots($dealer, Carbon::parse($request->date))
-        ]);
-    }
-
-    public function availability(Request $request, Dealer $dealer)
-    {
-        $from = Carbon::parse($request->query('from', now()));
-        $to = Carbon::parse($request->query('to', now()->addMonths(3)));
-
-        $engine = app(AvailabilityEngine::class);
-
-        return response()->json([
-            'availability' => $engine->getRangeOverview($dealer, $from, $to),
-            'opening_hours' => $this->normalizeOpeningHours($dealer),
-        ]);
-    }
-
-    public function nextAvailable(Dealer $dealer)
-    {
-        return response()->json([
-            'data' => app(AvailabilityEngine::class)
-                ->getNextAvailableDate($dealer)
-        ]);
-    }
-
-    private function normalizeOpeningHours($dealer): array
-    {
-        $sales = $dealer->opening_hours->sales ?? [];
-
-        return collect($sales)
-            ->mapWithKeys(fn ($value, $key) => [
-                strtolower($key) => $value
-            ])
-            ->toArray();
-    }
-
 }

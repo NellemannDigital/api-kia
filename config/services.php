@@ -35,4 +35,7 @@ return [
         ],
     ],
 
+    'power_automate' => [
+        'test_drive_webhook_url' => env('POWER_AUTOMATE_TEST_DRIVE_WEBHOOK_URL'),
+    ],
 ];

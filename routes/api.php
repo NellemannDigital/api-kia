@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\DealerController;
 use App\Http\Controllers\Api\UsedCarController;
 use App\Http\Controllers\Api\StockCarController;
 use App\Http\Controllers\Api\ComplianceTextController;
+use App\Http\Controllers\Api\ActivityController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -19,11 +20,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dealers', [DealerController::class, 'index']);
 
     Route::prefix('dealers')->group(function () {
-        Route::get('{dealer}/availability', [DealerController::class, 'show']);
+        Route::get('{dealer}/availability', [DealerController::class, 'availability']);
         Route::get('{dealer}/calendar-availability', [DealerController::class, 'calendarAvailability']);
-        
-        //Route::get('{dealer}/slots', [DealerController::class, 'slots']);
-        //Route::get('{dealer}/next-available-date', [DealerController::class, 'nextAvailable']);
+    });
+
+     Route::prefix('activities')->group(function () {
+        Route::get('test-drive', [ActivityController::class, 'testDrive']);
     });
 
     Route::get('/used-cars', [UsedCarController::class, 'index']);
