@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
      Route::prefix('activities')->group(function () {
-        Route::get('test-drive', [ActivityController::class, 'testDrive']);
+        Route::post('test-drive', [ActivityController::class, 'testDrive']);
     });
 
     Route::get('/used-cars', [UsedCarController::class, 'index']);
