@@ -54,9 +54,10 @@ class PriceListService
         Storage::disk('public')->makeDirectory('prislister');
 
         $fileName = 'prislister/' . Str::slug($data['car']->name) . '.pdf';
+        $fullPath = storage_path('app/public/' . $fileName);
 
-        if (Storage::disk('public')->exists($fileName)) {
-            Storage::disk('public')->delete($fileName);
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
         }
 
         Pdf::view('price-list', $data)
@@ -71,10 +72,9 @@ class PriceListService
             ->format(Format::A4)
             ->name('Prisliste - ' . $data['car']->name)
             ->margins(6, 6, 6, 6)
-            ->disk('public')
-            ->save(storage_path("app/public/{$fileName}"));
-        
-        chmod(storage_path("app/public/{$fileName}"), 0644);
+            ->save($fullPath);
+
+        chmod($fullPath, 0644);
 
         return $fileName;
     }
