@@ -40,7 +40,7 @@ class GeneratePriceListJob implements ShouldQueue
         report($exception);
 
         Log::error('GeneratePriceListJob failed', [
-            'car_id' => $this->carId,
+            'car_id' => $this->carStructId,
             'exception' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),
         ]);

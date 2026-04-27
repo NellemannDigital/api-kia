@@ -87,10 +87,6 @@ class SyncTrimJob implements ShouldQueue
                 $c->toArray()
             );
 
-            Log::info('Color synced to database', [
-                'code' => $c->code,
-            ]);
-
             $existingColorIds->push($color->id);
 
             $existingPriceIds = collect();
@@ -99,8 +95,6 @@ class SyncTrimJob implements ShouldQueue
                 $price = $color->prices()->withoutGlobalScopes()->updateOrCreate(
                     $p->toArray()
                 );
-
-                Log::info('Color price synced to database');
 
                 $existingPriceIds->push($price->id);
             }
@@ -122,10 +116,6 @@ class SyncTrimJob implements ShouldQueue
                 ['configuration_id' => $pt->configuration_id],
                 $pt->toArray()
             );
-
-            Log::info('Powertrain synced to database', [
-                'configuration_id' => $pt->configuration_id,
-            ]);
 
             $existingPowertrainIds->push($powertrain->id);
 
@@ -190,10 +180,6 @@ class SyncTrimJob implements ShouldQueue
                 ['code' => $e->code],
                 $e->toArray()
             );
-
-            Log::info('Equipment synced to database', [
-                'code' => $e->code,
-            ]);
             
             $equipmentIds->push($equipment->id);
         }
@@ -220,10 +206,6 @@ class SyncTrimJob implements ShouldQueue
 
             $extraEquipmentPackage->equipment()->withoutGlobalScopes()->sync($equipmentIds);
 
-            Log::info('ExtraEquipmentPackage synced to database', [
-                'code' => $package->code,
-            ]);
-
             $extraEquipmentPackageIds->push($extraEquipmentPackage->id);
 
             $existingPriceIds = collect();
@@ -236,8 +218,6 @@ class SyncTrimJob implements ShouldQueue
                     ],
                     $p->toArray()
                 );
-
-                Log::info('ExtraEquipmentPackage price synced to database');
 
                 $existingPriceIds->push($price->id);
             }

@@ -63,17 +63,10 @@ class PriceListService
             ->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot
                     ->waitUntilNetworkIdle()
-                    ->timeout(120)
-                    ->showBackground()
                     ->setChromePath('/usr/bin/chromium')
                     ->setEnvironmentOptions([
                         'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
                     ])
-                    ->setOption('args', [
-                        '--disable-dev-shm-usage',
-                        '--no-sandbox',
-                        '--disable-gpu',
-                    ]);
             })
             ->format(Format::A4)
             ->name('Prisliste - ' . $data['car']->name)

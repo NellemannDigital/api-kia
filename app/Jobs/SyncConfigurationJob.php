@@ -42,19 +42,10 @@ class SyncConfigurationJob implements ShouldQueue
                     $this->configurationData->toArray()
                 );
 
-                
-                Log::info('Configuration synced to database', [
-                    'configuration_id' => $this->productId,
-                ]);
-
                 $configuration
                     ->extraEquipmentPackages()
                     ->sync($this->configurationData->extra_equipment_package_ids);
                 });
-
-                Log::info('Configuration Extra Equipment Packages synced to database', [
-                    'configuration_id' => $this->productId,
-                ]);
 
         } catch (Throwable $e) {
             $this->handleFailure($e);

@@ -34,10 +34,6 @@ class SyncAccessoryJob implements ShouldQueue
                 if (! $this->accessoryData) {
                     return;
                 }
-                
-                Log::info('Accessory synced to database', [
-                    'accessory_id' => $this->productId,
-                ]);
 
                 $accessory = Accessory::withoutGlobalScopes()->updateOrCreate(
                     ['struct_id' => $this->accessoryData->struct_id],

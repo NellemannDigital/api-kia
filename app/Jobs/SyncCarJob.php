@@ -35,10 +35,6 @@ class SyncCarJob implements ShouldQueue
                 ])
             );
 
-             Log::info('Car synced to database', [
-                'car_id' => $this->carData->struct_id,
-            ]);
-
         } catch (Throwable $e) {
             $this->handleFailure($e);
             throw $e;
