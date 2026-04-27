@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class GeneratePriceListsJob implements ShouldQueue
@@ -18,13 +19,15 @@ class GeneratePriceListsJob implements ShouldQueue
 
     public function handle(): void
     {
-        $ids = [1];
+        $cars = Car::addChannels(['web_channel', 'price_channel'])->get();
 
-        foreach ($ids as $id) {
+        Storage::disk('public')->deleteDirectory('prislister');
+
+        foreach ($cars as $car) {
             Bus::batch([
-                new GeneratePriceListJob($id),
+                new GeneratePriceListJob($car->struct_id),
             ])
-                ->onQueue('price-lists')
+                ->onQueue('pricelists')
                 ->allowFailures()
                 ->dispatch();
         }
@@ -45,6 +48,6 @@ class GeneratePriceListsJob implements ShouldQueue
      */
     public function tags(): array
     {
-        return ['generate', 'price-list', 'car', 'id:' . $this->carId];
+        return ['generate', 'pricelists', 'cars'];
     }
 }

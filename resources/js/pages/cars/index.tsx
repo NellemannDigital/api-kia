@@ -1,13 +1,14 @@
 "use client"
 
-import { Car, Channel, TestDriveChannel } from '@/types/Car';
-import * as routes from '@/routes/cars/index';
-import { Head, router } from '@inertiajs/react';
-import { useState, useEffect, useRef, useCallback } from 'react';
-import axios from 'axios';
+import { Car, Channel, TestDriveChannel } from '@/types/Car'
+import * as routes from '@/routes/cars/index'
+import { Head, router } from '@inertiajs/react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import axios from 'axios'
+import { route } from 'ziggy-js';
 
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import AppLayout from '@/layouts/app-layout'
+import { type BreadcrumbItem } from '@/types'
 
 import {
   Table,
@@ -17,92 +18,148 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-
-import { RefreshCcw } from 'lucide-react';
+import { RefreshCcw, ScanEye } from 'lucide-react'
 import { toast } from "sonner"
 
-interface Props { cars: Car[] }
+interface Props {
+  cars: Car[]
+}
 
-type SyncState = { batchId: string | null, progress: number, finished: boolean }
+type JobType = 'sync'
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Cars', href: '/cars' }];
+type JobState = {
+  batchId: string | null
+  progress: number
+  finished: boolean
+}
+
+type SyncState = Record<number, Partial<Record<JobType, JobState>>>
+
+const breadcrumbs: BreadcrumbItem[] = [
+  { title: 'Cars', href: '/cars' }
+]
 
 // --- Channel renderer ---
-const isChannelActive = (channel?: Channel | TestDriveChannel, type: 'regular' | 'test' = 'regular') => {
+const isChannelActive = (
+  channel?: Channel | TestDriveChannel,
+  type: 'regular' | 'test' = 'regular'
+) => {
   if (!channel) return false
   const now = new Date()
+
   if (type === 'regular') {
     const fromOk = !(channel as Channel).open_from || now >= new Date((channel as Channel).open_from)
     const toOk = !(channel as Channel).open_to || now <= new Date((channel as Channel).open_to)
     return fromOk && toOk
-  } else {
-    return !(channel as TestDriveChannel).test_start || now >= new Date((channel as TestDriveChannel).test_start)
   }
+
+  return !(channel as TestDriveChannel).test_start ||
+    now >= new Date((channel as TestDriveChannel).test_start)
 }
 
-// --- Define all channels in one array ---
-const channelsMeta: { key: keyof Car['channels']; label: string; type: 'regular' | 'test' }[] = [
-  { key: 'master_channel', label: 'Master', type: 'regular' },
-  { key: 'web_channel', label: 'Web', type: 'regular' },
-  { key: 'dealer_channel', label: 'Dealer', type: 'regular' },
-  { key: 'price_channel', label: 'Price', type: 'regular' },
-  { key: 'test_drive_channel', label: 'Test Drive', type: 'test' },
-]
+// --- Channels ---
+const channelsMeta: {
+  key: keyof Car['channels']
+  label: string
+  type: 'regular' | 'test'
+}[] = [
+    { key: 'master_channel', label: 'Master', type: 'regular' },
+    { key: 'web_channel', label: 'Web', type: 'regular' },
+    { key: 'dealer_channel', label: 'Dealer', type: 'regular' },
+    { key: 'price_channel', label: 'Price', type: 'regular' },
+    { key: 'test_drive_channel', label: 'Test Drive', type: 'test' },
+  ]
 
 export default function Index({ cars }: Props) {
-  const [syncStates, setSyncStates] = useState<Record<number, SyncState>>({})
-  const intervals = useRef<Record<number, ReturnType<typeof setInterval>>>({})
+  const [syncStates, setSyncStates] = useState<SyncState>({})
+  const intervals = useRef<Record<string, ReturnType<typeof setInterval>>>({})
 
-  const startSync = useCallback((carId: number) => {
-    router.post(routes.sync(carId), {}, {
-      preserveScroll: true,
-      onSuccess: (page: any) => {
-        const batchId = page.props?.flash?.batch_id
-        if (!batchId) return toast.error('No batch id returned')
+  // --- Generic job starter ---
+  const startJob = useCallback(
+    (
+      carId: number,
+      job: JobType,
+      routeFn: typeof routes.sync,
+      successMsg: string
+    ) => {
+      router.post(routeFn({ id: carId }), {}, {
+        preserveScroll: true,
+        onSuccess: (page: any) => {
+          const batchId = page.props?.flash?.batch_id
+          if (!batchId) return toast.error('No batch id returned')
 
-        setSyncStates(prev => ({ 
-          ...prev, 
-          [carId]: { batchId, progress: 0, finished: false } 
-        }))
-        toast.success(`Sync started for car #${carId}`)
-      },
-      onError: () => toast.error('Failed to start sync')
-    })
-  }, [])
-
-  // --- Polling intervals ---
-  useEffect(() => {
-    Object.entries(syncStates).forEach(([carIdStr, state]) => {
-      const carId = Number(carIdStr)
-      if (!state.batchId || state.finished || intervals.current[carId]) return
-
-      intervals.current[carId] = setInterval(async () => {
-        try {
-          const { data } = await axios.get(`/batches/${state.batchId}`)
-          setSyncStates(prev => {
-            const finishedNow = data.finished && !prev[carId].finished
-            if (finishedNow) {
-              toast.success(`Sync completed for car #${carId}`)
-              clearInterval(intervals.current[carId])
-              delete intervals.current[carId]
-            }
-            return {
-              ...prev,
-              [carId]: {
-                ...prev[carId],
-                progress: data.progress,
-                finished: data.finished
+          setSyncStates(prev => ({
+            ...prev,
+            [carId]: {
+              ...prev[carId],
+              [job]: {
+                batchId,
+                progress: 0,
+                finished: false
               }
             }
-          })
-        } catch {
-          clearInterval(intervals.current[carId])
-          delete intervals.current[carId]
-          toast.error(`Error fetching progress for car #${carId}`)
-        }
-      }, 1500)
+          }))
+
+          toast.success(successMsg)
+        },
+        onError: () => toast.error(`Failed to start ${job}`)
+      })
+    },
+    []
+  )
+
+  const startSync = (carId: number) =>
+    startJob(carId, 'sync', routes.sync, `Sync started for car #${carId}`)
+
+  // --- Polling per job ---
+  useEffect(() => {
+    Object.entries(syncStates).forEach(([carIdStr, jobs]) => {
+      const carId = Number(carIdStr)
+
+      Object.entries(jobs || {}).forEach(([job, state]) => {
+        if (!state?.batchId || state.finished) return
+
+        const key = `${carId}-${job}`
+
+        if (intervals.current[key]) return
+
+        intervals.current[key] = setInterval(async () => {
+          try {
+            const { data } = await axios.get(`/batches/${state.batchId}`)
+
+            setSyncStates(prev => {
+              const current = prev[carId]?.[job as JobType]
+
+              const finishedNow = data.finished && !current?.finished
+
+              if (finishedNow) {
+                toast.success(`${job} completed for car #${carId}`)
+                clearInterval(intervals.current[key])
+                delete intervals.current[key]
+              }
+
+              return {
+                ...prev,
+                [carId]: {
+                  ...prev[carId],
+                  [job]: {
+                    ...current!,
+                    progress: data.progress,
+                    finished: data.finished
+                  }
+                }
+              }
+            })
+          } catch {
+            clearInterval(intervals.current[key])
+            delete intervals.current[key]
+            toast.error(`Error fetching ${job} for car #${carId}`)
+          }
+        }, 1500)
+      })
     })
 
     return () => {
@@ -124,19 +181,24 @@ export default function Index({ cars }: Props) {
                 <TableHead>Year</TableHead>
                 <TableHead>Struct ID</TableHead>
 
-                {channelsMeta.map((ch) => (
-                  <TableHead key={ch.key} className="text-center">{ch.label}</TableHead>
+                {channelsMeta.map(ch => (
+                  <TableHead key={ch.key} className="text-center">
+                    {ch.label}
+                  </TableHead>
                 ))}
 
                 <TableHead>Synced at</TableHead>
                 <TableHead></TableHead>
-                <TableHead>Sync</TableHead>
+                <TableHead className="text-center">Sync</TableHead>
+                <TableHead className="text-center">Price List</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
               {cars.map(car => {
-                const state = syncStates[car.struct_id]
+                const sync = syncStates[car.struct_id]?.sync
+
+                const syncRunning = !!sync && !sync.finished
 
                 return (
                   <TableRow key={car.id}>
@@ -144,31 +206,55 @@ export default function Index({ cars }: Props) {
                     <TableCell>{car.year}</TableCell>
                     <TableCell>{car.struct_id}</TableCell>
 
-                    {channelsMeta.map((ch) => (
+                    {channelsMeta.map(ch => (
                       <TableCell key={ch.key} className="text-center">
-                        {isChannelActive(car.channels[ch.key], ch.type) ? '✅' : '❌'}
+                        {isChannelActive(car.channels[ch.key], ch.type)
+                          ? '✅'
+                          : '❌'}
                       </TableCell>
                     ))}
 
                     <TableCell>{car.synced_at}</TableCell>
 
-                    <TableCell className="w-24">
-                      {state && !state.finished && <Progress value={state.progress} />}
+                    {/* Progress */}
+                    <TableCell className="w-32 space-y-2">
+                      {sync && !sync.finished && (
+                        <Progress value={sync.progress} />
+                      )}
                     </TableCell>
 
-                    <TableCell>
+                    {/* Sync */}
+                    <TableCell className="text-center">
                       <Button
                         size="icon"
                         variant="outline"
                         onClick={() => startSync(car.struct_id)}
-                        disabled={state && !state.finished}
+                        disabled={syncRunning}
                       >
                         <RefreshCcw
-                          className={state && !state.finished ? "animate-spin" : ""}
+                          className={syncRunning ? "animate-spin" : ""}
                           size={16}
                         />
                       </Button>
                     </TableCell>
+
+                    {/* Price List */}
+                    <TableCell className="text-center">
+                      <Button
+                          size="icon"
+                          variant="outline"
+                          asChild
+                        >
+                          <a
+                            href={routes.priceList(car.struct_id).url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <ScanEye size={16} />
+                          </a>
+                        </Button>
+                    </TableCell>
+
                   </TableRow>
                 )
               })}

@@ -2,46 +2,32 @@
 
 namespace App\Jobs;
 
-use App\Models\Car;
+use App\Services\PriceListService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Spatie\LaravelPdf\Facades\Pdf;
-use Spatie\LaravelPdf\Enums\Format;
-use Spatie\Browsershot\Browsershot;
 use Throwable;
-use Illuminate\Support\Str;
 
 class GeneratePriceListJob implements ShouldQueue
 {
     use Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        protected int $carId
+        protected int $carStructId
     ) {}
 
-    public function handle(): void
+    public function handle(PriceListService $priceListService): void
     {
         try {
-            $car = Car::withoutGlobalScopes()->with('trims.powertrains.configuration')->findOrFail($this->carId);
+            $car = $priceListService->loadCar($this->carStructId);
 
-            Storage::disk('public')->makeDirectory('prislister');
+            $data = $priceListService->build($car);
 
-            $fileName = 'prislister/' . Str::slug($car->name) . '.pdf';
-
-            Pdf::view('price-list', ['car' => $car])
-                ->format(Format::A4)
-                ->margins(10, 10, 10, 10)
-                ->disk('public')
-                ->save($fileName);
-
-            Log::info('Price list generated', [
-                'car_id' => $car->id,
-            ]);
+            $priceListService->generatePdf($data);
 
         } catch (Throwable $e) {
             $this->handleFailure($e);
@@ -54,7 +40,7 @@ class GeneratePriceListJob implements ShouldQueue
         report($exception);
 
         Log::error('GeneratePriceListJob failed', [
-            'productId' => $this->carId,
+            'car_id' => $this->carId,
             'exception' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),
         ]);
@@ -65,11 +51,13 @@ class GeneratePriceListJob implements ShouldQueue
         $this->handleFailure($exception);
     }
 
-    /**
-     * @return array<string>
-     */
     public function tags(): array
     {
-        return ['generate', 'price-list', 'car', 'id:' . $this->carId];
+        return [
+            'generate',
+            'pricelist',
+            'car',
+            'id:' . $this->carId,
+        ];
     }
 }

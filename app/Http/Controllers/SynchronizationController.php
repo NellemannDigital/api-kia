@@ -65,4 +65,14 @@ class SynchronizationController extends Controller
 
         return redirect()->back()->with('success', 'Stock cars sync started!');
     }
+
+    /**
+     * Genereate Price Lists
+     */
+    public function generatePriceList()
+    {
+        Artisan::call('nellemann:generate-price-lists');
+
+        return redirect()->back()->with('success', 'Generate price lists started!');
+    }
 }

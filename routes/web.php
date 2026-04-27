@@ -10,6 +10,7 @@ use App\Http\Controllers\SynchronizationController;
 use App\Http\Controllers\Settings\ApiTokenController;
 use App\Http\Controllers\ComplianceTextTemplateController;
 use App\Http\Controllers\ComplianceTextController;
+use App\Http\Controllers\PdfController;
 use Illuminate\Support\Facades\Bus;
 
 Route::get('/', function () {
@@ -27,13 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('compliance-text', ComplianceTextController::class);
     Route::resource('compliance-text-templates', ComplianceTextTemplateController::class);
 
-    Route::resource('settings/api-tokens', ApiTokenController::class);
-
     Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
     Route::get('/cars/{id}/price-list/', [CarController::class, 'priceList'])->name('cars.price-list');
-    Route::get('/cars/{id}/price-list-download/', [CarController::class, 'priceListDownload'])->name('cars.price-list-download');
-    Route::post('/cars/{id}/sync/', [CarController::class, 'sync'])->name('cars.sync');
     
+    Route::post('/cars/{id}/sync/', [CarController::class, 'sync'])->name('cars.sync');
 
     Route::get('/dealers', [DealerController::class, 'index'])->name('dealers.index');
 
@@ -42,6 +40,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/synchronization/dealers', [SynchronizationController::class, 'syncDealers'])->name('synchronization.dealers');
     Route::post('/synchronization/used-cars', [SynchronizationController::class, 'syncUsedCars'])->name('synchronization.used-cars');
     Route::post('/synchronization/stock-cars', [SynchronizationController::class, 'syncStockCars'])->name('synchronization.stock-cars');
+    Route::post('/synchronization/price-list', [SynchronizationController::class, 'generatePriceList'])->name('synchronization.price-list');
+
+    Route::resource('settings/api-tokens', ApiTokenController::class);
 });
 
 //Route::get('/specifications', [CarController::class, 'specifications'])->name('specifications');

@@ -33,7 +33,7 @@ class GeneratePriceLists extends Command
         Bus::chain([
             new GeneratePriceListsJob()
         ])
-            ->onQueue('price-lists')
+            ->onQueue('pricelists')
             ->dispatch();
     }
 }

@@ -44,12 +44,14 @@ class TestDriveController extends Controller
             ->where('variant->b2b', false)
             ->with('trims.powertrains.configuration')
             ->orderBy('name')
-            ->paginate();
+            ->get();
     }
 
     public function dealers(Request $request)
     {
-        $query = Dealer::query();
+        $query = Dealer::query()
+            ->where('types->b2c', true)
+            ->where('tools->test_drive', true);
 
         if ($request->has('zip')) {
             $query->whereJsonContains('postal_codes->b2c', $request->zip)->orderBy('name');
@@ -74,7 +76,7 @@ class TestDriveController extends Controller
         }
 
         else {
-            $query->orderBy('name');
+            $query->orderBy('city');
         }
 
         return $query->get();

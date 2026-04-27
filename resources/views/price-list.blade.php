@@ -17,17 +17,19 @@
 
                 <img src="{{ $car->price_list?->primary_image?->url }}" class="w-full h-full object-cover rounded-lg">
                 
-                <div class="right-6 bottom-6 absolute space-y-3">
-                    <div class="bg-primary p-1.5 inline-block space-y-1.5 rounded-lg">
-                        <div class="rounded-lg overflow-hidden">
-                            <x-qr-code
-                                data="{{ $car->urls->test_drive }}"
-                                size="90"
-                            />
+                @if($car->urls?->test_drive)
+                    <div class="right-6 bottom-6 absolute space-y-3">
+                        <div class="bg-primary p-1.5 inline-block space-y-1.5 rounded-lg">
+                            <div class="rounded-lg overflow-hidden">
+                                <x-qr-code
+                                    data="{{ $car->urls->test_drive }}"
+                                    size="90"
+                                />
+                            </div>
+                            <div class="text-white text-[9px] font-bold text-center">Book en prøvetur</div>
                         </div>
-                        <div class="text-white text-[9px] font-bold text-center">Book en prøvetur</div>
                     </div>
-                </div>
+                @endif
                
                 <div class="top-9 left-21 absolute font-bold text-white text-6xl">
                     {{ $car->name }}
@@ -45,7 +47,7 @@
         @pageBreak
 
         <!-- Campaign -->
-        @if($car->price_list->campaign?->valid_from
+        @if($car->price_list?->campaign?->valid_from
             && $car->price_list->campaign?->valid_to
             && today()->between(
                 $car->price_list->campaign?->valid_from,
@@ -120,6 +122,10 @@
                             $tech = $powertrain->technical_specifications;
                             $configTech = $powertrain->configuration?->technical_specifications;
                             $price = $powertrain->prices->last();
+
+                            $campaign = $price?->campaign_retail_price;
+                            $suggested = $price?->suggested_retail_price;
+                            $hasCampaign = $campaign && $campaign != 0;
                         @endphp
 
                         <div class="flex gap-2 items-center p-2 border-b border-primary-low">
@@ -163,11 +169,20 @@
                             <div class="w-[60px] text-center">
                                 {{ $configTech?->owner_tax ? $configTech->owner_tax.' kr.' : '-' }}
                             </div>
-
+                           
                             <div class="w-[60px] text-center">
-                                {!! $price && $price->campaign_retail_price != 0
-                                    ? Number::format($price->campaign_retail_price, locale: 'da') . ' kr. <br>' . '<span class="text-gray-400 line-through">' . Number::format($price->suggested_retail_price, locale: 'da') .' kr. </span>'
-                                    : Number::format($price->suggested_retail_price, locale: 'da') .' kr.' !!}
+                                @if($hasCampaign)
+                                    {!! Number::format($campaign, locale: 'da') !!} kr. <br>
+                                    <span class="text-gray-400 line-through">
+                                        {{ $suggested !== null
+                                        ? Number::format($suggested, locale: 'da') . ' kr.'
+                                        : '-' }}
+                                    </span>
+                                @else
+                                    {{ $suggested !== null
+                                    ? Number::format($suggested, locale: 'da') . ' kr.'
+                                    : '-' }}
+                                @endif
                             </div>
 
                         </div>
@@ -501,10 +516,13 @@
 
         @pageBreak
 
-        @if(
-            !empty($groupedEquipment['Fælge']) 
-            || !empty($groupedExtraEquipmentPackages['Fælge'])
-        )
+
+        @php
+            $fælge = !empty($groupedEquipment['Fælge'] ?? null)
+                || !empty($groupedExtraEquipmentPackages['Fælge'] ?? null);
+        @endphp
+
+        @if($fælge)
 
             <section class="mx-auto max-w-[210mm]">
 
@@ -517,28 +535,26 @@
 
                 <div class="grid grid-cols-3 gap-4">
                     @foreach(($groupedEquipment['Fælge'] ?? []) as $equipment)
-                        @if($equipment->images->first())
-                            <div class="flex flex-col rounded-lg overflow-hidden border border-primary-low">
-                                <img src="{{ $equipment->images->first()->url }}?width=300"
-                                    alt="{{ $equipment->name }}"
-                                    class="w-full h-48 object-contain p-4" />
+                        <div class="flex flex-col rounded-lg overflow-hidden border border-primary-low">
+                            <img src="{{ $equipment->images->first()?->url }}?width=300"
+                                alt="{{ $equipment->name }}"
+                                class="w-full h-48 object-contain p-4" />
 
-                                <div class="p-4 flex flex-col flex-1 border-t border-primary-low">
+                            <div class="p-4 flex flex-col flex-1 border-t border-primary-low">
 
-                                    <div class="font-bold text-xs line-clamp-2">
-                                        {{ $equipment->name }} (standard)
-                                    </div>
+                                <div class="font-bold text-xs line-clamp-2">
+                                    {{ $equipment->name }} (standard)
+                                </div>
 
-                                    <div class="mt-auto flex flex-wrap gap-1 pt-2">
-                                        @foreach($equipment->trim_names as $trim_name)
-                                            <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
-                                                {{ $trim_name }}
-                                            </span>
-                                        @endforeach
-                                    </div>
+                                <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                                    @foreach($equipment->trim_names as $trim_name)
+                                        <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
+                                            {{ $trim_name }}
+                                        </span>
+                                    @endforeach
                                 </div>
                             </div>
-                        @endif
+                        </div>
                     @endforeach
                     @foreach(($groupedExtraEquipmentPackages['Fælge'] ?? []) as $package) 
                         <div class="flex flex-col rounded-lg overflow-hidden border border-primary-low">
@@ -580,26 +596,24 @@
 
             <div class="grid grid-cols-3 gap-4">
                 @foreach($trims as $trim) 
-                    @if($trim->interior->image)
-                        <div class="flex flex-col rounded-lg overflow-hidden">
-                            <img src="{{ $trim->interior->image->url }}?width=300"
-                                alt="{{ $trim->interior->name }}"
-                                class="w-full h-48 object-cover" />
+                    <div class="flex flex-col rounded-lg overflow-hidden">
+                        <img src="{{ $trim->interior->image?->url }}?width=300"
+                            alt="{{ $trim->interior->name }}"
+                            class="w-full h-48 object-cover" />
 
-                            <div class="p-4 flex flex-col flex-1 rounded-b-lg border-b border-x border-primary-low">
+                        <div class="p-4 flex flex-col flex-1 rounded-b-lg border-b border-x border-primary-low">
 
-                                <div class="font-bold text-xs line-clamp-2">
-                                    {{ $trim->interior->name }} (standard)
-                                </div>
+                            <div class="font-bold text-xs line-clamp-2">
+                                {{ $trim->interior->name }} (standard)
+                            </div>
 
-                                <div class="mt-auto flex flex-wrap gap-1 pt-2">
-                                    <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
-                                        {{ $trim->name }}
-                                    </span>
-                                </div>
+                            <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                                <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
+                                    {{ $trim->name }}
+                                </span>
                             </div>
                         </div>
-                    @endif
+                    </div>
                 @endforeach
 
                 @foreach(($groupedExtraEquipmentPackages['Interiørfarve'] ?? []) as $package) 
@@ -681,93 +695,95 @@
 
                 @endforeach
 
-                <div class="bg-primary p-2 rounded mt-6">
-                    <div class="gap-2 grid grid-cols-12 text-xs text-white font-bold">
-                        <div class="col-span-4 font-bold">
-                            Ekstraudstyr
-                        </div>
-                            <div class="col-span-8 flex justify-end font-bold">
-                            <div class="w-24 text-center">Pris *</div>
+                @if(count($trim->extraEquipmentPackages) > 0)
+                    <div class="bg-primary p-2 rounded mt-6">
+                        <div class="gap-2 grid grid-cols-12 text-xs text-white font-bold">
+                            <div class="col-span-4 font-bold">
+                                Ekstraudstyr
+                            </div>
+                                <div class="col-span-8 flex justify-end font-bold">
+                                <div class="w-24 text-center">Pris *</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="text-xs text-primary divide-y divide-primary-low border-b border-primary-low">
-                    @foreach ($trim->extraEquipmentPackages as $package)
-                        <div class="grid grid-cols-12 gap-2 p-2 items-center">
-                            <div class="col-span-8">
-                                <span class="font-bold">{{ $package->name }}</span>
+                    <div class="text-xs text-primary divide-y divide-primary-low border-b border-primary-low">
+                        @foreach ($trim->extraEquipmentPackages as $package)
+                            <div class="grid grid-cols-12 gap-2 p-2 items-center">
+                                <div class="col-span-8">
+                                    <span class="font-bold">{{ $package->name }}</span>
 
-                                @if(!$package->equipment->isEmpty())
-                                    <ul class="mt-1 pl-4 list-disc list-outside">
-                                        @foreach($package->equipment as $equipment)
-                                            <li>{{ $equipment->name }}</li>
-                                        @endforeach
-                                    </ul>
-                                @endif
+                                    @if(!$package->equipment->isEmpty())
+                                        <ul class="mt-1 pl-4 list-disc list-outside">
+                                            @foreach($package->equipment as $equipment)
+                                                <li>{{ $equipment->name }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
 
-                                @php
-                                    $requires = collect($package->requires ?? [])->pluck('0.name')
-                                        ->merge(collect($package->engine_required ?? [])->pluck('name'))
-                                        ->merge(collect($package->transmission_required ?? [])->pluck('name'))
-                                        ->merge(collect($package->color_required ?? [])->pluck('primary_color')); 
-                                @endphp
-
-                                @php
-                                    $excludes = collect($package->excludes ?? [])->pluck('name')
-                                        ->merge(collect($package->excludes_standard_equipment ?? [])->pluck('name'));
-                                @endphp
-
-                                @if($requires->isNotEmpty())
-                                    <div class="mt-2 text-xs">
-                                        Kræver: {{ $requires->implode(', ') }}
-                                    </div>
-                                @endif
-
-                                @if($excludes->isNotEmpty())
-                                    <div class="mt-2 text-xs">
-                                        Udelukker: {{ $excludes->implode(', ') }}
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="col-span-4 flex justify-end">
-                                <div class="w-24 text-center"> 
                                     @php
-                                    $price = $package->latestPrice?->suggested_retail_price;
-                                @endphp
+                                        $requires = collect($package->requires ?? [])->pluck('0.name')
+                                            ->merge(collect($package->engine_required ?? [])->pluck('name'))
+                                            ->merge(collect($package->transmission_required ?? [])->pluck('name'))
+                                            ->merge(collect($package->color_required ?? [])->pluck('primary_color')); 
+                                    @endphp
 
-                                {{ $price && $price != 0
-                                    ? Number::format($price, locale: 'da').' kr.'
-                                    : '-' }}
+                                    @php
+                                        $excludes = collect($package->excludes ?? [])->pluck('name')
+                                            ->merge(collect($package->excludes_standard_equipment ?? [])->pluck('name'));
+                                    @endphp
+
+                                    @if($requires->isNotEmpty())
+                                        <div class="mt-2 text-xs">
+                                            Kræver: {{ $requires->implode(', ') }}
+                                        </div>
+                                    @endif
+
+                                    @if($excludes->isNotEmpty())
+                                        <div class="mt-2 text-xs">
+                                            Udelukker: {{ $excludes->implode(', ') }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="col-span-4 flex justify-end">
+                                    <div class="w-24 text-center"> 
+                                        @php
+                                        $price = $package->latestPrice?->suggested_retail_price;
+                                    @endphp
+
+                                    {{ $price && $price != 0
+                                        ? Number::format($price, locale: 'da').' kr.'
+                                        : '-' }}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
 
-                <div class="space-y-2 text-xs text-primary mt-4">
-                @php
-                    $priceListExtrasWltp = compliance_text_for(['car' => $car], 'price_list_extras_wltp');
-                    $priceListExtrasTax = compliance_text_for(['car' => $car], 'price_list_extras_tax');
-                    $priceListExtrasHighTax = compliance_text_for(['car' => $car], 'price_list_extras_high_tax');
-                @endphp
+                    <div class="space-y-2 text-xs text-primary mt-4">
+                        @php
+                            $priceListExtrasWltp = compliance_text_for(['car' => $car], 'price_list_extras_wltp');
+                            $priceListExtrasTax = compliance_text_for(['car' => $car], 'price_list_extras_tax');
+                            $priceListExtrasHighTax = compliance_text_for(['car' => $car], 'price_list_extras_high_tax');
+                        @endphp
 
-                @if($priceListExtrasWltp)
-                    <div>
-                        {{ $priceListExtrasWltp }}
+                        @if($priceListExtrasWltp)
+                            <div>
+                                {{ $priceListExtrasWltp }}
+                            </div>
+                        @endif
+
+                        @if($trim->uses_high_tax && $priceListExtrasHighTax)
+                            <div>
+                                * {{ $priceListExtrasHighTax }}
+                            </div>
+                        @elseif($priceListExtrasTax)
+                            <div>
+                                * {{ $priceListExtrasTax }}
+                            </div>
+                        @endif
+
                     </div>
                 @endif
-
-                @if($trim->uses_high_tax && $priceListExtrasHighTax)
-                    <div>
-                        * {{ $priceListExtrasHighTax }}
-                    </div>
-                @elseif($priceListExtrasTax)
-                    <div>
-                        * {{ $priceListExtrasTax }}
-                    </div>
-                @endif
-
-            </div>
 
                 @php
                     $previousTrim = $trim;

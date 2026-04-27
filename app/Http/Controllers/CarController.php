@@ -2,23 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Car;
-use Inertia\Inertia;
 use App\Jobs\SyncCarJob;
 use App\Jobs\SyncTrimJob;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Bus\Batch;
+use App\Jobs\GeneratePriceListJob;
+use App\Models\Car;
 use App\Requests\ProductRequest;
 use App\Services\ComplianceTextService;
-use function Spatie\LaravelPdf\Support\pdf;
-use Spatie\LaravelPdf\Enums\Format;
-use Spatie\Browsershot\Browsershot;
-use Illuminate\Support\Collection;
 use App\ViewModels\Specifications;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Bus;
+use Inertia\Inertia;
+use Spatie\Browsershot\Browsershot;
+use Spatie\LaravelPdf\Enums\Format;
+use App\Services\PriceListService;
+
+use function Spatie\LaravelPdf\Support\pdf;
 
 class CarController extends Controller
 {
+    public function __construct(
+        private PriceListService $priceListService
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -42,7 +48,7 @@ class CarController extends Controller
      */
     public function show(string $id)
     {
-        //return Car::where('web_id', $id)->firstOrFail();
+        // return Car::where('web_id', $id)->firstOrFail();
     }
 
     /**
@@ -73,6 +79,8 @@ class CarController extends Controller
             $jobs[] = new SyncTrimJob($variantId);
         }
 
+        $jobs[] = new GeneratePriceListJob($id);
+
         $batch = Bus::batch($jobs)
             ->onQueue('pim')
             ->dispatch();
@@ -83,13 +91,28 @@ class CarController extends Controller
         ]);
     }
 
+    public function priceList($id)
+    {
+        $car = $this->priceListService->loadCar($id);
+
+        if (! $car) {
+            abort(404, 'Car not found');
+        }
+
+        return $this->priceListService
+            ->pdf($car);
+    }
+
+
+    // WIP
+
     public function specifications()
     {
         $car = Car::with([
-            'trims.powertrains'
+            'trims.powertrains',
         ])->findOrFail(1);
 
-        $trims = $car->trims->values(); 
+        $trims = $car->trims->values();
 
         $sections = new Specifications($trims)->sections();
 
@@ -99,95 +122,43 @@ class CarController extends Controller
     public function specificationsDownload()
     {
         $car = Car::with([
-            'trims.powertrains'
+            'trims.powertrains',
         ])->findOrFail(1);
 
-        $trims = $car->trims->values(); 
+        $trims = $car->trims->values();
 
         $sections = new Specifications($trims)->sections();
 
         return pdf('specifications', compact('car', 'trims', 'sections'))
-        ->landscape()
-        ->format(Format::A4)
-        ->name('Specifications')
-        ->margins(5, 5, 5, 5)
-        ->download();
-    }
-
-    public function priceList($id)
-    {
-        $car = Car::with([
-            'trims.extraEquipmentPackages.latestPrice',
-            'trims.colors.latestPrice'
-        ])->findOrFail($id);
-
-        $trims = $car->trims->values(); 
-
-        $colorMatrix = $this->matrix(
-            $trims, 
-            'colors', 
-            'code'
-        );
-
-        $extraEquipmentPackageMatrix = $this->matrix(
-            $trims, 
-            'extraEquipmentPackages',
-            'code'
-        );
-        
-       $groupedEquipment = $this->group(
-            $trims,
-            'equipment',
-            fn ($item) => $item->images
-        );
-
-        $groupedExtraEquipmentPackages = $this->group(
-            $trims,
-            'extraEquipmentPackages',
-            fn ($item) => $item->image
-        );
-
-        $interiors = $trims
-            ->filter->interior
-            ->groupBy(fn($trim) => $trim->interior->code)
-            ->map(function ($group) {
-                $interior = $group->first()->interior;
-
-                $interior->trim_names = $group
-                    ->pluck('name')
-                    ->unique()
-                    ->values()
-                    ->all();
-
-                return $interior;
-            })
-            ->values();
-
-        return view('price-list', compact('car', 'trims', 'colorMatrix',  'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'));
+            ->landscape()
+            ->format(Format::A4)
+            ->name('Specifications')
+            ->margins(5, 5, 5, 5)
+            ->download();
     }
 
     public function priceListDownload($id)
     {
         $car = Car::with([
             'trims.extraEquipmentPackages.latestPrice',
-            'trims.colors.latestPrice'
+            'trims.colors.latestPrice',
         ])->findOrFail($id);
 
-        $trims = $car->trims->values(); 
+        $trims = $car->trims->values();
 
         $colorMatrix = $this->matrix(
-            $trims, 
-            'colors', 
+            $trims,
+            'colors',
             'code'
         );
 
         $extraEquipmentPackageMatrix = $this->matrix(
-            $trims, 
+            $trims,
             'extraEquipmentPackages',
             'code'
         );
-        
-       $groupedEquipment = $this->group(
+
+        $groupedEquipment = $this->group(
             $trims,
             'equipment',
             fn ($item) => $item->images
@@ -201,7 +172,7 @@ class CarController extends Controller
 
         $interiors = $trims
             ->filter->interior
-            ->groupBy(fn($trim) => $trim->interior->code)
+            ->groupBy(fn ($trim) => $trim->interior->code)
             ->map(function ($group) {
                 $interior = $group->first()->interior;
 
@@ -215,16 +186,16 @@ class CarController extends Controller
             })
             ->values();
 
-       return pdf('price-list', compact('car', 'trims', 'colorMatrix',  'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'))
-             ->withBrowsershot(function (Browsershot $browsershot) {
+        return pdf('price-list', compact('car', 'trims', 'colorMatrix', 'extraEquipmentPackageMatrix', 'groupedEquipment', 'groupedExtraEquipmentPackages', 'interiors'))
+            ->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot->waitUntilNetworkIdle();
                 $browsershot->setChromePath('/usr/bin/chromium');
                 $browsershot->setEnvironmentOptions([
-                    'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config')
+                    'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
                 ]);
             })
             ->format(Format::A4)
-            ->name('Prisliste - ' . $car->name)
+            ->name('Prisliste - '.$car->name)
             ->margins(6, 6, 6, 6)
             ->download();
     }
@@ -233,13 +204,14 @@ class CarController extends Controller
     {
 
         $car = Car::with([
-            'trims.accessories'
+            'trims.accessories',
         ])->findOrFail(1);
 
         $accessories = $car->trims
             ->flatMap(function ($trim) {
                 return $trim->accessories->map(function ($accessory) use ($trim) {
                     $accessory->trim_name = $trim->name;
+
                     return $accessory;
                 });
             })
@@ -247,26 +219,27 @@ class CarController extends Controller
             ->map(function ($group) {
                 $accessory = $group->first();
                 $accessory->trim_names = $group->pluck('trim_name')->unique()->values();
+
                 return $accessory;
             })
             ->sortBy('name')
             ->values();
 
-            $groupedAccessories = collect();
+        $groupedAccessories = collect();
 
-            foreach ($accessories as $accessory) {
-                $categories = is_array($accessory->categories) 
-                    ? $accessory->categories 
-                    : json_decode($accessory->categories, true);
+        foreach ($accessories as $accessory) {
+            $categories = is_array($accessory->categories)
+                ? $accessory->categories
+                : json_decode($accessory->categories, true);
 
-                foreach ($categories as $category) {
-                    if (! $groupedAccessories->has($category)) {
-                        $groupedAccessories[$category] = collect();
-                    }
-
-                    $groupedAccessories[$category]->push($accessory);
+            foreach ($categories as $category) {
+                if (! $groupedAccessories->has($category)) {
+                    $groupedAccessories[$category] = collect();
                 }
+
+                $groupedAccessories[$category]->push($accessory);
             }
+        }
 
         $rows = collect();
 
@@ -274,7 +247,7 @@ class CarController extends Controller
             foreach ($accessories->chunk(3) as $row) {
                 $rows->push([
                     'category' => $category,
-                    'items' => $row
+                    'items' => $row,
                 ]);
             }
         }
@@ -294,13 +267,14 @@ class CarController extends Controller
     {
 
         $car = Car::with([
-            'trims.accessories'
+            'trims.accessories',
         ])->findOrFail(1);
 
         $accessories = $car->trims
             ->flatMap(function ($trim) {
                 return $trim->accessories->map(function ($accessory) use ($trim) {
                     $accessory->trim_name = $trim->name;
+
                     return $accessory;
                 });
             })
@@ -308,34 +282,35 @@ class CarController extends Controller
             ->map(function ($group) {
                 $accessory = $group->first();
                 $accessory->trim_names = $group->pluck('trim_name')->unique()->values();
+
                 return $accessory;
             })
             ->sortBy('name')
             ->values();
 
-            $groupedAccessories = collect();
+        $groupedAccessories = collect();
 
-            foreach ($accessories as $accessory) {
-                $categories = is_array($accessory->categories) 
-                    ? $accessory->categories 
-                    : json_decode($accessory->categories, true);
+        foreach ($accessories as $accessory) {
+            $categories = is_array($accessory->categories)
+                ? $accessory->categories
+                : json_decode($accessory->categories, true);
 
-                foreach ($categories as $category) {
-                    if (! $groupedAccessories->has($category)) {
-                        $groupedAccessories[$category] = collect();
-                    }
-
-                    $groupedAccessories[$category]->push($accessory);
+            foreach ($categories as $category) {
+                if (! $groupedAccessories->has($category)) {
+                    $groupedAccessories[$category] = collect();
                 }
-            }
 
-            $rows = collect();
+                $groupedAccessories[$category]->push($accessory);
+            }
+        }
+
+        $rows = collect();
 
         foreach ($groupedAccessories as $category => $accessories) {
             foreach ($accessories->chunk(3) as $row) {
                 $rows->push([
                     'category' => $category,
-                    'items' => $row
+                    'items' => $row,
                 ]);
             }
         }
@@ -349,12 +324,11 @@ class CarController extends Controller
         ];
 
         return pdf('price-list-accessories', compact('car', 'complianceTexts', 'pages'))
-        ->format(Format::A4)
-        ->name('Prisliste')
-        ->margins(10, 10, 10, 10)
-        ->download();
+            ->format(Format::A4)
+            ->name('Prisliste')
+            ->margins(10, 10, 10, 10)
+            ->download();
     }
-
 
     private function group($trims, $relation, $filter)
     {
@@ -364,6 +338,7 @@ class CarController extends Controller
                     ->filter($filter)
                     ->map(function ($item) use ($trim) {
                         $item->trim_names = [$trim->name];
+
                         return $item;
                     });
             })
@@ -391,7 +366,7 @@ class CarController extends Controller
     ): Collection {
 
         $trimEquipmentCodes = $trims->mapWithKeys(fn ($trim) => [
-            $trim->id => $trim->equipment->pluck('code')->all()
+            $trim->id => $trim->equipment->pluck('code')->all(),
         ]);
 
         $flatOptions = $trims->flatMap(function ($trim) use (
@@ -409,8 +384,8 @@ class CarController extends Controller
                 return [
                     'option_id' => $option->$optionIdentifier,
                     'option_obj' => $option,
-                    'trim_id'   => $trim->id,
-                    'price'     => $option->latestPrice?->$priceField,
+                    'trim_id' => $trim->id,
+                    'price' => $option->latestPrice?->$priceField,
                 ];
             });
         });
@@ -436,12 +411,13 @@ class CarController extends Controller
 
                     if (empty($packageCodes)) {
                         $included[$trim->id] = false;
+
                         continue;
                     }
 
                     $trimCodes = $trimEquipmentCodes[$trim->id];
 
-                    $included[$trim->id] = !array_diff($packageCodes, $trimCodes);
+                    $included[$trim->id] = ! array_diff($packageCodes, $trimCodes);
                 }
 
                 return [
