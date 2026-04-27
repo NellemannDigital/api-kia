@@ -66,7 +66,7 @@ class PriceListService
                     ->setChromePath('/usr/bin/chromium')
                     ->setEnvironmentOptions([
                         'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
-                    ])
+                    ]);
             })
             ->format(Format::A4)
             ->name('Prisliste - ' . $data['car']->name)
