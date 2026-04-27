@@ -60,7 +60,7 @@ class PriceListService
         }
 
         Pdf::view('price-list', $data)
-            /*->withBrowsershot(function (Browsershot $browsershot) {
+            ->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot
                     ->waitUntilNetworkIdle()
                     ->timeout(120)
@@ -74,7 +74,7 @@ class PriceListService
                         '--no-sandbox',
                         '--disable-gpu',
                     ]);
-            })*/
+            })
             ->format(Format::A4)
             ->name('Prisliste - ' . $data['car']->name)
             ->margins(6, 6, 6, 6)
