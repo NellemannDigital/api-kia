@@ -84,6 +84,14 @@ class PriceListService
         $data = $this->build($car);
 
         return Pdf::view('price-list', $data)
+            ->withBrowsershot(function (Browsershot $browsershot) {
+                $browsershot
+                    ->waitUntilNetworkIdle()
+                    ->setChromePath('/usr/bin/chromium')
+                    ->setEnvironmentOptions([
+                        'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
+                    ]);
+            })
             ->format(Format::A4)
             ->name('Prisliste - ' . $car->name)
             ->margins(6, 6, 6, 6);
