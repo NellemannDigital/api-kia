@@ -57,7 +57,7 @@ class GeneratePriceListJob implements ShouldQueue
             'generate',
             'pricelist',
             'car',
-            'id:' . $this->carId,
+            'id:' . $this->carStructId,
         ];
     }
 }
