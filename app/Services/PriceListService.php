@@ -72,7 +72,9 @@ class PriceListService
             ->name('Prisliste - ' . $data['car']->name)
             ->margins(6, 6, 6, 6)
             ->disk('public')
-            ->save($fileName);
+            ->save(storage_path("app/public/{$fileName}"));
+        
+        chmod(storage_path("app/public/{$fileName}"), 0644);
 
         return $fileName;
     }
