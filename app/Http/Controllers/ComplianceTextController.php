@@ -19,7 +19,7 @@ class ComplianceTextController extends Controller
             'trims.extraEquipmentPackages',
         ])->get();
 
-        $templates = ComplianceTextTemplate::valid()->get();
+        $templates = ComplianceTextTemplate::valid()->where('show_in_generator', true)->get();
 
         return Inertia::render('compliance-text/index', [
             'cars' => $cars,

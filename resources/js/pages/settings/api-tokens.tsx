@@ -158,7 +158,7 @@ export default function ApiTokens() {
 
           {/* Existing Tokens */}
           {tokens.length > 0 && (
-            <div className="mt-12 border rounded-xl overflow-hidden">
+            <div className="mt-12 border rounded-xl overflow-hidden p-4">
               <HeadingSmall
                 title="Existing Tokens"
                 description="Active API tokens linked to your account"

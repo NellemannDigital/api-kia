@@ -52,6 +52,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
                 'batch_id' => fn () => $request->session()->get('batch_id'),
                 'message' => fn () => $request->session()->get('message'),
+                'reset_link' => fn () => $request->session()->get('reset_link'),
             ],
         ];
     }

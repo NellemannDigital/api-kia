@@ -13,7 +13,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Braces, LayoutGrid, User, Car, Settings2, ShieldCheck, RefreshCcw } from 'lucide-react';
+import { Braces, LayoutGrid, User, Car, Settings2, ShieldCheck, RefreshCcw, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -49,6 +49,11 @@ const footerNavItems: NavItem[] = [
         title: 'Synchronization',
         href: '/synchronization',
         icon: RefreshCcw,
+    },
+    {
+        title: 'Users',
+        href: '/admin/users',
+        icon: Users,
     },
     {
         title: 'Swagger',

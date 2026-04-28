@@ -7,10 +7,10 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\DealerController;
 use App\Http\Controllers\SynchronizationController;
-use App\Http\Controllers\Settings\ApiTokenController;
 use App\Http\Controllers\ComplianceTextTemplateController;
 use App\Http\Controllers\ComplianceTextController;
 use App\Http\Controllers\PdfController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Bus;
 
 Route::get('/', function () {
@@ -30,19 +30,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
     Route::get('/cars/{id}/price-list/', [CarController::class, 'priceList'])->name('cars.price-list');
-    
+
     Route::post('/cars/{id}/sync/', [CarController::class, 'sync'])->name('cars.sync');
 
     Route::get('/dealers', [DealerController::class, 'index'])->name('dealers.index');
 
-    Route::get('/synchronization', [SynchronizationController::class, 'index'])->name('synchronization.index');
-    Route::post('/synchronization/pim', [SynchronizationController::class, 'syncPim'])->name('synchronization.pim');
-    Route::post('/synchronization/dealers', [SynchronizationController::class, 'syncDealers'])->name('synchronization.dealers');
-    Route::post('/synchronization/used-cars', [SynchronizationController::class, 'syncUsedCars'])->name('synchronization.used-cars');
-    Route::post('/synchronization/stock-cars', [SynchronizationController::class, 'syncStockCars'])->name('synchronization.stock-cars');
-    Route::post('/synchronization/price-list', [SynchronizationController::class, 'generatePriceList'])->name('synchronization.price-list');
+    Route::prefix('synchronization')->group(function () {
+        Route::get('/', [SynchronizationController::class, 'index'])->name('synchronization.index');
+        Route::post('pim', [SynchronizationController::class, 'syncPim'])->name('synchronization.pim');
+        Route::post('dealers', [SynchronizationController::class, 'syncDealers'])->name('synchronization.dealers');
+        Route::post('used-cars', [SynchronizationController::class, 'syncUsedCars'])->name('synchronization.used-cars');
+        Route::post('stock-cars', [SynchronizationController::class, 'syncStockCars'])->name('synchronization.stock-cars');
+        Route::post('price-list', [SynchronizationController::class, 'generatePriceList'])->name('synchronization.price-list');
+    });
 
-    Route::resource('settings/api-tokens', ApiTokenController::class);
+    Route::prefix('admin')->group(function () {
+        Route::get('users', [UserController::class, 'index'])->name('admin.users.index');
+        Route::get('users/create', [UserController::class, 'create'])->name('admin.users.create');
+        Route::post('users', [UserController::class, 'store'])->name('admin.users.store');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    });
 });
 
 //Route::get('/specifications', [CarController::class, 'specifications'])->name('specifications');
