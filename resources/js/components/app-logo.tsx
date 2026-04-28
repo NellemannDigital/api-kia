@@ -8,7 +8,7 @@ export default function AppLogo() {
                 <ChevronsLeftRightEllipsis className="text-white dark:text-black size-5" />
             </div>
             <div className="ml-1 grid flex-1 text-left text-sm">
-                <span className="mb-0.5 truncate leading-tight font-semibold">
+                <span className="mt-1 truncate leading-tight font-semibold">
                     Kia API
                 </span>
             </div>
