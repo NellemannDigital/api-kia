@@ -1,10 +1,10 @@
 "use client"
 
-import * as React from "react"
-import { Head, router } from "@inertiajs/react"
+import * as routes from '@/routes/admin/users/index';
+import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from "@/layouts/app-layout"
 import { toast } from "sonner"
-import { Trash2 } from "lucide-react"
+import { Trash2, Plus } from "lucide-react"
 
 import {
   Table,
@@ -108,6 +108,12 @@ export default function Index({ users, authUserId }: Props) {
 
         </div>
       </div>
+
+      <Link href={routes.create()}>
+        <Button className="absolute top-4 right-4" size="sm">
+          <Plus /> New
+        </Button>
+      </Link>
 
     </AppLayout>
   )
