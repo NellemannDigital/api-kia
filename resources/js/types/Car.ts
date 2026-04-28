@@ -1,5 +1,8 @@
 export interface Car {
   id: number
+  trims: {
+    struct_id: string,
+  }
   struct_id: number
   web_id: string | null
   name: string
