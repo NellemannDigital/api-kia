@@ -103,6 +103,18 @@ class CarController extends Controller
             ->pdf($car);
     }
 
+    public function priceListView($id)
+    {
+        $car = $this->priceListService->loadCar($id);
+
+        if (! $car) {
+            abort(404, 'Car not found');
+        }
+
+        return $this->priceListService
+            ->view($car);
+    }
+
 
     // WIP
 

@@ -97,6 +97,13 @@ class PriceListService
             ->margins(6, 6, 6, 6);
     }
 
+    public function view(Car $car)
+    {
+        $data = $this->build($car);
+
+        return view('price-list', $data);
+    }
+
     protected function buildInteriors(Collection $trims): Collection
     {
         return $trims
