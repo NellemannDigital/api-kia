@@ -64,6 +64,11 @@ class PriceListService
             ->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot
                     ->waitUntilNetworkIdle()
+                    ->setOption('args', [
+                        '--no-sandbox', 
+                        '--disable-font-subpixel-positioning',
+                        '--disable-web-security'
+                    ])
                     ->setChromePath('/usr/bin/chromium')
                     ->setEnvironmentOptions([
                         'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
@@ -87,6 +92,11 @@ class PriceListService
             ->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot
                     ->waitUntilNetworkIdle()
+                    ->setOption('args', [
+                        '--no-sandbox', 
+                        '--disable-font-subpixel-positioning',
+                        '--disable-web-security'
+                    ])
                     ->setChromePath('/usr/bin/chromium')
                     ->setEnvironmentOptions([
                         'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
