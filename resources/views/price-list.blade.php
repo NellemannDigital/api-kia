@@ -611,27 +611,39 @@
                     </div>
 
                     <div class="grid grid-cols-3 gap-4">
-                        @foreach($trims as $trim) 
-                            @if($trim->interior->image)
-                                <div class="flex flex-col rounded-lg overflow-hidden">
-                                    <img src="{{ $trim->interior->image?->url }}?width=300"
-                                        alt="{{ $trim->interior->name }}"
-                                        class="w-full h-40 object-cover" />
+                        @php
+                            $grouped = $trims
+                                ->filter(fn ($trim) => $trim->interior?->image)
+                                ->groupBy(fn ($trim) => $trim->interior->image->url);
+                        @endphp
+                        
+                        @foreach($grouped as $imageId => $group)
+                            @php
+                                $first = $group->first();
+                                $interior = $first->interior;
+                            @endphp
 
-                                    <div class="p-4 flex flex-col flex-1 rounded-b-lg border-b border-x border-primary-low">
+                            <div class="flex flex-col rounded-lg overflow-hidden">
+                                <img src="{{ $interior->image?->url }}?width=300"
+                                    alt="{{ $interior->name }}"
+                                    class="w-full h-40 object-cover" />
 
-                                        <div class="font-bold text-xs line-clamp-2">
-                                            {{ $trim->interior->name }} (standard)
-                                        </div>
+                                <div class="p-4 flex flex-col flex-1 rounded-b-lg border-b border-x border-primary-low">
 
-                                        <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                                    <div class="font-bold text-xs line-clamp-2">
+                                        {{ $interior->name }} (standard)
+                                    </div>
+
+                                    <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                                        @foreach($group as $trim)
                                             <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
                                                 {{ $trim->name }}
                                             </span>
-                                        </div>
+                                        @endforeach
                                     </div>
+
                                 </div>
-                            @endif
+                            </div>
                         @endforeach
 
                         @foreach(($groupedExtraEquipmentPackages['Interiørfarve'] ?? []) as $package) 
