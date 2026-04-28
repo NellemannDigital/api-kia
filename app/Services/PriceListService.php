@@ -38,7 +38,7 @@ class PriceListService
             'groupedEquipment' => $this->group(
                 $trims,
                 'equipment',
-                fn ($item) => $item->images
+                fn ($item) => $item->images->count() > 0
             ),
             'groupedExtraEquipmentPackages' => $this->group(
                 $trims,
@@ -60,21 +60,25 @@ class PriceListService
             unlink($fullPath);
         }
 
-        Pdf::view('price-list', $data)
-            ->withBrowsershot(function (Browsershot $browsershot) {
+        $pdf = Pdf::view('price-list', $data);
+
+        if (app()->environment('production')) {
+            $pdf->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot
                     ->waitUntilNetworkIdle()
                     ->setOption('args', [
-                        '--no-sandbox', 
+                        '--no-sandbox',
                         '--disable-font-subpixel-positioning',
-                        '--disable-web-security'
+                        '--disable-web-security',
                     ])
                     ->setChromePath('/usr/bin/chromium')
                     ->setEnvironmentOptions([
                         'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
                     ]);
-            })
-            ->format(Format::A4)
+            });
+        }
+
+        $pdf->format(Format::A4)
             ->name('Prisliste - ' . $data['car']->name)
             ->margins(6, 6, 6, 6)
             ->save($fullPath);
@@ -88,22 +92,26 @@ class PriceListService
     {
         $data = $this->build($car);
 
-        return Pdf::view('price-list', $data)
-            ->withBrowsershot(function (Browsershot $browsershot) {
+        $pdf = Pdf::view('price-list', $data);
+
+        if (app()->environment('production')) {
+            $pdf->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot
                     ->waitUntilNetworkIdle()
                     ->setOption('args', [
-                        '--no-sandbox', 
+                        '--no-sandbox',
                         '--disable-font-subpixel-positioning',
-                        '--disable-web-security'
+                        '--disable-web-security',
                     ])
                     ->setChromePath('/usr/bin/chromium')
                     ->setEnvironmentOptions([
                         'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
                     ]);
-            })
-            ->format(Format::A4)
-            ->name('Prisliste - ' . $car->name)
+            });
+        }
+
+        return $pdf->format(Format::A4)
+            ->name('Prisliste - ' . $data['car']->name)
             ->margins(6, 6, 6, 6);
     }
 
