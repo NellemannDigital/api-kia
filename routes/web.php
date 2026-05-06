@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Bus;
 
 Route::get('/', function () {
     return Inertia::render('auth/login');
-})->name('home');
+})->middleware('guest')->name('home');
 
 Route::middleware(['auth'])->group(function () {
 

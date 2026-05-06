@@ -75,20 +75,6 @@
             </div>
             
             <div class="text-xs text-primary">
-                @php
-                    $headers = [
-                        ['label' => 'Udstyrsvariant', 'col' => 'w-[130px] text-left'],
-                        ['label' => 'Ydelse', 'col' => 'w-[35px] text-center'],
-                        ['label' => 'Batteri', 'col' => 'col-span-2 text-center'],
-                        ['label' => 'Rækkevidde*', 'col' => 'col-span-2 text-center'],
-                        ['label' => 'Forbrug*', 'col' => 'col-span-2 text-center'],
-                        ['label' => 'Normalopladning <br><span class="font-light text-[9px]">(AC 0-100%)</span>', 'col' => 'col-span-3 text-center'],
-                        ['label' => 'Hurtigopladning <br><span class="font-light text-[9px]">(DC 10-80%)</span>', 'col' => 'col-span-3 text-center'],
-                        ['label' => 'Halvårlig CO<sub>2</sub>-afgift', 'col' => 'col-span-2 text-center'],
-                        ['label' => 'Pris', 'col' => 'col-span-3 text-center'],
-                    ];
-                @endphp
-
                 <div class="bg-primary p-2 rounded">
                     <div class="flex gap-2 items-center text-white font-bold leading-tight">
                         <span class="w-[130px] text-left">Udstyrsvariant</span>
@@ -97,8 +83,8 @@
                         <span class="w-[55px] text-center">Batteri</span>
                         <span class="w-[75px] text-center">Rækkevidde*</span>
                         <span class="w-[65px] text-center">Forbrug*</span>
-                        <span class="w-[100px] text-center">Normalopladning <br><span class="font-light text-[9px]">(AC 0-100%)</span></span>
-                        <span class="w-[100px] text-center">Hurtigopladning <br><span class="font-light text-[9px]">(DC 10-80%)</span></span>
+                        <span class="w-[100px] text-center">Normalopladning <br><span class="font-light text-[9px]">(AC {{ $acChargingPercentage }}%)</span></span>
+                        <span class="w-[100px] text-center">Hurtigopladning <br><span class="font-light text-[9px]">(DC {{ $dcChargingPercentage }}%)</span></span>
                         <span class="w-[60px] text-center">Halvårlig CO<sub>2</sub>-afgift</span>
                         <span class="w-[60px] text-center">
                             Pris 
@@ -340,7 +326,7 @@
                                     <circle cx="8" cy="8" r="8" fill="url(#diagonal-stripes)" />
                                 </svg>
                             @endif
-                            <span class="mt-0.75">{{ $row['colors']->primary_color }}</span>
+                            <span class="mt-0.75">{{ $row['colors']->primary_color }} {{ $row['colors']->secondary_color ? '/ ' . $row['colors']->secondary_color : ''  }}</span>
                         </div>
                         <div class="col-span-8 flex justify-end">
                             @foreach ($row['prices'] as $price)
@@ -393,7 +379,7 @@
                                     </div>
                                 </div>
                             @endif
-                            <p class="text-primary text-xs text-center leading-tight">{{ $row['colors']->primary_color }}</p>
+                            <p class="text-primary text-xs text-center leading-tight">{{ $row['colors']->primary_color }} {{ $row['colors']->secondary_color ? '/ ' . $row['colors']->secondary_color : ''  }}</p>
                         </div>
                     @endforeach
                 </div>
@@ -616,7 +602,7 @@
                                 ->filter(fn ($trim) => $trim->interior?->image)
                                 ->groupBy(fn ($trim) => $trim->interior->image->url);
                         @endphp
-                        
+
                         @foreach($grouped as $imageId => $group)
                             @php
                                 $first = $group->first();

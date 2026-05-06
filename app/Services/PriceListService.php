@@ -22,9 +22,19 @@ class PriceListService
     {
         $trims = $car->trims->values();
 
+        $acChargingPercentage = $car->trims
+        ->flatMap(fn ($trim) => $trim->powertrains)
+        ->first()->technical_specifications->ac_charging_percentage;
+
+        $dcChargingPercentage = $car->trims
+        ->flatMap(fn ($trim) => $trim->powertrains)
+        ->first()->technical_specifications->dc_charging_percentage;
+
         return [
             'car' => $car,
             'trims' => $trims,
+            'acChargingPercentage' => $acChargingPercentage,
+            'dcChargingPercentage' => $dcChargingPercentage,
             'colorMatrix' => $this->matrix(
                 $trims,
                 'colors',
