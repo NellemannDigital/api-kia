@@ -201,6 +201,30 @@ class PriceListService
 
                 return $categories->first();
             })
+            ->sortKeysUsing(function ($a, $b) {
+
+                $specialOrder = [
+                    'Diverse' => 1,
+                    'Ukategoriseret' => 2,
+                ];
+
+                $aRank = $specialOrder[$a] ?? 0;
+                $bRank = $specialOrder[$b] ?? 0;
+
+                if ($aRank === 0 && $bRank === 0) {
+                    return strcasecmp($a, $b);
+                }
+
+                if ($aRank === 0) {
+                    return -1;
+                }
+
+                if ($bRank === 0) {
+                    return 1;
+                }
+
+                return $aRank <=> $bRank;
+            })
             ->flatMap(function ($group, $category) {
                 return $group
                     ->chunk(3)
