@@ -505,14 +505,20 @@
         <!-- Interior & exterior -->
 
         @php
-            $alloyWheels = !empty($groupedEquipment['Fælge'] ?? null)
-                || !empty($groupedExtraEquipmentPackages['Fælge'] ?? null);
+            $alloyWheelsCount =
+                collect($groupedEquipment['Fælge'] ?? [])->count()
+                + collect($groupedExtraEquipmentPackages['Fælge'] ?? [])->count();
+
+            $splitInteriorToNextPage = $alloyWheelsCount > 9;
+
+            $alloyWheels = $alloyWheelsCount > 0;
 
             $hasInteriorImages = $trims->contains(function ($trim) {
                 return !empty($trim->interior?->image);
             });
 
-            $interiors = $hasInteriorImages
+            $interiors =
+                $hasInteriorImages
                 || !empty($groupedExtraEquipmentPackages['Interiørfarve'] ?? null);
         @endphp
 
@@ -541,7 +547,7 @@
                                 <div class="flex flex-col rounded-lg overflow-hidden border border-primary-low">
                                     <img src="{{ $equipment->images->first()->url }}?width=300"
                                         alt="{{ $equipment->name }}"
-                                        class="w-full h-40 object-contain p-4" />
+                                        class="w-full h-38 object-contain p-4" />
 
                                     <div class="p-4 flex flex-col flex-1 border-t border-primary-low">
 
@@ -549,7 +555,7 @@
                                             {{ $equipment->name }} (standard)
                                         </div>
 
-                                        <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                                        <div class="mt-auto flex flex-wrap gap-1 pt-4">
                                             @foreach($equipment->trim_names as $trim_name)
                                                 <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
                                                     {{ $trim_name }}
@@ -560,11 +566,12 @@
                                 </div>
                             @endforeach
                             
+                            
                             @foreach(($groupedExtraEquipmentPackages['Fælge'] ?? []) as $package) 
                                 <div class="flex flex-col rounded-lg overflow-hidden border border-primary-low">
                                     <img src="{{ $package->image->url }}?width=300"
                                         alt="{{ $package->name }}"
-                                        class="w-full h-40 object-contain p-4" />
+                                        class="w-full h-38 object-contain p-4" />
 
                                     <div class="p-4 flex flex-col flex-1 border-t border-primary-low">
 
@@ -572,7 +579,7 @@
                                             {{ $package->name }} (tilvalg)
                                         </div>
 
-                                        <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                                        <div class="mt-auto flex flex-wrap gap-1 pt-4">
                                             @foreach($package->trim_names as $trim_name)
                                                 <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
                                                     {{ $trim_name }}
@@ -590,6 +597,10 @@
                 @endif
 
                 @if($interiors)
+
+                @if($splitInteriorToNextPage)
+                    @pageBreak
+                @endif
 
                 <div class="space-y-4">
                     <div class="bg-primary p-2 rounded">
@@ -612,7 +623,7 @@
                             <div class="flex flex-col rounded-lg overflow-hidden">
                                 <img src="{{ $interior->image?->url }}?width=300"
                                     alt="{{ $interior->name }}"
-                                    class="w-full h-40 object-cover" />
+                                    class="w-full h-38 object-cover" />
 
                                 <div class="p-4 flex flex-col flex-1 rounded-b-lg border-b border-x border-primary-low">
 
@@ -620,7 +631,7 @@
                                         {{ $interior->name }} (standard)
                                     </div>
 
-                                    <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                                    <div class="mt-auto flex flex-wrap gap-1 pt-4">
                                         @foreach($group as $trim)
                                             <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
                                                 {{ $trim->name }}
@@ -636,7 +647,7 @@
                             <div class="flex flex-col rounded-lg overflow-hidden">
                                 <img src="{{ $package->image->url }}?width=300"
                                     alt="{{ $package->name }}"
-                                    class="w-full h-40 object-cover" />
+                                    class="w-full h-38 object-cover" />
 
                                 <div class="p-4 flex flex-col flex-1 rounded-b-lg border-b border-x border-primary-low">
 
@@ -644,7 +655,7 @@
                                         {{ $package->name }} (tilvalg)
                                     </div>
 
-                                    <div class="mt-auto flex flex-wrap gap-1 pt-2">
+                                    <div class="mt-auto flex flex-wrap gap-1 pt-4">
                                         @foreach($package->trim_names as $trim_name)
                                             <span class="inline-flex items-center rounded-full bg-primary-lowest px-2 py-0.5 text-[9px] text-primary">
                                                 {{ $trim_name }}

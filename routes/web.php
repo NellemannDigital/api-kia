@@ -30,6 +30,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cars/{id}/price-list/', [CarController::class, 'priceList'])->name('cars.price-list');
     Route::get('/cars/{id}/price-list-view/', [CarController::class, 'priceListView'])->name('cars.price-list-view');
 
+    Route::get('/cars/{id}/price-list-accessories/', [CarController::class, 'priceListAccessories'])->name('cars.price-list-accessories');
+    Route::get('/cars/{id}/price-list-accessories-view/', [CarController::class, 'priceListAccessoriesView'])->name('cars.price-list-accessories-view');
+
+    Route::get('/cars/{id}/specifications/', [CarController::class, 'specifications'])->name('cars.specifications');
+    Route::get('/cars/{id}/specifications-view/', [CarController::class, 'specificationsView'])->name('cars.specifications-view');
 
     Route::post('/cars/{id}/sync/', [CarController::class, 'sync'])->name('cars.sync');
 

@@ -10,12 +10,13 @@ use Spatie\Browsershot\Browsershot;
 use Spatie\LaravelPdf\Enums\Format;
 use Spatie\LaravelPdf\Facades\Pdf;
 use function Spatie\LaravelPdf\Support\pdf;
+use App\ViewModels\Specifications;
 
 class PriceListService
 {
     public function loadCar(int $carStructId): Car
     {
-        return Car::with('trims.powertrains.configuration')->where('struct_id', $carStructId)->firstOrFail();
+        return Car::with(['trims.powertrains.configuration', 'trims.accessories'])->where('struct_id', $carStructId)->firstOrFail();
     }
 
     public function build(Car $car): array
@@ -33,44 +34,68 @@ class PriceListService
         return [
             'car' => $car,
             'trims' => $trims,
+            
             'acChargingPercentage' => $acChargingPercentage,
             'dcChargingPercentage' => $dcChargingPercentage,
+
             'colorMatrix' => $this->matrix(
                 $trims,
                 'colors',
                 'code'
             ),
+
             'extraEquipmentPackageMatrix' => $this->matrix(
                 $trims,
                 'extraEquipmentPackages',
                 'code'
             ),
+
             'groupedEquipment' => $this->group(
                 $trims,
                 'equipment',
                 fn ($item) => $item->images->count() > 0
             ),
+
             'groupedExtraEquipmentPackages' => $this->group(
                 $trims,
                 'extraEquipmentPackages',
                 fn ($item) => $item->image
             ),
+
             'interiors' => $this->buildInteriors($trims),
+
+            'accessories' => $this->buildAccessories($trims),
+
+            'specifications' => new Specifications($trims)->build(),
         ];
     }
 
-    public function generatePdf(array $data): string
+    public function generatePdfs(array $data): array
+    {
+         return [
+            'price_list' => $this->generatePdf($data, 'price-list'),
+            'accessories' => $this->generatePdf($data, 'price-list-accessories', '-tilbehoer'),
+            'specfications' => $this->generatePdf($data, 'specifications', '-teknik', true),
+        ];
+    }
+
+    private function generatePdf(array $data, string $view, string $slugSuffix = '', $landscape = false): string
     {
         Storage::disk('public')->makeDirectory('prislister');
 
-        $fileName = 'prislister/' . Str::slug($data['car']->name) . '.pdf';
+        $baseSlug = Str::slug($data['car']->name);
+        $fileName = "prislister/{$baseSlug}{$slugSuffix}.pdf";
         $fullPath = storage_path('app/public/' . $fileName);
 
         if (file_exists($fullPath)) {
             unlink($fullPath);
         }
 
-        $pdf = Pdf::view('price-list', $data);
+        $pdf = Pdf::view($view, $data);
+
+        if ($landscape) {
+            $pdf->landscape();
+        }
 
         if (app()->environment('production')) {
             $pdf->withBrowsershot(function (Browsershot $browsershot) {
@@ -98,11 +123,15 @@ class PriceListService
         return $fileName;
     }
 
-    public function pdf(Car $car)
+    public function pdf(Car $car, $view = 'price-list', $landscape = false)
     {
         $data = $this->build($car);
 
-        $pdf = Pdf::view('price-list', $data);
+        $pdf = Pdf::view($view, $data);
+
+        if ($landscape) {
+            $pdf->landscape();
+        }
 
         if (app()->environment('production')) {
             $pdf->withBrowsershot(function (Browsershot $browsershot) {
@@ -125,11 +154,63 @@ class PriceListService
             ->margins(6, 6, 6, 6);
     }
 
-    public function view(Car $car)
+    public function view(Car $car, $view = 'price-list')
     {
         $data = $this->build($car);
 
-        return view('price-list', $data);
+        return view($view, $data);
+    }
+
+    protected function buildAccessories(Collection $trims): Collection
+    {
+        return $trims
+            ->flatMap(function ($trim) {
+                return $trim->accessories->map(function ($accessory) use ($trim) {
+                    $accessory->trim_name = $trim->name;
+                    return $accessory;
+                });
+            })
+            ->groupBy('struct_id')
+            ->map(function ($group) {
+
+                $first = $group->first();
+
+                $first->trim_names = $group
+                    ->pluck('trim_name')
+                    ->unique()
+                    ->values();
+
+                $first->categories = collect(
+                    is_array($first->categories)
+                        ? $first->categories
+                        : json_decode($first->categories, true) ?? []
+                )->values();
+
+                return $first;
+            })
+            ->sortBy('name')
+            ->values()
+            ->groupBy(function ($accessory) {
+                $categories = collect($accessory->categories ?? [])
+                    ->filter()
+                    ->values();
+
+                if ($categories->isEmpty()) {
+                    return 'Ukategoriseret';
+                }
+
+                return $categories->first();
+            })
+            ->flatMap(function ($group, $category) {
+                return $group
+                    ->chunk(3)
+                    ->map(fn ($chunk) => [
+                        'category' => $category,
+                        'items' => $chunk->values(),
+                    ]);
+            })
+            ->values()
+            ->chunk(3);
     }
 
     protected function buildInteriors(Collection $trims): Collection

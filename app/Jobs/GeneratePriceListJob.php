@@ -27,7 +27,7 @@ class GeneratePriceListJob implements ShouldQueue
 
             $data = $priceListService->build($car);
 
-            $priceListService->generatePdf($data);
+            $priceListService->generatePdfs($data);
 
         } catch (Throwable $e) {
             $this->handleFailure($e);

@@ -8,7 +8,6 @@ use App\Jobs\GeneratePriceListJob;
 use App\Models\Car;
 use App\Requests\ProductRequest;
 use App\Services\ComplianceTextService;
-use App\ViewModels\Specifications;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Bus;
@@ -16,7 +15,6 @@ use Inertia\Inertia;
 use Spatie\Browsershot\Browsershot;
 use Spatie\LaravelPdf\Enums\Format;
 use App\Services\PriceListService;
-
 use function Spatie\LaravelPdf\Support\pdf;
 
 class CarController extends Controller
@@ -115,21 +113,56 @@ class CarController extends Controller
             ->view($car);
     }
 
+    public function priceListAccessories($id)
+    {
+        $car = $this->priceListService->loadCar($id);
+
+        if (! $car) {
+            abort(404, 'Car not found');
+        }
+
+        return $this->priceListService
+            ->pdf($car, 'price-list-accessories');
+    }
+
+    public function priceListAccessoriesView($id)
+    {
+        $car = $this->priceListService->loadCar($id);
+
+        if (! $car) {
+            abort(404, 'Car not found');
+        }
+
+        return $this->priceListService
+            ->view($car, 'price-list-accessories');
+    }
+
+    public function specifications($id)
+    {
+        $car = $this->priceListService->loadCar($id);
+
+        if (! $car) {
+            abort(404, 'Car not found');
+        }
+
+        return $this->priceListService
+            ->pdf($car, 'specifications', true);
+    }
+
+    public function specificationsView($id)
+    {
+        $car = $this->priceListService->loadCar($id);
+
+        if (! $car) {
+            abort(404, 'Car not found');
+        }
+
+        return $this->priceListService
+            ->view($car, 'specifications');
+    }
+
 
     // WIP
-
-    public function specifications()
-    {
-        $car = Car::with([
-            'trims.powertrains',
-        ])->findOrFail(1);
-
-        $trims = $car->trims->values();
-
-        $sections = new Specifications($trims)->sections();
-
-        return view('specifications', compact('car', 'trims', 'sections'));
-    }
 
     public function specificationsDownload()
     {
@@ -212,135 +245,6 @@ class CarController extends Controller
             ->download();
     }
 
-    public function priceListAccessories()
-    {
-
-        $car = Car::with([
-            'trims.accessories',
-        ])->findOrFail(1);
-
-        $accessories = $car->trims
-            ->flatMap(function ($trim) {
-                return $trim->accessories->map(function ($accessory) use ($trim) {
-                    $accessory->trim_name = $trim->name;
-
-                    return $accessory;
-                });
-            })
-            ->groupBy('struct_id')
-            ->map(function ($group) {
-                $accessory = $group->first();
-                $accessory->trim_names = $group->pluck('trim_name')->unique()->values();
-
-                return $accessory;
-            })
-            ->sortBy('name')
-            ->values();
-
-        $groupedAccessories = collect();
-
-        foreach ($accessories as $accessory) {
-            $categories = is_array($accessory->categories)
-                ? $accessory->categories
-                : json_decode($accessory->categories, true);
-
-            foreach ($categories as $category) {
-                if (! $groupedAccessories->has($category)) {
-                    $groupedAccessories[$category] = collect();
-                }
-
-                $groupedAccessories[$category]->push($accessory);
-            }
-        }
-
-        $rows = collect();
-
-        foreach ($groupedAccessories as $category => $accessories) {
-            foreach ($accessories->chunk(3) as $row) {
-                $rows->push([
-                    'category' => $category,
-                    'items' => $row,
-                ]);
-            }
-        }
-
-        $pages = $rows->chunk(3);
-
-        $complianceTexts = [
-            'price' => app(ComplianceTextService::class)->getForCar($car, 'price'),
-            'consumption' => app(ComplianceTextService::class)->getForGlobal('consumption'),
-            'changes' => app(ComplianceTextService::class)->getForGlobal('changes'),
-        ];
-
-        return view('price-list-accessories', compact('car', 'complianceTexts', 'pages'));
-    }
-
-    public function priceListAccessoriesDownload()
-    {
-
-        $car = Car::with([
-            'trims.accessories',
-        ])->findOrFail(1);
-
-        $accessories = $car->trims
-            ->flatMap(function ($trim) {
-                return $trim->accessories->map(function ($accessory) use ($trim) {
-                    $accessory->trim_name = $trim->name;
-
-                    return $accessory;
-                });
-            })
-            ->groupBy('struct_id')
-            ->map(function ($group) {
-                $accessory = $group->first();
-                $accessory->trim_names = $group->pluck('trim_name')->unique()->values();
-
-                return $accessory;
-            })
-            ->sortBy('name')
-            ->values();
-
-        $groupedAccessories = collect();
-
-        foreach ($accessories as $accessory) {
-            $categories = is_array($accessory->categories)
-                ? $accessory->categories
-                : json_decode($accessory->categories, true);
-
-            foreach ($categories as $category) {
-                if (! $groupedAccessories->has($category)) {
-                    $groupedAccessories[$category] = collect();
-                }
-
-                $groupedAccessories[$category]->push($accessory);
-            }
-        }
-
-        $rows = collect();
-
-        foreach ($groupedAccessories as $category => $accessories) {
-            foreach ($accessories->chunk(3) as $row) {
-                $rows->push([
-                    'category' => $category,
-                    'items' => $row,
-                ]);
-            }
-        }
-
-        $pages = $rows->chunk(3);
-
-        $complianceTexts = [
-            'price' => app(ComplianceTextService::class)->getForCar($car, 'price'),
-            'consumption' => app(ComplianceTextService::class)->getForGlobal('consumption'),
-            'changes' => app(ComplianceTextService::class)->getForGlobal('changes'),
-        ];
-
-        return pdf('price-list-accessories', compact('car', 'complianceTexts', 'pages'))
-            ->format(Format::A4)
-            ->name('Prisliste')
-            ->margins(10, 10, 10, 10)
-            ->download();
-    }
 
     private function group($trims, $relation, $filter)
     {

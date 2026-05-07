@@ -24,7 +24,7 @@ class SyncAccessoriesJob implements ShouldQueue
 
         $jobs = [];
 
-        foreach ([2210484] as $id) {
+        foreach ($ids as $id) {
             $jobs[] = new SyncAccessoryJob($id);
         };
 

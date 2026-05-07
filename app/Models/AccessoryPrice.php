@@ -12,6 +12,7 @@ class AccessoryPrice extends Model
     protected $fillable = [
         'accesssory_id',
         'price',
+        'price_ex_vat',
         'valid_from',
         'valid_to',
     ];

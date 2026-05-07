@@ -9,6 +9,7 @@ class PriceData extends Data
 {
     public function __construct(
         public ?float $price = null,
+        public ?float $price_ex_vat = null,
         public ?string $valid_from = null,
         public ?string $valid_to = null,
     ) {}

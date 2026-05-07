@@ -70,6 +70,7 @@ class AccessoryMapper
 
         return $data->map(fn($item) => new PriceData(
             price: Arr::get($item, 'Price'),
+            price_ex_vat: Arr::get($item, 'PriceExVAT'),
             valid_from: Arr::get($item, 'ValidFrom') ? substr($item['ValidFrom'], 0, 10) : null,
             valid_to: Arr::get($item, 'ValidTo') ? substr($item['ValidTo'], 0, 10) : null,
         ))->values()->all();
