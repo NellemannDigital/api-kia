@@ -12,8 +12,98 @@ use Spatie\LaravelPdf\Facades\Pdf;
 use function Spatie\LaravelPdf\Support\pdf;
 use App\ViewModels\Specifications;
 
-class PriceListService
+class PdfService
 {
+
+    public function generatePdfs(array $data): array
+    {
+         return [
+            'prices' => $this->generatePdf($data, 'prices', '-priser'),
+            'accessories' => $this->generatePdf($data, 'accessories', '-tilbehoer'),
+            'specfications' => $this->generatePdf($data, 'specifications', '-specifikationer', true),
+        ];
+    }
+
+    private function generatePdf(array $data, string $view, string $slugSuffix = '', $landscape = false): string
+    {
+        Storage::disk('public')->makeDirectory('dokumenter');
+
+        $baseSlug = Str::slug($data['car']->name);
+        $fileName = "dokumenter/{$baseSlug}{$slugSuffix}.pdf";
+        $fullPath = storage_path('app/public/' . $fileName);
+
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+
+        $pdf = Pdf::view($view, $data);
+
+        if ($landscape) {
+            $pdf->landscape();
+        }
+
+        if (app()->environment('production')) {
+            $pdf->withBrowsershot(function (Browsershot $browsershot) {
+                $browsershot
+                    ->waitUntilNetworkIdle()
+                    ->setOption('args', [
+                        '--no-sandbox',
+                        '--disable-font-subpixel-positioning',
+                        '--disable-web-security',
+                    ])
+                    ->setChromePath('/usr/bin/chromium')
+                    ->setEnvironmentOptions([
+                        'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
+                    ]);
+            });
+        }
+
+        $pdf->format(Format::A4)
+            ->margins(6, 6, 6, 6)
+            ->save($fullPath);
+
+        chmod($fullPath, 0644);
+
+        return $fileName;
+    }
+
+    public function pdf(Car $car, $view = 'prices', $landscape = false)
+    {
+        $data = $this->build($car);
+
+        $pdf = Pdf::view($view, $data);
+
+        if ($landscape) {
+            $pdf->landscape();
+        }
+
+        if (app()->environment('production')) {
+            $pdf->withBrowsershot(function (Browsershot $browsershot) {
+                $browsershot
+                    ->waitUntilNetworkIdle()
+                    ->setOption('args', [
+                        '--no-sandbox',
+                        '--disable-font-subpixel-positioning',
+                        '--disable-web-security',
+                    ])
+                    ->setChromePath('/usr/bin/chromium')
+                    ->setEnvironmentOptions([
+                        'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
+                    ]);
+            });
+        }
+
+        return $pdf->format(Format::A4)
+            ->margins(6, 6, 6, 6);
+    }
+
+    public function view(Car $car, $view = 'prices')
+    {
+        $data = $this->build($car);
+
+        return view($view, $data);
+    }
+
     public function loadCar(int $carStructId): Car
     {
         return Car::with(['trims.powertrains.configuration', 'trims.accessories'])->where('struct_id', $carStructId)->firstOrFail();
@@ -70,95 +160,18 @@ class PriceListService
         ];
     }
 
-    public function generatePdfs(array $data): array
+    protected function buildInteriors(Collection $trims): Collection
     {
-         return [
-            'price_list' => $this->generatePdf($data, 'price-list'),
-            'accessories' => $this->generatePdf($data, 'price-list-accessories', '-tilbehoer'),
-            'specfications' => $this->generatePdf($data, 'specifications', '-teknik', true),
-        ];
-    }
-
-    private function generatePdf(array $data, string $view, string $slugSuffix = '', $landscape = false): string
-    {
-        Storage::disk('public')->makeDirectory('prislister');
-
-        $baseSlug = Str::slug($data['car']->name);
-        $fileName = "prislister/{$baseSlug}{$slugSuffix}.pdf";
-        $fullPath = storage_path('app/public/' . $fileName);
-
-        if (file_exists($fullPath)) {
-            unlink($fullPath);
-        }
-
-        $pdf = Pdf::view($view, $data);
-
-        if ($landscape) {
-            $pdf->landscape();
-        }
-
-        if (app()->environment('production')) {
-            $pdf->withBrowsershot(function (Browsershot $browsershot) {
-                $browsershot
-                    ->waitUntilNetworkIdle()
-                    ->setOption('args', [
-                        '--no-sandbox',
-                        '--disable-font-subpixel-positioning',
-                        '--disable-web-security',
-                    ])
-                    ->setChromePath('/usr/bin/chromium')
-                    ->setEnvironmentOptions([
-                        'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
-                    ]);
-            });
-        }
-
-        $pdf->format(Format::A4)
-            ->name('Prisliste - ' . $data['car']->name)
-            ->margins(6, 6, 6, 6)
-            ->save($fullPath);
-
-        chmod($fullPath, 0644);
-
-        return $fileName;
-    }
-
-    public function pdf(Car $car, $view = 'price-list', $landscape = false)
-    {
-        $data = $this->build($car);
-
-        $pdf = Pdf::view($view, $data);
-
-        if ($landscape) {
-            $pdf->landscape();
-        }
-
-        if (app()->environment('production')) {
-            $pdf->withBrowsershot(function (Browsershot $browsershot) {
-                $browsershot
-                    ->waitUntilNetworkIdle()
-                    ->setOption('args', [
-                        '--no-sandbox',
-                        '--disable-font-subpixel-positioning',
-                        '--disable-web-security',
-                    ])
-                    ->setChromePath('/usr/bin/chromium')
-                    ->setEnvironmentOptions([
-                        'CHROME_CONFIG_HOME' => storage_path('app/chrome/.config'),
-                    ]);
-            });
-        }
-
-        return $pdf->format(Format::A4)
-            ->name('Prisliste - ' . $data['car']->name)
-            ->margins(6, 6, 6, 6);
-    }
-
-    public function view(Car $car, $view = 'price-list')
-    {
-        $data = $this->build($car);
-
-        return view($view, $data);
+        return $trims
+            ->filter(fn ($trim) => $trim->interior)
+            ->groupBy(fn ($trim) => $trim->interior->code)
+            ->map(function ($group) {
+                return [
+                    'interior' => $group->first()->interior,
+                    'trim_names' => $group->pluck('name')->unique()->values()->all(),
+                ];
+            })
+            ->values();
     }
 
     protected function buildAccessories(Collection $trims): Collection
@@ -235,20 +248,6 @@ class PriceListService
             })
             ->values()
             ->chunk(3);
-    }
-
-    protected function buildInteriors(Collection $trims): Collection
-    {
-        return $trims
-            ->filter(fn ($trim) => $trim->interior)
-            ->groupBy(fn ($trim) => $trim->interior->code)
-            ->map(function ($group) {
-                return [
-                    'interior' => $group->first()->interior,
-                    'trim_names' => $group->pluck('name')->unique()->values()->all(),
-                ];
-            })
-            ->values();
     }
 
     protected function group($trims, $relation, $filter)

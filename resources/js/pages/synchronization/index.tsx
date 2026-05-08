@@ -93,11 +93,11 @@ export default function Index() {
             </Button>
           </div>
 
-          {/* Price Lists */}
+          {/* Pdfs */}
           <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-4 space-y-4">
-            <HeadingSmall title="Price Lists" description="Start price list generation" />
+            <HeadingSmall title="PDFs" description="Start PDFs generation" />
             <Button
-              onClick={() => startGeneration(routes.priceList)}
+              onClick={() => startGeneration(routes.pdfs)}
               disabled={loading}
               className="flex items-center gap-2"
             >

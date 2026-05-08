@@ -7,7 +7,7 @@
 
         <title>{{ 'Prisliste - ' . $car->name }}</title>
 
-        @vite(['resources/css/price-list.css'])
+        @vite(['resources/css/pdf.css'])
     </head>
     <body>
 

@@ -67,12 +67,12 @@ class SynchronizationController extends Controller
     }
 
     /**
-     * Genereate Price Lists
+     * Genereate Pdfs
      */
-    public function generatePriceList()
+    public function generatePdfs()
     {
-        Artisan::call('nellemann:generate-price-lists');
+        Artisan::call('nellemann:generate-pdfs');
 
-        return redirect()->back()->with('success', 'Generate price lists started!');
+        return redirect()->back()->with('success', 'Generate PDFs started!');
     }
 }

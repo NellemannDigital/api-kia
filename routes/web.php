@@ -27,11 +27,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('compliance-text-templates', ComplianceTextTemplateController::class);
 
     Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
-    Route::get('/cars/{id}/price-list/', [CarController::class, 'priceList'])->name('cars.price-list');
-    Route::get('/cars/{id}/price-list-view/', [CarController::class, 'priceListView'])->name('cars.price-list-view');
+    Route::get('/cars/{id}/prices/', [CarController::class, 'prices'])->name('cars.prices');
+    Route::get('/cars/{id}/prices-view/', [CarController::class, 'pricesView'])->name('cars.price.prices');
 
-    Route::get('/cars/{id}/price-list-accessories/', [CarController::class, 'priceListAccessories'])->name('cars.price-list-accessories');
-    Route::get('/cars/{id}/price-list-accessories-view/', [CarController::class, 'priceListAccessoriesView'])->name('cars.price-list-accessories-view');
+    Route::get('/cars/{id}/accessories/', [CarController::class, 'accessories'])->name('cars.price-list-accessories');
+    Route::get('/cars/{id}/accessories-view/', [CarController::class, 'accessoriesView'])->name('cars.price-list-accessories-view');
 
     Route::get('/cars/{id}/specifications/', [CarController::class, 'specifications'])->name('cars.specifications');
     Route::get('/cars/{id}/specifications-view/', [CarController::class, 'specificationsView'])->name('cars.specifications-view');
@@ -46,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('dealers', [SynchronizationController::class, 'syncDealers'])->name('synchronization.dealers');
         Route::post('used-cars', [SynchronizationController::class, 'syncUsedCars'])->name('synchronization.used-cars');
         Route::post('stock-cars', [SynchronizationController::class, 'syncStockCars'])->name('synchronization.stock-cars');
-        Route::post('price-list', [SynchronizationController::class, 'generatePriceList'])->name('synchronization.price-list');
+        Route::post('pdfs', [SynchronizationController::class, 'generatePdfs'])->name('synchronization.pdfs');
     });
 
     Route::prefix('admin')->group(function () {

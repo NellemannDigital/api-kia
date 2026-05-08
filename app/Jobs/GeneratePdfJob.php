@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Services\PriceListService;
+use App\Services\pdfService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
-class GeneratePriceListJob implements ShouldQueue
+class GeneratePdfJob implements ShouldQueue
 {
     use Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -20,14 +20,14 @@ class GeneratePriceListJob implements ShouldQueue
         protected int $carStructId
     ) {}
 
-    public function handle(PriceListService $priceListService): void
+    public function handle(PdfService $pdfService): void
     {
         try {
-            $car = $priceListService->loadCar($this->carStructId);
+            $car = $pdfService->loadCar($this->carStructId);
 
-            $data = $priceListService->build($car);
+            $data = $pdfService->build($car);
 
-            $priceListService->generatePdfs($data);
+            $pdfService->generatePdfs($data);
 
         } catch (Throwable $e) {
             $this->handleFailure($e);
@@ -39,7 +39,7 @@ class GeneratePriceListJob implements ShouldQueue
     {
         report($exception);
 
-        Log::error('GeneratePriceListJob failed', [
+        Log::error('GeneratePdfJob failed', [
             'car_id' => $this->carStructId,
             'exception' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),

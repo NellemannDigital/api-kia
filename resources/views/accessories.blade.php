@@ -7,7 +7,7 @@
 
         <title>{{ 'Prisliste - ' . $car->name }}</title>
 
-        @vite(['resources/css/price-list.css'])
+        @vite(['resources/css/pdf.css'])
     </head>
     <body>
 
@@ -56,9 +56,12 @@
 
                 @if($currentCategory !== $row['category'])
 
-                    <div class="flex justify-between items-center {{ $currentCategory === null ? '' : 'mt-6' }}">
+                    <div class="flex justify-between items-center mb-3 {{ $currentCategory === null ? '' : 'mt-6' }}">
                         <div class="font-bold text-xl">{{ $row['category'] }}</div>
-                        <img src="{{ asset('images/logo.png') }}" class="block w-20">
+                        
+                        @if($currentCategory === null)
+                            <img src="{{ asset('images/logo.png') }}" class="block w-20">
+                        @endif
                     </div>
 
                     @php $currentCategory = $row['category']; @endphp

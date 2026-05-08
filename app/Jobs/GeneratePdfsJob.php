@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
-class GeneratePriceListsJob implements ShouldQueue
+class GeneratePdfsJob implements ShouldQueue
 {
     use Batchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -25,9 +25,9 @@ class GeneratePriceListsJob implements ShouldQueue
 
         foreach ($cars as $car) {
             Bus::batch([
-                new GeneratePriceListJob($car->struct_id),
+                new GeneratePdfJob($car->struct_id),
             ])
-                ->onQueue('pricelists')
+                ->onQueue('pdfs')
                 ->allowFailures()
                 ->dispatch();
         }
@@ -37,7 +37,7 @@ class GeneratePriceListsJob implements ShouldQueue
     {
         report($exception);
 
-        Log::error('GeneratePriceListsJob failed', [
+        Log::error('GeneratePdfsJob failed', [
             'exception'  => $exception->getMessage(),
             'trace'      => $exception->getTraceAsString(),
         ]);
@@ -48,6 +48,6 @@ class GeneratePriceListsJob implements ShouldQueue
      */
     public function tags(): array
     {
-        return ['generate', 'pricelists', 'cars'];
+        return ['generate', 'pdfs', 'cars'];
     }
 }
