@@ -246,7 +246,7 @@ export default function Index({ cars }: Props) {
                           asChild
                         >
                           <a
-                            href={routes.priceList(car.struct_id).url}
+                            href={routes.prices(car.struct_id).url}
                             target="_blank"
                             rel="noreferrer"
                           >
