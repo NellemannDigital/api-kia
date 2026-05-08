@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Services\pdfService;
+use App\Services\PdfService;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
