@@ -7,9 +7,11 @@ use App\Models\Car;
 use App\Models\Dealer;
 use Illuminate\Http\Request;
 use App\Models\Activity;
+use App\Models\PostalCode;
 use App\Jobs\ProcessTestDriveActivity;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use App\Services\GeocodingService;
 
 class TestDriveController extends Controller
 {
@@ -47,39 +49,51 @@ class TestDriveController extends Controller
             ->get();
     }
 
-    public function dealers(Request $request)
+    public function dealers(Request $request, GeocodingService $geocodingService)
     {
         $query = Dealer::query()
             ->where('types->b2c', true)
             ->where('tools->test_drive', true);
 
-        if ($request->has('zip')) {
-            $query->whereJsonContains('postal_codes->b2c', $request->zip)->orderBy('name');
+        $lat = null;
+        $lng = null;
+
+        if ($request->filled('zip')) {
+            $geoData = $geocodingService->fromZip($request->zip);
+
+            if ($geoData) {
+                $lat = $geoData['lat'];
+                $lng = $geoData['lng'];
+            }
         }
 
-        if ($request->has(['lat', 'lng'])) {
+        if ($request->filled(['lat', 'lng'])) {
             $lat = $request->lat;
             $lng = $request->lng;
-
-            $query->selectRaw("
-                dealers.*,
-                (6371 * acos(
-                    cos(radians(?)) *
-                    cos(radians(latitude)) *
-                    cos(radians(longitude) - radians(?)) +
-                    sin(radians(?)) *
-                    sin(radians(latitude))
-                )) AS distance
-            ", [$lat, $lng, $lat])
-            ->orderBy('distance')
-            ->paginate(6);
         }
 
-        else {
-            $query->orderBy('city');
+        if ($lat && $lng) {
+            $query
+                ->selectRaw("
+                    dealers.*,
+                    (
+                        6371 * acos(
+                            cos(radians(?))
+                            * cos(radians(latitude))
+                            * cos(radians(longitude) - radians(?))
+                            + sin(radians(?))
+                            * sin(radians(latitude))
+                        )
+                    ) AS distance
+                ", [$lat, $lng, $lat])
+                ->orderBy('distance');
+
+            return $query->paginate(6);
         }
 
-        return $query->get();
+        return $query
+            ->orderBy('city')
+            ->get();
     }
 
     public function availability(Request $request, Dealer $dealer)

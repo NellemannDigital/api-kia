@@ -26,4 +26,8 @@ return [
         'client_secret' => env('DYNAMICS_CLIENT_SECRET'),
         'resource' => env('DYNAMICS_RESOURCE'),
     ],
+
+    'google' => [
+        'maps_key' => env('GOOGLE_MAPS_KEY'),
+    ]
 ];
