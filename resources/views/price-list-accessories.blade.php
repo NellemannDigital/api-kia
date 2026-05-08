@@ -48,7 +48,7 @@
         
         @foreach($accessories as $page)
 
-        <section class="mx-auto max-w-[210mm] space-y-3">
+        <section class="mx-auto max-w-[210mm] space-y-4">
 
             @php $currentCategory = null; @endphp
 
