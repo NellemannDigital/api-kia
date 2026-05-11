@@ -35,8 +35,7 @@ import {
 } from "@/components/ui/popover"
 
 const breadcrumbs = [
-  { title: 'Compliance text templates', href: '/compliance-text-templates' },
-  { title: 'Create new', href: '/compliance-text-templates/create' }
+  { title: 'Create new compliance text template', href: '/compliance-text-templates/create' }
 ]
 
 function formatDate(date?: Date) {

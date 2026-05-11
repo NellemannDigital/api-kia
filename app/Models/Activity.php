@@ -10,6 +10,8 @@ class Activity extends Model
     protected $fillable = [
         'dealer_id',
         'type',
+        'date',
+        'time',
         'data',
         'status',
     ];

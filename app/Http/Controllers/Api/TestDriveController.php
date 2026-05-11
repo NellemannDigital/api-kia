@@ -12,6 +12,7 @@ use App\Jobs\ProcessTestDriveActivity;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use App\Services\GeocodingService;
+use Illuminate\Support\Facades\Log;
 
 class TestDriveController extends Controller
 {
@@ -20,15 +21,30 @@ class TestDriveController extends Controller
         $data = $request->validate([
             'dealer_id' => 'required|exists:dealers,id',
             'type' => 'required|string',
+            'date' => 'required',
+            'time' => 'required',
             'payload' => 'required|array',
         ]);
+
+        $date = Carbon::parse($data['date']);
+
+
+        Log::info('Dates', [
+            'data-date' => $request,
+            'date-carbon' => $date,
+        ]);
+        
 
         $activity = Activity::create([
             'dealer_id' => $data['dealer_id'],
             'type' => $data['type'],
+            'date' => $date,
+            'time' => $data['payload']['time'],
             'data' => $data['payload'],
             'status' => 'pending',
         ]);
+
+        dd('test');
 
         ProcessTestDriveActivity::dispatch($activity)->onQueue('webhooks');
 
@@ -96,6 +112,28 @@ class TestDriveController extends Controller
             ->get();
     }
 
+    public function postalCodes(Request $request)
+    {
+        $query = $request->get('q');
+
+        if (!$query) {
+            return response()->json([]);
+        }
+
+        return PostalCode::query()
+            ->where('postal_code', 'like', "{$query}%")
+            ->orWhere('city', 'like', "%{$query}%")
+            ->orderByRaw("
+                CASE 
+                    WHEN postal_code LIKE ? THEN 1
+                    WHEN city LIKE ? THEN 2
+                    ELSE 3
+                END
+            ", ["{$query}%", "%{$query}%"])
+            ->limit(10)
+            ->get(['postal_code', 'city']);
+    }
+
     public function availability(Request $request, Dealer $dealer)
     {
         $date = Carbon::parse($request->date);
@@ -117,14 +155,16 @@ class TestDriveController extends Controller
 
         $allSlots = $this->generateHourlySlots($startTime, $endTime);
 
-        /*$booked = Booking::where('dealer_id', $dealer->id)
-            ->whereDate('date', $date)
+        $booked = Activity::where('dealer_id', $dealer->id)
+            ->where('type', 'test_drive')
+            ->where('date', $date)
             ->pluck('time')
-            ->toArray();*/
+            ->map(fn ($time) => Carbon::parse($time)->format('H:i'))
+            ->values();
 
         return response()->json([
             'timeSlots' => $allSlots,
-            'unavailableSlots' => [],
+            'unavailableSlots' => $booked,
         ]);
     }
 
@@ -148,7 +188,7 @@ class TestDriveController extends Controller
         return $slots;
     }
 
-        public function calendarAvailability(Request $request, Dealer $dealer)
+    public function calendarAvailability(Request $request, Dealer $dealer)
     {
         $month = Carbon::parse($request->month);
 
@@ -190,7 +230,12 @@ class TestDriveController extends Controller
                 $cursor->addHour();
             }
 
-            $booked = [];
+            $booked = Activity::where('dealer_id', $dealer->id)
+                ->where('type', 'test_drive')
+                ->where('date', $date)
+                ->pluck('time')
+                ->map(fn ($time) => Carbon::parse($time)->format('H:i'))
+                ->all();
 
             $available = array_values(array_diff($slots->toArray(), $booked));
 
@@ -199,7 +244,7 @@ class TestDriveController extends Controller
             $result[$date->format('Y-m-d')] = [
                 'status' => $count === 0
                     ? 'full'
-                    : ($count <= 3 ? 'few' : 'available'),
+                    : ($count <= 2 ? 'few' : 'available'),
                 'available' => $count,
             ];
         }
