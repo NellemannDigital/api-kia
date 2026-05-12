@@ -15,6 +15,8 @@ class TechnicalSpecificationsData extends Data
         public ?float $driving_ready_weight = null,
         public ?float $maximum_total_weight = null,
         public ?float $usefull_load = null,
+        public ?float $dynamic_roof_load = null,
+        public ?float $static_roof_load = null,
         public ?float $towing_capacity_braked = null,
         public ?float $towing_capacity_unbraked = null,
         public ?string $trunk_volume = null,

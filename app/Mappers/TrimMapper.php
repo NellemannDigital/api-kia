@@ -671,6 +671,8 @@ class TrimMapper
             'driving_ready_weight' => Arr::get($attributes, 'DrivingReadyWeight'),
             'maximum_total_weight' => Arr::get($attributes, 'MaximumTotalWeight'),
             'usefull_load' => Arr::get($attributes, 'UsefullLoad'),
+            'dynamic_roof_load' => Arr::get($attributes, 'DynamicRoofLoad'),
+            'static_roof_load' => Arr::get($attributes, 'StaticRoofLoad'),
             'towing_capacity_braked' => Arr::get($attributes, 'TowingCapacityBraked'),
             'towing_capacity_unbraked' => Arr::get($attributes, 'TowingCapacityUnbraked'),
             'trunk_volume' => Arr::get($attributes, 'TrunkVolume'),

@@ -47,32 +47,84 @@ class Specifications
                 'show_header' => true,
                 'rows' => [
                     [
-                        'label' => 'Motortype',
+                        'label' => 'Drivmiddel',
                         'resolve' => fn($col) => data_get($col, 'powertrain.engine.fuel_type'),
                     ],
                     [
-                        'label' => 'Ydelse / Omdr.',
-                        'resolve' => fn($col) => $this->specWithRange($col, 'horse_power', 'horsepower_rev_range', 'hk')
-                            
-                    ],
-                    [
-                        'label' => 'Drejningsmoment / Omdr.',
-                        'resolve' => fn($col) => $this->specWithRange($col, 'torque', 'torque_rev_range', 'Nm')
+                        'label' => 'Gearkasse',
+                        'resolve' => fn($col) => data_get($col, 'powertrain.transmission.name'),
                     ],
                     [
                         'label' => 'Drivaksel',
                         'resolve' => fn($col) => data_get($col, 'powertrain.engine.drive'),
                     ],
                     [
-                        'label' => 'Gearkasse',
-                        'resolve' => fn($col) => data_get($col, 'powertrain.transmission.name'),
+                        'label' => 'Acceleration fra 0-100 km/t',
+                        'resolve' => fn($col) => $this->spec($col, 'zero_to_hundred_time', 'sek', 1),
+                    ],
+                    [
+                        'label' => 'Tophastighed',
+                        'resolve' => fn($col) => $this->spec($col, 'topspeed', 'km/t'),
+                    ],
+                    [
+                        'label' => 'Ydelse / Omdr.',
+                        'resolve' => fn($col) => $this->specMultiple($col, 'horse_power', 'hk', 'horsepower_rev_range', '')
+                            
+                    ],
+                    [
+                        'label' => 'Drejningsmoment / Omdr.',
+                        'resolve' => fn($col) => $this->specMultiple($col, 'torque', 'Nm', 'torque_rev_range', '')
+                    ]
+                ],
+            ],
+
+            [
+                'title' => 'Rækkevidde & energiforbrug',
+                'show_header' => false,
+                'rows' => [
+                    [
+                        'label' => 'Rækkevidde (WLTP)',
+                        'resolve' => fn($col) => $this->spec($col, 'pure_electric_range', 'km'),
+                    ],
+                    [
+                        'label' => fn($col) => 'Forbrug (' . data_get($col, 'powertrain.configuration.technical_specifications.consumption.unit') . ')',
+                        'resolve' => fn($col) => $this->spec($col, 'consumption.number', data_get($col, 'powertrain.configuration.technical_specifications.consumption.unit')),
+                    ],
+                ],
+            ],
+
+            [
+                'title' => 'Opladning',
+                'show_header' => false,
+                'rows' => [
+                    [
+                        'label' => 'Normalopladning (AC) <br> Ladehastighed',
+                        'resolve' => fn($col) => $this->spec($col, 'ac_charging_speed', 'kW'),
+                    ],
+                    [
+                        'label' => fn($col) => 'Normalopladning  (AC) <br> Ladetid (' . data_get($col, 'powertrain.technical_specifications.ac_charging_percentage', '0-100') . '%)',
+                        'resolve' => fn($col) =>
+                            formatTimeString(data_get($col, 'powertrain.technical_specifications.ac_charging_time')),
+                    ],
+                    [
+                        'label' => 'Hurtigopladning (DC) <br> Ladehastighed',
+                        'resolve' => fn($col) => $this->spec($col, 'dc_charging_speed', 'kW'),
+                    ],
+                    [
+                        'label' => fn($col) => 'Hurtigopladning (DC) <br> Ladetid (' . data_get($col, 'powertrain.technical_specifications.dc_charging_percentage', '10-80') . '%)',
+                        'resolve' => fn($col) =>
+                            formatTimeString(data_get($col, 'powertrain.technical_specifications.dc_charging_time')),
+                    ],
+                    [
+                        'label' => 'Ladetype',
+                        'resolve' => fn($col) => data_get($col, 'powertrain.transmission.charge_plug_type'),
                     ],
                 ],
             ],
 
             [
                 'title' => 'Batteri',
-                'show_header' => false,
+                'show_header' => true,
                 'rows' => [
                     [
                         'label' => 'Batteristørrelse',
@@ -89,65 +141,6 @@ class Specifications
                     [
                         'label' => 'Batterivægt',
                         'resolve' => fn($col) => $this->spec($col, 'battery_weight', 'kg', 1),
-                    ],
-                ],
-            ],
-
-            [
-                'title' => 'Opladning',
-                'show_header' => false,
-                'rows' => [
-                    [
-                        'label' => 'Normalopladning (AC) Ladehastighed',
-                        'resolve' => fn($col) => $this->spec($col, 'ac_charging_speed', 'kW'),
-                    ],
-                    [
-                        'label' => 'Normalopladning (AC) Ladetid (0-100%)',
-                        'resolve' => fn($col) =>
-                            formatTimeString(data_get($col, 'powertrain.technical_specifications.ac_charging_time')),
-                    ],
-                    [
-                        'label' => 'Hurtigopladning (DC) Ladehastighed',
-                        'resolve' => fn($col) => $this->spec($col, 'dc_charging_speed', 'kW'),
-                    ],
-                    [
-                        'label' => 'Hurtigopladning (DC) Ladetid (10%-80%)',
-                        'resolve' => fn($col) =>
-                            formatTimeString(data_get($col, 'powertrain.technical_specifications.dc_charging_time')),
-                    ],
-                    [
-                        'label' => 'Ladetype',
-                        'resolve' => fn($col) => data_get($col, 'powertrain.transmission.charge_plug_type'),
-                    ],
-                ],
-            ],
-
-            [
-                'title' => 'Præstationer',
-                'show_header' => true,
-                'rows' => [
-                    [
-                        'label' => 'Acceleration fra 0-100 km/t',
-                        'resolve' => fn($col) => $this->spec($col, 'zero_to_hundred_time', 'sek', 1),
-                    ],
-                    [
-                        'label' => 'Tophastighed',
-                        'resolve' => fn($col) => $this->spec($col, 'topspeed', 'km/t'),
-                    ],
-                ],
-            ],
-
-            [
-                'title' => 'Rækkevidde & energiforbrug',
-                'show_header' => false,
-                'rows' => [
-                    [
-                        'label' => 'Rækkevidde (WLTP)',
-                        'resolve' => fn($col) => $this->spec($col, 'pure_electric_range', 'km'),
-                    ],
-                    [
-                        'label' => 'Forbrug (WLTP)',
-                        'resolve' => fn($col) => $this->spec($col, 'consumption.number', data_get($col, 'powertrain.configuration.technical_specifications.consumption.unit')),
                     ],
                 ],
             ],
@@ -176,11 +169,15 @@ class Specifications
                         'label' => 'Påhængsvægt uden bremser',
                         'resolve' => fn($col) => $this->spec($col, 'towing_capacity_unbraked', 'kg'),
                     ],
+                    [
+                        'label' => 'Taglast: Dynamisk / Statisk',
+                        'resolve' => fn($col) => $this->specMultiple($col, 'dynamic_roof_load', 'kg', 'static_roof_load', 'kg')
+                    ],
                 ],
             ],
 
             [
-                'title' => 'Udvendige mål',
+                'title' => 'Dimensioner',
                 'show_header' => false,
                 'rows' => [
                     [
@@ -203,16 +200,13 @@ class Specifications
                         'label' => 'Akselafstand',
                         'resolve' => fn($col) => $this->spec($col, 'wheelbase', 'mm'),
                     ],
-                ],
-            ],
-
-            [
-                'title' => 'Indvendige mål',
-                'show_header' => false,
-                'rows' => [
                     [
                         'label' => 'Bagagerumskapacitet',
                         'resolve' => fn($col) => $this->spec($col, 'trunk_volume', 'L'),
+                    ],
+                    [
+                        'label' => 'Frunk',
+                        'resolve' => fn($col) => $this->spec($col, 'frunk_volume', 'L'),
                     ],
                 ],
             ],
@@ -239,34 +233,45 @@ class Specifications
         return $unit ? "{$value} {$unit}" : (string) $value;
     }
 
-    protected function specWithRange($col, $valueKey, $rangeKey, $unit = null): string
+    protected function specMultiple($col, $value1, $unit1 = null, $value2, $unit2 = null): string
     {
-        $value = $this->spec($col, $valueKey, $unit);
-        $range = $this->spec($col, $rangeKey);
+        $value1 = $this->spec($col, $value1, $unit1);
+        $value2 = $this->spec($col, $value2, $unit2);
 
-        if (!filled($value)) {
-            return '';
-        }
-
-        return $value . (filled($range) ? " / $range" : '');
+        return $value1 . (filled($value2) ? " / $value2" : '');
     }
 
     protected function buildMatrix(array $columns, array $sections): array
     {
         foreach ($sections as &$section) {
 
-            foreach ($section['rows'] as &$row) {
+            foreach ($section['rows'] as $rowIndex => &$row) {
 
                 $row['values'] = [];
+                $row['labels'] = [];
 
                 foreach ($columns as $col) {
 
                     $value = ($row['resolve'])($col);
-
                     $row['values'][] = $this->normalize($value);
+
+                    $label = is_callable($row['label'] ?? null)
+                        ? ($row['label'])($col)
+                        : $row['label'] ?? null;
+
+                    $row['labels'][] = $label;
+
                 }
 
                 unset($row['resolve']);
+
+                $hasAnyValue = collect($row['values'])
+                    ->filter(fn ($v) => $v !== '-' && filled($v))
+                    ->isNotEmpty();
+
+                if (! $hasAnyValue) {
+                    unset($section['rows'][$rowIndex]);
+                }
             }
         }
 

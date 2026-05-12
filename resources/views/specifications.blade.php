@@ -66,7 +66,7 @@
                         <div class="flex">
 
                             <div class="w-36 shrink-0 py-2 text-xs">
-                                {!! $row['label'] !!}
+                                {!! $row['labels'][$group['display_index']] ?? $row['label'] !!}
                             </div>
 
                             @foreach($specifications['columns'] as $group)
