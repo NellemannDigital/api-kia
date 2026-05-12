@@ -33,17 +33,12 @@ class ImportPostalCodes extends Command
 
         foreach ($postalCodes as $item) {
 
-            $lng = data_get($item, 'visueltcenter.0');
-            $lat = data_get($item, 'visueltcenter.1');
-
             PostalCode::updateOrCreate(
                 [
                     'postal_code' => $item['nr'],
                 ],
                 [
                     'city' => $item['navn'],
-                    'latitude' => $lat,
-                    'longitude' => $lng,
                 ]
             );
 

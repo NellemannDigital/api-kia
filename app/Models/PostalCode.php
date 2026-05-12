@@ -9,7 +9,5 @@ class PostalCode extends Model
     protected $fillable = [
         'postal_code',
         'city',
-        'latitude',
-        'longitude',
     ];
 }
