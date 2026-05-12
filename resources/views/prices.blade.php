@@ -449,13 +449,9 @@
                             @foreach ($trims as $trim)
                                 <div class="w-24 text-center">
 
-                                    @if($row['included'][$trim->id])
-                                        S
-                                    @else
-                                        {{ $row['prices'][$trim->id]
-                                            ? Number::format($row['prices'][$trim->id], locale: 'da').' kr.'
-                                            : '-' }}
-                                    @endif
+                                    {{ $row['prices'][$trim->id]
+                                        ? Number::format($row['prices'][$trim->id], locale: 'da').' kr.'
+                                        : '-' }}
 
                                 </div>
                             @endforeach
@@ -471,8 +467,6 @@
                     $priceListExtrasTax = compliance_text_for(['car' => $car], 'price_list_extras_tax');
                     $priceListExtrasHighTax = compliance_text_for(['car' => $car], 'price_list_extras_high_tax');
                 @endphp
-
-                <div>S = Standardudstyr</div>
 
                 @if($priceListExtrasDependency)
                     <div>
