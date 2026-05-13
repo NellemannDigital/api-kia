@@ -215,7 +215,7 @@ class Specifications
                     ],
                     [
                         'label' => 'Bagagerumskapacitet',
-                        'resolve' => fn($col) => $this->spec($col, 'trunk_volume', 'L'),
+                        'resolve' => fn($col) => $this->spec($col, 'trunk_volume', 'L', ''),
                     ],
                     [
                         'label' => 'Frunk',
