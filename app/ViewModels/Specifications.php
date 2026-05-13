@@ -272,6 +272,10 @@ class Specifications
                 'b2b_only' => true,
                 'rows' => [
                     [
+                        'label' => 'Chassishøjde',
+                        'resolve' => fn($col) => $this->spec($col, 'chassis_height', 'cm'),
+                    ],
+                    [
                         'label' => 'Chassislængde',
                         'resolve' => fn($col) => $this->spec($col, 'chassis_length', 'cm'),
                     ],
