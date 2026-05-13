@@ -36,7 +36,7 @@ class CarController extends Controller
     {
         $car = Car::with([
             'trims.powertrains',
-        ])->findOrFail(1);
+        ])->findOrFail($id);
 
         return $car;
     }

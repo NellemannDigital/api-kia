@@ -26,6 +26,16 @@ class DealerController extends Controller
         //
     }
 
+     /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $dealer = Dealer::findOrFail($id);
+
+        return $dealer;
+    }
+
     /**
      * Update the specified resource in storage.
      */

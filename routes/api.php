@@ -19,7 +19,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('test-drive')->group(function () {
         Route::get('cars', [TestDriveController::class, 'cars']);
+        Route::get('car/{id}', [TestDriveController::class, 'car']);
+
         Route::get('dealers', [TestDriveController::class, 'dealers']);
+        Route::get('dealer/{dealer}', [TestDriveController::class, 'dealer']);
 
         Route::get('postal-codes', [TestDriveController::class, 'postalCodes']);
 
@@ -33,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cars/{car}', [CarController::class, 'show']);
 
     Route::get('/dealers', [DealerController::class, 'index']);
+    Route::get('/dealers/{dealers}', [DealerController::class, 'show']);
 
     Route::get('/used-cars', [UsedCarController::class, 'index']);
 

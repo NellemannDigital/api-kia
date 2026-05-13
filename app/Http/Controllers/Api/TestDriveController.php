@@ -44,14 +44,29 @@ class TestDriveController extends Controller
             'status' => 'pending',
         ]);
 
-        dd('test');
-
         ProcessTestDriveActivity::dispatch($activity)->onQueue('webhooks');
 
         return response()->json([
             'success' => true,
             'id' => $activity->id,
         ]);
+    }
+
+    public function car($id)
+    {
+        return Car::query()
+            ->addChannels(['web_channel'])
+            ->availableForTestDrive()
+            ->where('web_id', $id)
+            ->firstOrFail();
+    }
+
+    public function dealer($id)
+    {
+        return Dealer::query()
+            ->where('tools->test_drive', true)
+            ->where('dealer_guid', $id)
+            ->firstOrFail();
     }
 
     public function cars()
