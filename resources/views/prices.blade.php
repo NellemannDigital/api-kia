@@ -383,7 +383,7 @@
                             <span class="mt-0.75">{{ $row['colors']->primary_color }} {{ $row['colors']->secondary_color ? '/ ' . $row['colors']->secondary_color : ''  }}</span>
                         </div>
 
-                        <div class="gap-4 flex justify-end">
+                        <div class="gap-4 flex justify-end items-center">
                             @foreach ($row['prices'] as $price)
                                 <div @class(['w-32 text-center' => $isB2b, 'w-16 text-center' => ! $isB2b ])>
 
@@ -399,7 +399,18 @@
                                         </div>
                                     @else
 
-                                        {{ $price['price'] ? Number::format($price['price'], locale: 'da').' kr.' : '-' }}
+                                        @if( $price['campaignPrice'])
+                                            
+                                            {!! Number::format($price['campaignPrice'], locale: 'da') !!} kr. <br>
+                                            
+                                            <span class="text-gray-400 line-through">
+                                                {{ $price['price'] ? Number::format($price['price'], locale: 'da').' kr.' : '-' }}
+                                            </span>
+                                        @else
+
+                                            {{ $price['price'] ? Number::format($price['price'], locale: 'da').' kr.' : '-' }}
+
+                                        @endif
 
                                     @endif
                                 </div>
@@ -535,7 +546,7 @@
                             @endif
                         </div>
 
-                        <div class="gap-4 flex justify-end">
+                        <div class="gap-4 flex justify-end items-center">
                             @foreach ($trims as $trim)
                                 <div @class(['w-32 text-center' => $isB2b, 'w-16 text-center' => ! $isB2b ])>
 
@@ -555,9 +566,22 @@
                                         </div>
                                     @else
 
-                                        {{ $row['prices'][$trim->id]['price']
-                                            ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
-                                            : '-' }}
+                                        @if( $row['prices'][$trim->id]['campaignPrice'])
+                                            
+                                            {!! Number::format($row['prices'][$trim->id]['campaignPrice'], locale: 'da') !!} kr. <br>
+                                            
+                                            <span class="text-gray-400 line-through">
+                                                {{ $row['prices'][$trim->id]['price']
+                                                    ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
+                                                    : '-' }}
+                                            </span>
+                                        @else
+
+                                            {{ $row['prices'][$trim->id]['price']
+                                                ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
+                                                : '-' }}
+
+                                        @endif
 
                                     @endif
 
@@ -907,6 +931,7 @@
                                     <div @class(['w-32 text-center' => $isB2b, 'w-16 text-center' => ! $isB2b ])>
                                         @php
                                             $price = $package->latestPrice?->suggested_retail_price;
+                                            $campaignPrice = $package->latestPrice?->campaign_retail_price;
                                             $priceExVat = $package->latestPrice?->retail_price_ex_vat;
                                         @endphp
 
@@ -924,11 +949,21 @@
                                                         : '-' }}
                                                 </span>
                                             </div>
-                                        @else
 
+                                         @else
+
+                                            @if($campaignPrice)
+                                                {!! Number::format($campaignPrice, locale: 'da') !!} kr. <br>
+                                                <span class="text-gray-400 line-through">
+                                                    {{ $price && $price != 0
+                                                        ? Number::format($price, locale: 'da').' kr.'
+                                                        : '-' }}
+                                                </span>
+                                            @else
                                                 {{ $price && $price != 0
-                                                ? Number::format($price, locale: 'da').' kr.'
-                                                : '-' }}
+                                                    ? Number::format($price, locale: 'da').' kr.'
+                                                    : '-' }}
+                                            @endif
 
                                         @endif
 

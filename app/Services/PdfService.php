@@ -282,7 +282,8 @@ class PdfService
         string $relation,
         string $optionIdentifier = 'id',
         string $priceField = 'suggested_retail_price',
-        string $priceExVatField = 'retail_price_ex_vat'
+        string $priceExVatField = 'retail_price_ex_vat',
+        string $campaignPrice = 'campaign_retail_price'
     ): Collection {
 
         $trimEquipmentCodes = $trims->mapWithKeys(fn ($trim) => [
@@ -293,7 +294,8 @@ class PdfService
             $relation,
             $optionIdentifier,
             $priceField,
-            $priceExVatField
+            $priceExVatField,
+            $campaignPrice
         ) {
             $options = $trim->$relation ?? collect();
 
@@ -301,13 +303,15 @@ class PdfService
                 $trim,
                 $optionIdentifier,
                 $priceField,
-                $priceExVatField
+                $priceExVatField,
+                $campaignPrice
             ) {
                 return [
                     'option_id' => $option->$optionIdentifier,
                     'option_obj' => $option,
                     'trim_id'   => $trim->id,
                     'price'     => $option->latestPrice?->$priceField,
+                    'campaignPrice'     => $option->latestPrice?->$campaignPrice,
                     'priceExVat' => $option->latestPrice?->$priceExVatField,
 
                 ];
@@ -334,6 +338,7 @@ class PdfService
                     $prices[$trim->id] = [
                         'price' => $row['price'] ?? null,
                         'priceExVat' => $row['priceExVat'] ?? null,
+                        'campaignPrice' => $row['campaignPrice'] ?? null,
                     ];
 
                     if (empty($packageCodes)) {
