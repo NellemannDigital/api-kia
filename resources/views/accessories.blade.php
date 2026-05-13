@@ -56,7 +56,7 @@
 
                 @if($currentCategory !== $row['category'])
 
-                    <div class="flex justify-between items-center mb-3 {{ $currentCategory === null ? '' : 'mt-6' }}">
+                    <div class="flex justify-between items-center mb-2 {{ $currentCategory === null ? '' : 'mt-4' }}">
                         <div class="font-bold text-xl">{{ $row['category'] }}</div>
                         
                         @if($currentCategory === null)
@@ -72,7 +72,7 @@
 
                     @foreach ($row['items'] as $accessory)
 
-                        <div class="flex flex-col rounded-lg overflow-hidden border border-primary-low h-80">
+                        <div class="flex flex-col rounded-lg overflow-hidden border border-primary-low h-78">
 
                             <img src="{{ $accessory->primary_image->url }}?width=300"
                                 alt="{{ $accessory->name }}"

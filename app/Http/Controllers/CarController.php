@@ -101,7 +101,7 @@ class CarController extends Controller
             ->pdf($car, 'prices');
     }
 
-    public function acessories($id)
+    public function accessories($id)
     {
         $car = $this->pdfService->loadCar($id);
 
