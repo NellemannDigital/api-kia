@@ -30,6 +30,7 @@ class Specifications
 
                 $columns[] = [
                     'key' => $trim->id . '-' . $powertrain->id,
+                    'car' => $trim->car,
                     'trim' => $trim,
                     'powertrain' => $powertrain,
                 ];
@@ -45,6 +46,8 @@ class Specifications
             [
                 'title' => 'Motor',
                 'show_header' => true,
+                'page_break' => false,
+                'b2b_only' => false,
                 'rows' => [
                     [
                         'label' => 'Drivmiddel',
@@ -81,6 +84,8 @@ class Specifications
             [
                 'title' => 'Rækkevidde & energiforbrug',
                 'show_header' => false,
+                'page_break' => false,
+                'b2b_only' => false,
                 'rows' => [
                     [
                         'label' => 'Rækkevidde (WLTP)',
@@ -96,6 +101,8 @@ class Specifications
             [
                 'title' => 'Opladning',
                 'show_header' => false,
+                'page_break' => false,
+                'b2b_only' => false,
                 'rows' => [
                     [
                         'label' => 'Normalopladning (AC) <br> Ladehastighed',
@@ -125,10 +132,12 @@ class Specifications
             [
                 'title' => 'Batteri',
                 'show_header' => true,
+                'page_break' => true,
+                'b2b_only' => false,
                 'rows' => [
                     [
                         'label' => 'Batteristørrelse',
-                        'resolve' => fn($col) => $this->spec($col, 'battery_size', 'kWh'),
+                        'resolve' => fn($col) => $this->spec($col, 'battery_size', 'kWh', 1),
                     ],
                     [
                         'label' => 'Batteritype',
@@ -148,6 +157,8 @@ class Specifications
             [
                 'title' => 'Vægt',
                 'show_header' => false,
+                'page_break' => false,
+                'b2b_only' => false,
                 'rows' => [
                     [
                         'label' => 'Egenvægt',
@@ -179,6 +190,8 @@ class Specifications
             [
                 'title' => 'Dimensioner',
                 'show_header' => false,
+                'page_break' => false,
+                'b2b_only' => false,
                 'rows' => [
                     [
                         'label' => 'Længde',
@@ -210,17 +223,67 @@ class Specifications
                     ],
                 ],
             ],
+
+            [
+                'title' => 'Dimensioner – Varevogn',
+                'show_header' => true,
+                'page_break' => true,
+                'b2b_only' => true,
+                'rows' => [
+                    [
+                        'label' => 'Varerumsvolumen',
+                        'resolve' => fn($col) => $this->spec($col, 'cargo_volume', 'm3', 1),
+                    ],
+                    [
+                        'label' => 'Varerumshøjde',
+                        'resolve' => fn($col) => $this->spec($col, 'cargo_height', 'cm'),
+                    ],
+                    [
+                        'label' => 'Varerumslængde',
+                        'resolve' => fn($col) => $this->spec($col, 'cargo_length', 'cm'),
+                    ],
+                    [
+                        'label' => 'Varerumsbredde, maks.',
+                        'resolve' => fn($col) => $this->spec($col, 'cargo_width_max', 'cm'),
+                    ],
+                    [
+                        'label' => 'Varerumsbredde, min.',
+                        'resolve' => fn($col) => $this->spec($col, 'cargo_width_min', 'cm'),
+                    ],
+                    [
+                        'label' => 'Læssehøjde, bag',
+                        'resolve' => fn($col) => $this->spec($col, 'loading_height_rear', 'cm', 1),
+                    ],
+                    [
+                        'label' => 'Læssehøjde, side',
+                        'resolve' => fn($col) => $this->spec($col, 'loading_height_side', 'cm', 1),
+                    ],
+                    [
+                        'label' => 'Afstand mellem hjulkasser',
+                        'resolve' => fn($col) => $this->spec($col, 'cargo_width_wheel_housing', 'cm'),
+                    ],
+                    [
+                        'label' => 'Chassislængde',
+                        'resolve' => fn($col) => $this->spec($col, 'chassis_length', 'cm'),
+                    ],
+                    [
+                        'label' => 'Maksimalt udhæng',
+                        'resolve' => fn($col) => $this->spec($col, 'chassis_max_overhang', 'cm'),
+                    ],
+                ],
+            ],
         ];
     }
 
-    protected function spec(array $col, string $path, ?string $unit = null, int $decimals = null): string
+    protected function spec(array $col, string $path, ?string $unit = null, $decimals = 0): string
     {
         $value =
             data_get($col, "powertrain.technical_specifications.$path")
             ?? data_get($col, "powertrain.engine.$path")
             ?? data_get($col, "powertrain.transmission.$path")
             ?? data_get($col, "trim.technical_specifications.$path")
-            ?? data_get($col, "powertrain.configuration.technical_specifications.$path");
+            ?? data_get($col, "powertrain.configuration.technical_specifications.$path")
+            ?? data_get($col, "car.dimensions.$path");
 
         if (!filled($value)) {
             return '';
@@ -235,8 +298,8 @@ class Specifications
 
     protected function specMultiple($col, $value1, $unit1 = null, $value2, $unit2 = null): string
     {
-        $value1 = $this->spec($col, $value1, $unit1);
-        $value2 = $this->spec($col, $value2, $unit2);
+        $value1 = $this->spec($col, $value1, $unit1, null);
+        $value2 = $this->spec($col, $value2, $unit2, null);
 
         return $value1 . (filled($value2) ? " / $value2" : '');
     }

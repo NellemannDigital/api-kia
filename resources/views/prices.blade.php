@@ -65,6 +65,23 @@
         @endif
 
         <!-- Models & Prices -->
+
+        @php
+            $isB2b = $car->variant->b2b;
+
+            $columnWidths = [
+                'variant' => $isB2b ? 'w-[140px]' : 'w-[160px]',
+                'power' => 'w-[50px]',
+                'battery' => 'w-[55px]',
+                'range' => 'w-[75px]',
+                'consumption' => 'w-[65px]',
+                'ac' => 'w-[100px]',
+                'dc' => 'w-[100px]',
+                'tax' => 'w-[60px]',
+                'price' => $isB2b ? 'w-[150px]' : 'w-[60px]',
+            ];
+        @endphp
+
         <section class="mx-auto max-w-[210mm]">
 
             <div class="flex justify-between items-center mb-3">
@@ -77,19 +94,25 @@
             <div class="text-xs text-primary">
                 <div class="bg-primary p-2 rounded">
                     <div class="flex gap-2 items-center text-white font-bold leading-tight">
-                        <span class="w-[130px] text-left">Udstyrsvariant</span>
-                        <span class="w-[50px] text-center">Drivaksel</span>
-                        <span class="w-[50px] text-center">Ydelse</span>
-                        <span class="w-[55px] text-center">Batteri</span>
-                        <span class="w-[75px] text-center">Rækkevidde*</span>
-                        <span class="w-[65px] text-center">Forbrug*</span>
-                        <span class="w-[100px] text-center">Normalopladning <br><span class="font-light text-[9px]">(AC {{ $acChargingPercentage }}%)</span></span>
-                        <span class="w-[100px] text-center">Hurtigopladning <br><span class="font-light text-[9px]">(DC {{ $dcChargingPercentage }}%)</span></span>
-                        <span class="w-[60px] text-center">Halvårlig CO<sub>2</sub>-afgift</span>
-                        <span class="w-[60px] text-center">
+                        <span class="{{ $columnWidths['variant'] }} text-left">Udstyrsvariant</span>
+                        <span class="{{ $columnWidths['power'] }} text-center">Ydelse</span>
+                        <span class="{{ $columnWidths['battery'] }} text-center">Batteri</span>
+                        <span class="{{ $columnWidths['range'] }} text-center">Rækkevidde*</span>
+                        <span class="{{ $columnWidths['consumption'] }} text-center">Forbrug*</span>
+                        <span class="{{ $columnWidths['ac'] }} text-center">Normalopladning <br><span class="font-light text-[9px]">(AC {{ $acChargingPercentage }}%)</span></span>
+                        <span class="{{ $columnWidths['dc'] }} text-center">Hurtigopladning <br><span class="font-light text-[9px]">(DC {{ $dcChargingPercentage }}%)</span></span>
+                        <span class="{{ $columnWidths['tax'] }} text-center">Halvårlig CO<sub>2</sub>-afgift</span>
+                        <span class="{{ $columnWidths['price'] }} text-center">
                             Pris 
                             @if($car->campaign_disclaimer)
                                 **
+                            @endif
+
+                            @if($isB2b)
+                                <div class="grid grid-cols-2 gap-1 text-[9px] font-light">
+                                    <span>Ekskl. moms</span>
+                                    <span>inkl. moms</span>
+                                </div>
                             @endif
                         </span>
                     </div>
@@ -110,64 +133,86 @@
                             $price = $powertrain->prices->last();
 
                             $campaign = $price?->campaign_retail_price;
-                            $suggested = $price?->suggested_retail_price;
                             $hasCampaign = $campaign && $campaign != 0;
+                        
+                            $suggested = $price?->suggested_retail_price;
+
+                            if ($isB2b) {
+                                $vanPrice = $price?->van_price;
+                                $vanPriceVat = $price?->van_price_vat;
+                            }
                         @endphp
 
                         <div class="flex gap-2 items-center p-2 border-b border-primary-low">
 
-                            <div class="w-[130px] text-left">
-                                {{ $engine->name ?? '-' }}
+                            <div class="{{ $columnWidths['variant'] }} text-left">
+                                {{ $engine->name ?? '-' }} ({{ $engine->drive }})
                             </div>
 
-                            <div class="w-[50px] text-center">
-                                {{ $engine->drive }}
-                            </div>
-
-                            <div class="w-[50px] text-center">
+                            <div class="{{ $columnWidths['power'] }} text-center">
                                 {{ $engine->horse_power ? $engine->horse_power.' hk' : '-' }}
                             </div>
 
-                            <div class="w-[55px] text-center">
+                            <div class="{{ $columnWidths['battery'] }} text-center">
                                 {{ $tech->battery_size ? $tech->battery_size.' kWh' : '-' }}
                             </div>
 
-                            <div class="w-[75px] text-center">
+                            <div class="{{ $columnWidths['range'] }} text-center">
                                 {{ $configTech?->pure_electric_range ? $configTech->pure_electric_range.' km' : '-' }}
                             </div>
 
-                            <div class="w-[65px] text-center">
+                            <div class="{{ $columnWidths['consumption'] }} text-center">
                                 {{ $configTech?->consumption?->number ? $configTech->consumption->number.' Wh/km' : '-' }}
                             </div>
 
-                            <div class="w-[100px] text-center">
+                            <div class="{{ $columnWidths['ac'] }} text-center">
                                 {{ $tech->ac_charging_speed && $tech->ac_charging_time
                                     ? $tech->ac_charging_speed.' kW / '. formatTimeString($tech->ac_charging_time)
                                     : '-' }}
                             </div>
 
-                            <div class="w-[100px] text-center">
+                            <div class="{{ $columnWidths['dc'] }} text-center">
                                 {{ $tech->dc_charging_speed && $tech->dc_charging_time
                                     ? $tech->dc_charging_speed.' kW / '. formatTimeString($tech->dc_charging_time)
                                     : '-' }}
                             </div>
 
-                            <div class="w-[60px] text-center">
+                            <div class="{{ $columnWidths['tax'] }} text-center">
                                 {{ $configTech?->owner_tax ? $configTech->owner_tax.' kr.' : '-' }}
                             </div>
                            
-                            <div class="w-[60px] text-center">
-                                @if($hasCampaign)
-                                    {!! Number::format($campaign, locale: 'da') !!} kr. <br>
-                                    <span class="text-gray-400 line-through">
+                            <div class="{{ $columnWidths['price'] }} text-center">
+                                
+                                @if($isB2b)
+
+                                <div class="grid grid-cols-2 gap-1 text-center">
+                                    <span class="block">
+                                        {{ $vanPrice !== null
+                                            ? Number::format($vanPrice, locale: 'da') . ' kr.'
+                                            : '-' }}
+                                    </span>
+
+                                    <span class="block">
+                                        {{ $vanPriceVat !== null
+                                            ? Number::format($vanPriceVat, locale: 'da') . ' kr.'
+                                            : '-' }}
+                                    </span>
+                                </div>
+                                @else
+
+                                    @if($hasCampaign)
+                                        {!! Number::format($campaign, locale: 'da') !!} kr. <br>
+                                        <span class="text-gray-400 line-through">
+                                            {{ $suggested !== null
+                                            ? Number::format($suggested, locale: 'da') . ' kr.'
+                                            : '-' }}
+                                        </span>
+                                    @else
                                         {{ $suggested !== null
                                         ? Number::format($suggested, locale: 'da') . ' kr.'
                                         : '-' }}
-                                    </span>
-                                @else
-                                    {{ $suggested !== null
-                                    ? Number::format($suggested, locale: 'da') . ' kr.'
-                                    : '-' }}
+                                    @endif
+
                                 @endif
                             </div>
 

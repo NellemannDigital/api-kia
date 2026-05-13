@@ -13,7 +13,7 @@
 
     <main class="max-w-6xl mx-auto">
 
-        <header class="flex items-center justify-between mb-8">
+        <header class="flex items-center justify-between mb-6">
             <h1 class="text-xl font-bold">
                 {{ $car->name }} - Tekniske specifikationer
             </h1>
@@ -27,61 +27,72 @@
 
         @foreach($specifications['sections'] as $section)
 
-            <section class="space-y-2 mb-6">
+            @if(
+                !($section['b2b_only'] ?? false)
+                || ($section['b2b_only'] && $car->variant->b2b)
+            )
 
-                @if($section['show_header'])
-                    <div class="flex">
-                        <div class="w-36 shrink-0"></div>
-
-                        @foreach($specifications['columns'] as $group)
-                            <div class="flex-1 text-center text-xs">
-                                @php
-                                    $trimNames = collect($group['columns'])
-                                        ->pluck('trim.name')
-                                        ->join(', ', ' & ');
-
-                                    $engineName = $group['columns'][0]['powertrain']->engine->name ?? '';
-                                @endphp
-
-                                <div class="font-bold">
-                                    {{ $trimNames }}
-                                </div>
-
-                                <div class="font-normal">
-                                    {{ $engineName }}
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                @if($section['page_break'])
+                    @pageBreak
                 @endif
 
-                <div class="bg-primary rounded p-2 text-xs font-bold text-white">
-                    {{ $section['title'] }}
-                </div>
+                <section class="space-y-2 mb-5">
 
-                <div class="divide-y divide-primary-low">
-
-                    @foreach($section['rows'] as $row)
-
+                    @if($section['show_header'])
                         <div class="flex">
-
-                            <div class="w-36 shrink-0 py-2 text-xs">
-                                {!! $row['labels'][$group['display_index']] ?? $row['label'] !!}
-                            </div>
+                            <div class="w-36 shrink-0"></div>
 
                             @foreach($specifications['columns'] as $group)
-                                <div class="flex flex-1 items-center justify-center border-l border-primary-low p-2 text-center text-xs">
-                                    {{ $row['values'][$group['display_index']] ?? '-' }}
+                                <div class="flex-1 text-center text-xs">
+                                    @php
+                                        $trimNames = collect($group['columns'])
+                                            ->pluck('trim.name')
+                                            ->join(', ', ' & ');
+
+                                        $engineName = $group['columns'][0]['powertrain']->engine->name ?? '';
+                                    @endphp
+
+                                    <div class="font-bold">
+                                        {{ $trimNames }}
+                                    </div>
+
+                                    <div class="font-normal">
+                                        {{ $engineName }}
+                                    </div>
                                 </div>
                             @endforeach
-
                         </div>
+                    @endif
 
-                    @endforeach
+                    <div class="bg-primary rounded p-2 text-xs font-bold text-white">
+                        {{ $section['title'] }}
+                    </div>
 
-                </div>
+                    <div class="divide-y divide-primary-low">
 
-            </section>
+                        @foreach($section['rows'] as $row)
+
+                            <div class="flex">
+
+                                <div class="w-36 shrink-0 py-2 text-xs">
+                                    {!! $row['labels'][$group['display_index']] ?? $row['label'] !!}
+                                </div>
+
+                                @foreach($specifications['columns'] as $group)
+                                    <div class="flex flex-1 items-center justify-center border-l border-primary-low p-2 text-center text-xs">
+                                        {{ $row['values'][$group['display_index']] ?? '-' }}
+                                    </div>
+                                @endforeach
+
+                            </div>
+
+                        @endforeach
+
+                    </div>
+
+                </section>
+
+            @endif
 
         @endforeach
 
