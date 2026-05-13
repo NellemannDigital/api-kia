@@ -511,17 +511,27 @@
                 @foreach ($extraEquipmentPackageMatrix as $row)
                     <div class="flex justify-between p-2 items-center">
 
-                        <div>
-                            <span class="font-bold">
-                                {{ $row['extraEquipmentPackages']->name }}
-                            </span>
+                        <div class="space-y-1">
+                            <div class="font-bold"> {{ $row['extraEquipmentPackages']->name }}</div>
 
                             @if($row['extraEquipmentPackages']->equipment->isNotEmpty())
-                                <ul class="mt-1 pl-4 list-disc list-outside">
-                                    @foreach($row['extraEquipmentPackages']->equipment as $equipment)
-                                        <li>{{ $equipment->name }}</li>
-                                    @endforeach
-                                </ul>
+
+                                @php
+                                    $singleEquipment = $row['extraEquipmentPackages']->equipment->count() === 1
+                                        ? $row['extraEquipmentPackages']->equipment->first()
+                                        : null;
+                                @endphp
+
+                                @if($singleEquipment && $singleEquipment->name === $row['extraEquipmentPackages']->name)
+                                    
+                                @else
+                                    <ul class="pl-4 list-disc list-outside text-[9px]">
+                                        @foreach($row['extraEquipmentPackages']->equipment as $equipment)
+                                            <li>{{ $equipment->name }}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+
                             @endif
                         </div>
 
@@ -831,7 +841,7 @@
                         <div class="flex justify-end gap-4">
                             <div @class(['w-32' => $isB2b, 'w-16' => ! $isB2b ])>
                                 <p class="text-center">
-                                    Pris
+                                    Pris *
 
                                     @if($isB2b)
                                         <div class="grid grid-cols-2 gap-1 text-[9px] font-light text-center">
@@ -847,15 +857,26 @@
                     <div class="text-xs text-primary divide-y divide-primary-low border-b border-primary-low">
                         @foreach ($trim->extraEquipmentPackages as $package)
                             <div class="flex items-center justify-between gap-2 p-2">
-                                <div>
-                                    <span class="font-bold">{{ $package->name }}</span>
+                                <div class="space-y-1">
+                                    <div class="font-bold">{{ $package->name }}</div>
 
                                     @if(!$package->equipment->isEmpty())
-                                        <ul class="mt-1 pl-4 list-disc list-outside mb-2 text-[9px]">
-                                            @foreach($package->equipment as $equipment)
-                                                <li>{{ $equipment->name }}</li>
-                                            @endforeach
-                                        </ul>
+
+                                        @php
+                                            $singleEquipment = $package->equipment->count() === 1
+                                                ? $package->equipment->first()
+                                                : null;
+                                        @endphp
+
+                                        @if($singleEquipment && $singleEquipment->name === $package->name)
+                                            
+                                        @else
+                                            <ul class="pl-4 list-disc list-outside text-[9px] mb-2">
+                                                @foreach($package->equipment as $equipment)
+                                                    <li>{{ $equipment->name }}</li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
                                     @endif
 
                                     @php
