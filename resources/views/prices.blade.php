@@ -224,7 +224,7 @@
                 @endforeach
             </div>
 
-            <div class="space-y-2 text-xs text-primary mt-4">
+            <div class="space-y-2 text-[10px] text-primary mt-4">
                 @php
                     $priceListYear = compliance_text_for(['car' => $car], 'price_list_year');
                     $priceListDelivery = compliance_text_for(['car' => $car], 'price_list_delivery');
@@ -297,7 +297,7 @@
                 </div>
             </div>
 
-            <div class="space-y-2 text-xs text-primary mt-10">
+            <div class="space-y-2 text-[10px] text-primary mt-10">
                 @php
                     $priceListDisclaimer = compliance_text_for(['car' => $car], 'price_list_disclaimer');
                 @endphp
@@ -308,7 +308,7 @@
                     </div>
                 @endif
 
-                <div class="text-xs text-primary">Prisliste udskrevet pr. {{ date('d-m-Y')}}</div>
+                <div class="text-[10px] text-primary">Prisliste udskrevet pr. {{ date('d-m-Y')}}</div>
             </div>
 
        </section>
@@ -411,7 +411,7 @@
                 @endforeach
             </div>
 
-            <div class="space-y-2 text-xs text-primary mt-4">
+            <div class="space-y-2 text-[10px] text-primary mt-4">
                 @php
                     $priceListMattColorDisclaimer = compliance_text_for(['car' => $car], 'price_list_matt_color_disclaimer');
                     $priceListColorTax = compliance_text_for(['car' => $car], 'price_list_color_tax');
@@ -559,7 +559,7 @@
                     </div>
                 @endforeach
             </div>
-            <div class="space-y-2 text-xs text-primary mt-4">
+            <div class="space-y-2 text-[10px] text-primary mt-4">
                 @php
                     $priceListExtrasDependency = compliance_text_for(['car' => $car], 'price_list_extras_dependency');
                     $priceListExtrasWltp = compliance_text_for(['car' => $car], 'price_list_extras_wltp');
@@ -918,7 +918,7 @@
                         @endforeach
                     </div>
 
-                    <div class="space-y-2 text-xs text-primary mt-4">
+                    <div class="space-y-2 text-[10px] text-primary mt-4">
                         @php
                             $priceListExtrasWltp = compliance_text_for(['car' => $car], 'price_list_extras_wltp');
                             $priceListExtrasTax = compliance_text_for(['car' => $car], 'price_list_extras_tax');
