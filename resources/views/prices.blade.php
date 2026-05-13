@@ -110,7 +110,7 @@
 
                             @if($isB2b)
                                 <div class="grid grid-cols-2 gap-1 text-[9px] font-light">
-                                    <span>Ekskl. moms</span>
+                                    <span>ekskl. moms</span>
                                     <span>inkl. moms</span>
                                 </div>
                             @endif
@@ -185,19 +185,20 @@
                                 
                                 @if($isB2b)
 
-                                <div class="grid grid-cols-2 gap-1 text-center">
-                                    <span class="block">
-                                        {{ $vanPrice !== null
-                                            ? Number::format($vanPrice, locale: 'da') . ' kr.'
-                                            : '-' }}
-                                    </span>
+                                    <div class="grid grid-cols-2 gap-1 text-center">
+                                        <span class="block">
+                                            {{ $vanPrice !== null
+                                                ? Number::format($vanPrice, locale: 'da') . ' kr.'
+                                                : '-' }}
+                                        </span>
 
-                                    <span class="block">
-                                        {{ $vanPriceVat !== null
-                                            ? Number::format($vanPriceVat, locale: 'da') . ' kr.'
-                                            : '-' }}
-                                    </span>
-                                </div>
+                                        <span class="block">
+                                            {{ $vanPriceVat !== null
+                                                ? Number::format($vanPriceVat, locale: 'da') . ' kr.'
+                                                : '-' }}
+                                        </span>
+                                    </div>
+
                                 @else
 
                                     @if($hasCampaign)
@@ -324,41 +325,49 @@
                 <img src="{{ asset('images/logo.png') }}" class="block w-20">
             </div>
 
-            <div class="bg-primary p-2 rounded">
-                <div class="gap-2 grid grid-cols-12 text-xs text-white font-bold">
-                    <div class="col-span-4">
-                        <p class="font-bold">Farve</p>
-                    </div>
-                    <div class="flex justify-end col-span-8">
-                        @foreach ($trims as $trim)
-                            <div class="w-24">
-                                <p class="text-center">
-                                    {{ $trim->name }}
+            <div class="bg-primary p-2 rounded flex justify-between items-center gap-2 font-bold text-white text-xs">
 
-                                    @if ($trim->uses_high_tax)
-                                        @php
-                                            $usesHighTax = true
-                                        @endphp
+                <p class="text-xs text-white font-bold">Farve</p>
 
-                                        **
-                                    @else
-                                        @php
-                                            $usesHighTax = false
-                                        @endphp
+                <div class="flex justify-end gap-4">
+                    @foreach ($trims as $trim)
+                        <div @class(['w-32' => $isB2b, 'w-16' => ! $isB2b ])>
+                            <p class="text-center">
+                                {{ $trim->name }}
 
-                                        *
-                                    @endif
-                                </p>
-                            </div>
-                        @endforeach
-                    </div>
+                                @if ($trim->uses_high_tax)
+                                    @php
+                                        $usesHighTax = true
+                                    @endphp
+
+                                    **
+                                @else
+                                    @php
+                                        $usesHighTax = false
+                                    @endphp
+
+                                    *
+                                @endif
+
+                                @if($isB2b)
+                                    <div class="grid grid-cols-2 gap-1 text-[9px] font-light text-center">
+                                        <span>ekskl. moms</span>
+                                        <span>inkl. moms</span>
+                                    </div>
+                                @endif
+                            </p>
+                        </div>
+                    @endforeach
                 </div>
             </div>
 
             <div class="text-xs text-primary divide-y divide-primary-low border-b border-primary-low">
+
                 @foreach ($colorMatrix as $row)
-                    <div class="grid grid-cols-12 gap-2 p-2 items-center">
-                        <div class="col-span-4 flex items-center gap-2">
+
+                    <div class="flex justify-between p-2 items-center">
+
+                        <div class="flex items-center gap-2">
                             @if($row['colors']->color_image?->url)
                                 <img src="{{ $row['colors']->color_image->url }}" class="rounded-full w-4 h-4">
                             @else
@@ -373,12 +382,32 @@
                             @endif
                             <span class="mt-0.75">{{ $row['colors']->primary_color }} {{ $row['colors']->secondary_color ? '/ ' . $row['colors']->secondary_color : ''  }}</span>
                         </div>
-                        <div class="col-span-8 flex justify-end">
+
+                        <div class="gap-4 flex justify-end">
                             @foreach ($row['prices'] as $price)
-                                <div class="w-24 text-center">{{ $price ? Number::format($price, locale: 'da').' kr.' : '-' }}</div>
+                                <div @class(['w-32 text-center' => $isB2b, 'w-16 text-center' => ! $isB2b ])>
+
+                                    @if($isB2b)
+                                       <div class="grid grid-cols-2 gap-1 text-center">
+                                            <span class="block">
+                                                {{ $price['priceExVat'] ? Number::format($price['priceExVat'], locale: 'da').' kr.' : '-' }}
+                                            </span>
+
+                                            <span class="block">
+                                               {{ $price['price'] ? Number::format($price['price'], locale: 'da').' kr.' : '-' }}
+                                            </span>
+                                        </div>
+                                    @else
+
+                                        {{ $price['price'] ? Number::format($price['price'], locale: 'da').' kr.' : '-' }}
+
+                                    @endif
+                                </div>
                             @endforeach
                         </div>
+                        
                     </div>
+
                 @endforeach
             </div>
 
@@ -442,41 +471,47 @@
                 <img src="{{ asset('images/logo.png') }}" class="block w-20">
             </div>
 
-            <div class="bg-primary p-2 rounded">
-                <div class="gap-2 grid grid-cols-12 text-xs text-white font-bold">
-                    <div class="col-span-4">
-                        <p class="font-bold">Ekstraudstyr</p>
-                    </div>
-                    <div class="flex justify-end col-span-8">
-                        @foreach ($trims as $trim)
-                            <div class="w-24">
-                                <p class="text-center">
-                                    {{ $trim->name }}
+            <div class="bg-primary p-2 rounded flex justify-between items-center gap-2 font-bold text-white text-xs">
 
-                                    @if ($trim->uses_high_tax)
-                                        @php
-                                            $usesHighTax = true
-                                        @endphp
+                <p class="text-xs text-white font-bold">Ekstraudstyr</p>
 
-                                        **
-                                    @else
-                                        @php
-                                            $usesHighTax = false
-                                        @endphp
+                <div class="flex justify-end gap-4">
+                    @foreach ($trims as $trim)
+                        <div @class(['w-32' => $isB2b, 'w-16' => ! $isB2b ])>
+                            <p class="text-center">
+                                {{ $trim->name }}
 
-                                        *
-                                    @endif
-                                </p>
-                            </div>
-                        @endforeach
-                    </div>
+                                @if ($trim->uses_high_tax)
+                                    @php
+                                        $usesHighTax = true
+                                    @endphp
+
+                                    **
+                                @else
+                                    @php
+                                        $usesHighTax = false
+                                    @endphp
+
+                                    *
+                                @endif
+
+                                @if($isB2b)
+                                    <div class="grid grid-cols-2 gap-1 text-[9px] font-light text-center">
+                                        <span>ekskl. moms</span>
+                                        <span>inkl. moms</span>
+                                    </div>
+                                @endif
+                            </p>
+                        </div>
+                    @endforeach
+                </div>
             </div>
-            </div>
+
             <div class="text-xs text-primary divide-y divide-primary-low border-b border-primary-low">
                 @foreach ($extraEquipmentPackageMatrix as $row)
-                    <div class="grid grid-cols-12 gap-2 p-2 items-center">
+                    <div class="flex justify-between p-2 items-center">
 
-                        <div class="col-span-4">
+                        <div>
                             <span class="font-bold">
                                 {{ $row['extraEquipmentPackages']->name }}
                             </span>
@@ -490,16 +525,35 @@
                             @endif
                         </div>
 
-                        <div class="col-span-8 flex justify-end">
+                        <div class="gap-4 flex justify-end">
                             @foreach ($trims as $trim)
-                                <div class="w-24 text-center">
+                                <div @class(['w-32 text-center' => $isB2b, 'w-16 text-center' => ! $isB2b ])>
 
-                                    {{ $row['prices'][$trim->id]
-                                        ? Number::format($row['prices'][$trim->id], locale: 'da').' kr.'
-                                        : '-' }}
+                                    @if($isB2b)
+                                       <div class="grid grid-cols-2 gap-1 text-center">
+                                            <span class="block">
+                                                {{ $row['prices'][$trim->id]['priceExVat']
+                                                ? Number::format($row['prices'][$trim->id]['priceExVat'], locale: 'da').' kr.'
+                                                : '-' }}
+                                            </span>
+
+                                            <span class="block">
+                                               {{ $row['prices'][$trim->id]['price']
+                                                ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
+                                                : '-' }}
+                                            </span>
+                                        </div>
+                                    @else
+
+                                        {{ $row['prices'][$trim->id]['price']
+                                            ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
+                                            : '-' }}
+
+                                    @endif
 
                                 </div>
                             @endforeach
+
                         </div>
 
                     </div>
@@ -770,20 +824,30 @@
                 @endforeach
 
                 @if(count($trim->extraEquipmentPackages) > 0)
-                    <div class="bg-primary p-2 rounded mt-6">
-                        <div class="gap-2 grid grid-cols-12 text-xs text-white font-bold">
-                            <div class="col-span-4 font-bold">
-                                Ekstraudstyr
-                            </div>
-                                <div class="col-span-8 flex justify-end font-bold">
-                                <div class="w-24 text-center">Pris *</div>
+                    <div class="bg-primary p-2 rounded flex justify-between items-center gap-2 font-bold text-white text-xs mt-6">
+
+                        <p class="text-xs text-white font-bold">Ekstraudstyr</p>
+
+                        <div class="flex justify-end gap-4">
+                            <div @class(['w-32' => $isB2b, 'w-16' => ! $isB2b ])>
+                                <p class="text-center">
+                                    Pris
+
+                                    @if($isB2b)
+                                        <div class="grid grid-cols-2 gap-1 text-[9px] font-light text-center">
+                                            <span>ekskl. moms</span>
+                                            <span>inkl. moms</span>
+                                        </div>
+                                    @endif
+                                </p>
                             </div>
                         </div>
                     </div>
+
                     <div class="text-xs text-primary divide-y divide-primary-low border-b border-primary-low">
                         @foreach ($trim->extraEquipmentPackages as $package)
-                            <div class="grid grid-cols-12 gap-2 p-2 items-center">
-                                <div class="col-span-8">
+                            <div class="flex items-center justify-between gap-2 p-2">
+                                <div>
                                     <span class="font-bold">{{ $package->name }}</span>
 
                                     @if(!$package->equipment->isEmpty())
@@ -807,28 +871,49 @@
                                     @endphp
 
                                     @if($requires->isNotEmpty())
-                                        <div class="mt-2 text-xs">
+                                        <div class="mt-2 text-[9px]">
                                             Kræver: {{ $requires->implode(', ') }}
                                         </div>
                                     @endif
 
                                     @if($excludes->isNotEmpty())
-                                        <div class="mt-2 text-xs">
+                                        <div class="mt-2 text-[9px]">
                                             Udelukker: {{ $excludes->implode(', ') }}
                                         </div>
                                     @endif
                                 </div>
-                                <div class="col-span-4 flex justify-end">
-                                    <div class="w-24 text-center"> 
+                                <div class="flex justify-end">
+                                    <div @class(['w-32 text-center' => $isB2b, 'w-16 text-center' => ! $isB2b ])>
                                         @php
-                                        $price = $package->latestPrice?->suggested_retail_price;
-                                    @endphp
+                                            $price = $package->latestPrice?->suggested_retail_price;
+                                            $priceExVat = $package->latestPrice?->retail_price_ex_vat;
+                                        @endphp
 
-                                    {{ $price && $price != 0
-                                        ? Number::format($price, locale: 'da').' kr.'
-                                        : '-' }}
+                                        @if($isB2b)
+                                            <div class="grid grid-cols-2 gap-1 text-center">
+                                                <span class="block">
+                                                    {{ $priceExVat && $priceExVat != 0
+                                                    ? Number::format($priceExVat, locale: 'da').' kr.'
+                                                    : '-' }}
+                                                </span>
+
+                                                <span class="block">
+                                                    {{ $price && $price != 0
+                                                        ? Number::format($price, locale: 'da').' kr.'
+                                                        : '-' }}
+                                                </span>
+                                            </div>
+                                        @else
+
+                                                {{ $price && $price != 0
+                                                ? Number::format($price, locale: 'da').' kr.'
+                                                : '-' }}
+
+                                        @endif
+
                                     </div>
                                 </div>
+
                             </div>
                         @endforeach
                     </div>
