@@ -225,7 +225,7 @@ class Specifications
             ],
 
             [
-                'title' => 'Dimensioner – Varevogn',
+                'title' => 'Varerumsdimensioner',
                 'show_header' => true,
                 'page_break' => true,
                 'b2b_only' => true,
@@ -262,6 +262,15 @@ class Specifications
                         'label' => 'Afstand mellem hjulkasser',
                         'resolve' => fn($col) => $this->spec($col, 'cargo_width_wheel_housing', 'cm'),
                     ],
+                ],
+            ],
+
+            [
+                'title' => 'Chassisdimensioner',
+                'show_header' => false,
+                'page_break' => false,
+                'b2b_only' => true,
+                'rows' => [
                     [
                         'label' => 'Chassislængde',
                         'resolve' => fn($col) => $this->spec($col, 'chassis_length', 'cm'),
@@ -306,7 +315,7 @@ class Specifications
 
     protected function buildMatrix(array $columns, array $sections): array
     {
-        foreach ($sections as &$section) {
+        foreach ($sections as $sectionIndex => &$section) {
 
             foreach ($section['rows'] as $rowIndex => &$row) {
 
@@ -335,6 +344,10 @@ class Specifications
                 if (! $hasAnyValue) {
                     unset($section['rows'][$rowIndex]);
                 }
+            }
+
+            if (empty($section['rows'])) {
+                unset($sections[$sectionIndex]);
             }
         }
 
