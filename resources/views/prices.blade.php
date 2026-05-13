@@ -809,9 +809,9 @@
                                 {{ $category }}
                             </div>
 
-                            <ul class="columns-3 mt-2 pl-4 list-disc list-outside">
+                            <ul class="columns-3 mt-1 pl-4 list-disc list-outside">
                                 @foreach ($filteredEquipments as $equipment)
-                                    <li class="pe-4 text-[10px] text-primary">{{ $equipment->name }}</li>
+                                    <li class="pe-4 text-[9px] text-primary">{{ $equipment->name }}</li>
 
                                     @php
                                         $shownEquipmentCodes[$equipment->code] = true;
@@ -851,7 +851,7 @@
                                     <span class="font-bold">{{ $package->name }}</span>
 
                                     @if(!$package->equipment->isEmpty())
-                                        <ul class="mt-1 pl-4 list-disc list-outside">
+                                        <ul class="mt-1 pl-4 list-disc list-outside mb-2 text-[9px]">
                                             @foreach($package->equipment as $equipment)
                                                 <li>{{ $equipment->name }}</li>
                                             @endforeach
@@ -871,13 +871,13 @@
                                     @endphp
 
                                     @if($requires->isNotEmpty())
-                                        <div class="mt-2 text-[9px]">
+                                        <div class="text-[9px]">
                                             Kræver: {{ $requires->implode(', ') }}
                                         </div>
                                     @endif
 
                                     @if($excludes->isNotEmpty())
-                                        <div class="mt-2 text-[9px]">
+                                        <div class="text-[9px]">
                                             Udelukker: {{ $excludes->implode(', ') }}
                                         </div>
                                     @endif
