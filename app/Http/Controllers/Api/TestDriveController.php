@@ -61,14 +61,6 @@ class TestDriveController extends Controller
             ->firstOrFail();
     }
 
-    public function dealer($id)
-    {
-        return Dealer::query()
-            ->where('tools->test_drive', true)
-            ->where('dealer_guid', $id)
-            ->firstOrFail();
-    }
-
     public function cars()
     {
         return Car::query()
@@ -78,6 +70,14 @@ class TestDriveController extends Controller
             ->with('trims.powertrains.configuration')
             ->orderBy('name')
             ->get();
+    }
+
+    public function dealer($id)
+    {
+        return Dealer::query()
+            ->where('tools->test_drive', true)
+            ->where('dealer_guid', $id)
+            ->firstOrFail();
     }
 
     public function dealers(Request $request, GeocodingService $geocodingService)

@@ -12,7 +12,7 @@ class DealersRequest
     {
         $response = Http::nellemannDynamics()
             ->timeout(300) // 5 minutes
-            ->get("pin_forhandlers?\$filter=_pin_bilmaerke_value eq 'fc6d8b38-52e0-ed11-a7c6-6045bd886baf' and statuscode eq 892210001 and pin_aktivweb eq true and pin_dealerguid ne null&\$expand=pin_pin_forhandlerpostnumre_Forhandler_pin_fo,nel_pin_forhandlerpostnumre_ForhandlerErhverv_pin_forhandler,nel_accountid(\$select=accountnumber)");
+            ->get("pin_forhandlers?\$filter=_pin_bilmaerke_value eq 'fc6d8b38-52e0-ed11-a7c6-6045bd886baf' and statuscode eq 892210001 and pin_aktivweb eq true and nel_accountid ne null and pin_dealerguid ne null&\$expand=pin_pin_forhandlerpostnumre_Forhandler_pin_fo,nel_pin_forhandlerpostnumre_ForhandlerErhverv_pin_forhandler,nel_accountid(\$select=accountnumber)");
 
         if ($response->failed()) {
             throw new \Exception("Dynamics request failed [{$response->status()}]");
