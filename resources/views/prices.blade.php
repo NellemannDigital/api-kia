@@ -227,7 +227,7 @@
             <div class="space-y-2 text-[10px] text-primary mt-4">
                 @php
                     $priceListYear = compliance_text_for(['car' => $car], 'price_list_year');
-                    $priceListDelivery = compliance_text_for(['car' => $car], 'price_list_delivery');
+                    $priceListDelivery = $isB2b ? compliance_text_for(['car' => $car], 'price_list_delivery_van') : compliance_text_for(['car' => $car], 'price_list_delivery');
                     $priceListWltp = compliance_text_for(['car' => $car], 'price_list_wltp');
                 @endphp
 
