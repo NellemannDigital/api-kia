@@ -63,10 +63,20 @@ class TestDriveController extends Controller
 
     public function cars()
     {
+         $ids = request('ids');
+
         return Car::query()
             ->addChannels(['web_channel'])
             ->availableForTestDrive()
             ->where('variant->b2b', false)
+
+            ->when($ids, function ($query) use ($ids) {
+                $query->whereIn(
+                    'web_id',
+                    explode(',', $ids)
+                );
+            })
+
             ->with('trims.powertrains.configuration')
             ->orderBy('name')
             ->get();
@@ -84,7 +94,17 @@ class TestDriveController extends Controller
     {
         $query = Dealer::query()
             ->where('types->b2c', true)
-            ->where('tools->test_drive', true);
+            ->where('tools->test_drive', true)
+
+            ->when(
+                $request->filled('ids'),
+                function ($query) use ($request) {
+                    $query->whereIn(
+                        'dealer_guid',
+                        explode(',', $request->ids)
+                    );
+                }
+            );
 
         $lat = null;
         $lng = null;
