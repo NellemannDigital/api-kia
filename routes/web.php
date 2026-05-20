@@ -11,6 +11,7 @@ use App\Http\Controllers\ComplianceTextTemplateController;
 use App\Http\Controllers\ComplianceTextController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\FeedsController;
 use Illuminate\Support\Facades\Bus;
 
 Route::get('/', function () {
@@ -57,11 +58,24 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-//Route::get('/specifications', [CarController::class, 'specifications'])->name('specifications');
-//Route::get('/specifications-download', [CarController::class, 'specificationsDownload'])->name('specifications-download');
-//Route::get('/price-list-download', [CarController::class, 'priceListDownload'])->name('price-list-download');
-//Route::get('/price-list-accessories', [CarController::class, 'priceListAccessories'])->name('price-list-accessories');
-//Route::get('/price-list-accessories-download', [CarController::class, 'priceListAccessoriesDownload'])->name('price-list-accessories-download');
+Route::prefix('feeds')->group(function () {
+    Route::get('cars', [FeedsController::class, 'cars'])->name('feeds.cars');
+});
+
+Route::get('/dokumenter/{filename}', function ($filename) {
+
+    $path = storage_path('app/private/dokumenter/' . basename($filename));
+
+    abort_unless(file_exists($path), 404);
+
+    return response()->file($path, [
+        'Content-Type' => 'application/pdf',
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma' => 'no-cache',
+        'Expires' => '0',
+        'X-Robots-Tag' => 'noindex, nofollow',
+    ]);
+});
 
 Route::get('/embed/compliance.js', function () {
     return response()->file(public_path('embed/compliance.js'), [

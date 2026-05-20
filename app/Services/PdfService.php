@@ -26,11 +26,11 @@ class PdfService
 
     private function generatePdf(array $data, string $view, string $slugSuffix = '', $landscape = false): string
     {
-        Storage::disk('public')->makeDirectory('dokumenter');
+        Storage::disk('private')->makeDirectory('dokumenter');
 
         $baseSlug = Str::slug($data['car']->name);
         $fileName = "dokumenter/{$baseSlug}{$slugSuffix}.pdf";
-        $fullPath = storage_path('app/public/' . $fileName);
+        $fullPath = storage_path('app/private/' . $fileName);
 
         if (file_exists($fullPath)) {
             unlink($fullPath);
