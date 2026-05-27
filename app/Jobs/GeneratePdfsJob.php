@@ -21,7 +21,7 @@ class GeneratePdfsJob implements ShouldQueue
     {
         $cars = Car::addChannels(['web_channel', 'price_channel'])->get();
 
-        Storage::disk('public')->deleteDirectory('prislister');
+        Storage::disk('private')->deleteDirectory('prislister');
 
         foreach ($cars as $car) {
             Bus::batch([
