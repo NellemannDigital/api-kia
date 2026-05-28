@@ -59,15 +59,18 @@ class ProcessTestDriveActivity implements ShouldQueue
                 'name' => $payload['name'] ?? null,
                 'email' => $payload['email'] ?? null,
                 'phone' => $payload['phone'] ?? null,
+                
                 'address' => '',
                 'customerZipCode' => $payload['zip'] ?? null,
                 'testdrivelocation' => 'Dealer',
-                'userDevice' => '',
-                'pageLocation' => '',
+                
+                'userDevice' => '', X
+                'pageLocation' => '', X
                 
                 'wishes' => '',
                 'autopilot_session_id' => '',
-                'campaign' => '',
+                'campaign' => $payload['campaign'] ?? null,
+                'newsletter' => '', X
 
                 'previouspage' => '',
                 

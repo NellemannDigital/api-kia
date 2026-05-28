@@ -24,23 +24,20 @@ class TestDriveController extends Controller
             'date' => 'required',
             'time' => 'required',
             'payload' => 'required|array',
+            'campaign' => 'nullable|string',
         ]);
 
         $date = Carbon::parse($data['date']);
-
-
-        Log::info('Dates', [
-            'data-date' => $request,
-            'date-carbon' => $date,
-        ]);
-        
 
         $activity = Activity::create([
             'dealer_id' => $data['dealer_id'],
             'type' => $data['type'],
             'date' => $date,
             'time' => $data['payload']['time'],
-            'data' => $data['payload'],
+            'data' => [
+                ...$data['payload'],
+                'campaign' => $data['campaign'] ?? null,
+            ],
             'status' => 'pending',
         ]);
 
