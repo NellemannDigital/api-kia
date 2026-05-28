@@ -30,5 +30,6 @@ export type Channel = {
 
 export type TestDriveChannel = {
     test_start: string,
-    booking_start: string
+    booking_start: string,
+    booking_end: string
   }

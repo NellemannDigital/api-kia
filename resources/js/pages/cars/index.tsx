@@ -56,8 +56,17 @@ const isChannelActive = (
     return fromOk && toOk
   }
 
-  return !(channel as TestDriveChannel).test_start ||
-    now >= new Date((channel as TestDriveChannel).test_start)
+  const testChannel = channel as TestDriveChannel
+
+  const startOk =
+    !testChannel.booking_start ||
+    now >= new Date(testChannel.booking_start)
+
+  const endOk =
+    !testChannel.booking_end ||
+    now <= new Date(testChannel.booking_end)
+
+  return startOk && endOk
 }
 
 // --- Channels ---

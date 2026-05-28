@@ -97,12 +97,14 @@ class ChannelsMapper
         if (!$attributes) return null;
 
         $bookingStart = self::normalizeDate(Arr::get($attributes, 'TestDrivesKia.BookingStart'));
+        $bookingEnd    = self::normalizeDate(Arr::get($attributes, 'TestDrivesKia.BookingEnd'));
         $testStart    = self::normalizeDate(Arr::get($attributes, 'TestDrivesKia.TestStart'));
 
         if (!$bookingStart && !$testStart) return null;
 
         return new TestDriveChannelData(
             booking_start: $bookingStart,
+            booking_end: $bookingEnd,
             test_start: $testStart
         );
     }
