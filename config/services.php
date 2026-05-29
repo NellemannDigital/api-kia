@@ -37,5 +37,10 @@ return [
 
     'power_automate' => [
         'test_drive_webhook_url' => env('POWER_AUTOMATE_TEST_DRIVE_WEBHOOK_URL'),
+        'profile_lookup_url' => env('POWER_AUTOMATE_PROFILE_LOOKUP_URL'),
+    ],
+
+    'meta_feed' => [
+        'currency' => env('META_FEED_CURRENCY', 'DKK'),
     ],
 ];
