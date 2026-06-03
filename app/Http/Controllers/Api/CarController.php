@@ -34,11 +34,15 @@ class CarController extends Controller
      */
     public function show(string $id)
     {
-        $car = Car::with([
-            'trims.powertrains',
-        ])->findOrFail($id);
-
-        return $car;
+        return Car::query()
+            ->addChannels(['web_channel'])
+            ->where('web_id', $id)
+            ->with([
+                'trims.colors.prices',
+                'trims.powertrains',
+                'trims.equipment'
+            ])
+            ->firstOrFail();
     }
 
     /**
