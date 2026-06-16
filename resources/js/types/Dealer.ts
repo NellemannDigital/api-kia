@@ -1,10 +1,11 @@
 export interface Dealer {
   id: number
   name: string
-  street_name: string,
-  street_number: string,
-  zip_code: string,
-  city: string,
+  display_name: string
+  street_name: string
+  street_number: string
+  zip_code: string
+  city: string
   types?: DealerTypes
   tools?: DealerTools
   synced_at: string

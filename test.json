@@ -1,0 +1,335 @@
+{
+    "id": 54,
+    "struct_id": 2221126,
+    "web_id": "4284f62a-6bef-4be2-9549-381342c257d1",
+    "name": "EV3",
+    "year": "2027",
+    "custom_disclaimer": null,
+    "campaign_disclaimer": null,
+    "delivery": {
+        "vehicle_type": "Personbil",
+        "year": "2026",
+        "fee": "4.680",
+        "ev_tax_threshold": "424.000",
+        "tax_fase": "40%",
+        "total_tax_ev": "60%"
+    },
+    "model": {
+        "name": "EV3",
+        "brand": "Kia",
+        "code": "9V",
+        "parent_model_code": "SV"
+    },
+    "variant": {
+        "name": "CUV",
+        "code": "W5",
+        "b2b": false
+    },
+    "primary_image": {
+        "struct_id": "7626",
+        "name": "Kia Ev3 My25 Gls Ag3 Aventurinegreen 17 0000",
+        "url": "https://pim.nellemann.dk/media/2anf1vbr/kia-ev3-my25-gls-ag3-aventurinegreen-17_0000.png",
+        "file_type": "Image",
+        "type": "Image"
+    },
+    "technical_specifications": null,
+    "dimensions": null,
+    "campaign": null,
+    "warranties": {
+        "primary": {
+            "registration_purpose": "Privat",
+            "base_warranty": "7 år / 150.000 km",
+            "unlimited_period": "3 år / ubegrænset km",
+            "hv_battery_warranty": "8 år / 160.000 km",
+            "paint_warranty": "5 år / 150.000 km",
+            "corrosion_warranty": "12 år / ubegrænset km",
+            "vehicle_type": "Personbil"
+        },
+        "secondary": {
+            "registration_purpose": "Kommerciel",
+            "base_warranty": "7 år / 150.000 km",
+            "unlimited_period": null,
+            "hv_battery_warranty": "8 år / 160.000 km",
+            "paint_warranty": "2 år / ubegrænset km",
+            "corrosion_warranty": "3 år / ubegrænset km",
+            "vehicle_type": "Varevogn"
+        }
+    },
+    "synced_at": "2026-05-12 13:06:05",
+    "created_at": "2026-04-22T06:58:25.000000Z",
+    "updated_at": "2026-05-12T11:06:05.000000Z",
+    "from_price": "249999.00",
+    "electric_range": {
+        "min": 435,
+        "max": 604
+    },
+    "consumption_range": {
+        "min": 149,
+        "max": 156
+    },
+    "co2_emission_range": {
+        "min": 0,
+        "max": 0
+    },
+    "ac_charging_time_range": {
+        "min": "05:20",
+        "max": "7:15"
+    },
+    "dc_charging_time_range": {
+        "min": "0:29",
+        "max": "0:31"
+    },
+    "ac_charging_speed_range": {
+        "min": 11,
+        "max": 11
+    },
+    "dc_charging_speed_range": {
+        "min": 101,
+        "max": 128
+    },
+    "owner_tax_range": {
+        "min": 460,
+        "max": 460
+    },
+    "trims": [
+        {
+            "id": 207,
+            "struct_id": 401,
+            "car_id": 54,
+            "name": "Access",
+            "sort_order": 10,
+            "uses_high_tax": 0,
+            "primary_image": {
+                "struct_id": "7616",
+                "name": "Kia Ev3 My25 Gtl Abp Aurorablackpearl 19 0000",
+                "url": "https://pim.nellemann.dk/media/wanlrzrj/kia-ev3-my25-gtl-abp-aurorablackpearl-19_0000.png",
+                "file_type": "Image",
+                "type": "Image"
+            },
+            "interior": {
+                "image": {
+                    "struct_id": "11698",
+                    "name": "EV3 BL MY25 Interiortrim Grey2tone Cloth Earth Cmyk",
+                    "url": "https://pim.nellemann.dk/media/rzhara13/ev3_bl_my25_interiortrim_grey2tone_cloth_earth_cmyk.png",
+                    "file_type": "Image",
+                    "type": "Image"
+                },
+                "name": "Grey Two-tone",
+                "code": "ELG"
+            },
+            "technical_specifications": {
+                "length": 4300,
+                "width": 1850,
+                "height": 1560,
+                "wheelbase": 2680,
+                "minimum_groundclearance": 140,
+                "track_width": null,
+                "front_overhang": null,
+                "rear_overhang": null,
+                "wading_depth": null,
+                "entry_angle": null,
+                "exit_angle": null,
+                "cargo_bed_length": null,
+                "cargo_bed_width": null,
+                "cargo_bed_height": null,
+                "cargo_bed_area": null,
+                "maximum_load_capacity": null
+            },
+            "campaign": null,
+            "channels": {
+                "master_channel": {
+                    "open_from": "2025-04-30",
+                    "open_to": null
+                }
+            },
+            "leasing_return_fee": null,
+            "accessory_mapping": [
+                "3b64535c-e828-5399-83b5-9c3b8a606b32"
+            ],
+            "created_at": "2026-04-22T07:45:12.000000Z",
+            "updated_at": "2026-05-12T11:58:25.000000Z",
+            "electric_range": {
+                "min": 436,
+                "max": 604
+            },
+            "consumption_range": {
+                "min": 149,
+                "max": 149
+            },
+            "co2_emission_range": {
+                "min": 0,
+                "max": 0
+            },
+            "ac_charging_time_range": {
+                "min": "05:20",
+                "max": "07:15"
+            },
+            "dc_charging_time_range": {
+                "min": "0:29",
+                "max": "0:31"
+            },
+            "ac_charging_speed_range": {
+                "min": 11,
+                "max": 11
+            },
+            "dc_charging_speed_range": {
+                "min": 101,
+                "max": 128
+            },
+            "owner_tax_range": {
+                "min": 460,
+                "max": 460
+            },
+            "powertrains": [
+                {
+                    "id": 363,
+                    "configuration_id": 2230862,
+                    "trim_id": 207,
+                    "ocn": "G1H1",
+                    "engine": {
+                        "name": "Standard Range",
+                        "code": "ZHZ7",
+                        "drive": "FWD",
+                        "horse_power": 204,
+                        "fuel_type": "Elektrisk",
+                        "amount_of_cylinders": null,
+                        "amount_of_valves": null,
+                        "volume": null,
+                        "horsepower_rev_range": "6000-9000",
+                        "service_interval": {
+                            "months": 24,
+                            "kilometers": 30000,
+                            "oil_change_months": null,
+                            "oil_change_kilometers": null
+                        }
+                    },
+                    "transmission": {
+                        "name": "Reduktionsgear",
+                        "code": "Z",
+                        "charge_plug_type": "Type 2 (AC), CCS Combo (DC)",
+                        "number_of_gears": 1
+                    },
+                    "leasing_active": 0,
+                    "technical_specifications": {
+                        "torque": 283,
+                        "torque_rev_range": "5000",
+                        "zero_to_hundred_time": 7.5,
+                        "topspeed": 170,
+                        "net_weight": 1725,
+                        "driving_ready_weight": 1800,
+                        "maximum_total_weight": 2270,
+                        "usefull_load": null,
+                        "dynamic_roof_load": 75,
+                        "static_roof_load": 400,
+                        "towing_capacity_braked": 500,
+                        "towing_capacity_unbraked": 500,
+                        "trunk_volume": "460/1251",
+                        "frunk_volume": 25,
+                        "battery_type": "Lithium-Ion Polymer",
+                        "battery_size": 58.3,
+                        "battery_voltage": 369,
+                        "battery_weight": 375,
+                        "ac_charging_speed": 11,
+                        "ac_charging_percentage": "10-100",
+                        "ac_charging_time": "05:20",
+                        "dc_charging_speed": 101,
+                        "dc_charging_percentage": "10-80",
+                        "dc_charging_time": "0:29"
+                    },
+                    "created_at": "2026-04-22T07:45:12.000000Z",
+                    "updated_at": "2026-05-12T11:58:25.000000Z",
+                    "prices": [
+                        {
+                            "id": 640,
+                            "powertrain_id": 363,
+                            "dealer_net_price": "191468.00",
+                            "dealer_profit": "4787.00",
+                            "minimum_dealer_profit": "0.00",
+                            "campaign_dealer_profit": null,
+                            "suggested_retail_price": "249999.00",
+                            "campaign_retail_price": null,
+                            "van_conversion_price": null,
+                            "van_price_vat": null,
+                            "van_price": null,
+                            "fleet_net_price": null,
+                            "valid_from": "2026-02-25",
+                            "valid_to": null,
+                            "created_at": "2026-04-22T07:45:12.000000Z",
+                            "updated_at": "2026-04-22T07:45:12.000000Z"
+                        }
+                    ],
+                    "configuration": {
+                        "id": 820,
+                        "struct_id": 2230862,
+                        "car_id": 54,
+                        "trim_id": 207,
+                        "powertrain_id": 363,
+                        "model_code": "9VW5ZHZ7Z",
+                        "grade": "G",
+                        "ocn": "G1H1",
+                        "is_standard_configuration": 1,
+                        "model": {
+                            "name": "EV3",
+                            "brand": "Kia",
+                            "code": "9V",
+                            "parent_model_code": "SV"
+                        },
+                        "year": "2027",
+                        "variant": {
+                            "name": "CUV",
+                            "code": "W5",
+                            "b2b": false
+                        },
+                        "trim": "Access",
+                        "engine": {
+                            "name": "Standard Range",
+                            "code": "ZHZ7",
+                            "horse_power": 204,
+                            "fuel_type": "Elektrisk",
+                            "amount_of_cylinders": null,
+                            "amount_of_valves": null,
+                            "volume": null,
+                            "horsepower_rev_range": "6000-9000",
+                            "service_interval": {
+                                "months": 24,
+                                "kilometers": 30000,
+                                "oil_change_months": null,
+                                "oil_change_kilometers": null
+                            }
+                        },
+                        "transmission": {
+                            "name": "Reduktionsgear",
+                            "code": "Z",
+                            "charge_plug_type": "Type 2 (AC), CCS Combo (DC)",
+                            "number_of_gears": 1
+                        },
+                        "technical_specifications": {
+                            "pure_electric_range": 436,
+                            "co2_emission": 0,
+                            "kilometers_per_litre": null,
+                            "consumption": {
+                                "number": 149,
+                                "unit": "Whkm"
+                            },
+                            "pure_electric_consumption": null,
+                            "owner_tax": 460,
+                            "energy_label": null,
+                            "sound_level_stationary_db": null,
+                            "sound_level_stationary_rpm": null,
+                            "sound_level_drive_by": null,
+                            "battery_size": null,
+                            "total_horsepower": null,
+                            "has_coc_data_from_dataverse": false
+                        },
+                        "model_change_code": "",
+                        "original_model_change_code": "W5",
+                        "referenced_foundation_car_id": "2221126",
+                        "referenced_foundation_trim_id": "401",
+                        "created_at": "2026-05-07T09:28:59.000000Z",
+                        "updated_at": "2026-05-07T09:28:59.000000Z"
+                    }
+                }
+            ]
+        }
+    ]
+}

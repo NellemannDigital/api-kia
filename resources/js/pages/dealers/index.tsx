@@ -68,7 +68,7 @@ export default function Index({ dealers }: Props) {
             <TableBody>
               {dealers.map(dealer => (
                 <TableRow key={dealer.id}>
-                  <TableCell className="px-4">{dealer.name}</TableCell>
+                  <TableCell className="px-4">{dealer.display_name}</TableCell>
 
                   <TableCell>
                     {dealer.street_name} {dealer.street_number} <br />

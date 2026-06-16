@@ -46,7 +46,7 @@ class TrimMapper
             $carStructId = Arr::get($variantData, 'ProductId', '');
             $sortOrder = is_numeric($value = Arr::get($attributesData, 'MarketingSortOrderKia')) ? (int) $value : null;
             $name = Arr::get($attributesData, 'KiaEquipmentVariant', '');
-            $leasingReturnFee = Arr::get($attributesData, 'LeasingReturnFee', '');
+            $leasingReturnFee = Arr::get($attributesData, 'LeasingReturnFee', null);
             $usesHighTax = Arr::get($attributesData, 'LegalText', '') ?? false;
 
             $interior = self::mapInterior($attributesData, $getAsset);
@@ -509,12 +509,15 @@ class TrimMapper
                 $ocnChangeCode = Arr::get($item, 'OCNChangeCode');
 
                 $turntableImagesData = Arr::get($item, 'Image');
+
+                $turntableImagesData = is_string($turntableImagesData)
+                ? [$turntableImagesData]
+                : $turntableImagesData;
+                
                 $turntableImages = self::mapColorTurntableImages($turntableImagesData, $getAssets);
 
                 $pricesData = Arr::get($item, 'Prices');
                 $prices = self::mapColorPrices($pricesData);
-
-                
 
                 if (!$code || !$primaryColor) {
                     return null;

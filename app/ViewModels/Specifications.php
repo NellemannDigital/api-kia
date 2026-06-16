@@ -141,7 +141,7 @@ class Specifications
                     ],
                     [
                         'label' => 'Batteritype',
-                        'resolve' => fn($col) => $this->spec($col, 'battery_type'),
+                        'resolve' => fn($col) => data_get($col, 'powertrain.technical_specifications.battery_type'),
                     ],
                     [
                         'label' => 'Batterispænding',

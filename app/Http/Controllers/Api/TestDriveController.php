@@ -25,6 +25,9 @@ class TestDriveController extends Controller
             'time' => 'required',
             'payload' => 'required|array',
             'campaign' => 'nullable|string',
+            'newsletter' => 'boolean',
+            'page_location' => 'nullable|string',
+            'user_device' => 'nullable|string',
         ]);
 
         $date = Carbon::parse($data['date']);
@@ -37,6 +40,9 @@ class TestDriveController extends Controller
             'data' => [
                 ...$data['payload'],
                 'campaign' => $data['campaign'] ?? null,
+                'newsletter' => $data['newsletter'] ?? null,
+                'page_location' => $data['page_location'] ?? null,
+                'user_device' => $data['user_device'] ?? null,
             ],
             'status' => 'pending',
         ]);
