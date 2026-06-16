@@ -140,16 +140,16 @@ class Specifications
                         'resolve' => fn($col) => $this->spec($col, 'battery_size', 'kWh', 1),
                     ],
                     [
-                        'label' => 'Batteritype',
-                        'resolve' => fn($col) => data_get($col, 'powertrain.technical_specifications.battery_type'),
-                    ],
-                    [
                         'label' => 'Batterispænding',
                         'resolve' => fn($col) => $this->spec($col, 'battery_voltage', 'V'),
                     ],
                     [
                         'label' => 'Batterivægt',
                         'resolve' => fn($col) => $this->spec($col, 'battery_weight', 'kg', 1),
+                    ],
+                    [
+                        'label' => 'Batteritype',
+                        'resolve' => fn($col) => data_get($col, 'powertrain.technical_specifications.battery_type'),
                     ],
                 ],
             ],
