@@ -313,7 +313,7 @@ class PdfService
                     'price'     => $option->latestPrice?->$priceField,
                     'campaignPrice'     => $option->latestPrice?->$campaignPrice,
                     'priceExVat' => $option->latestPrice?->$priceExVatField,
-
+                    'disclaimer' => $option->disclaimer,
                 ];
             });
         });
@@ -339,6 +339,7 @@ class PdfService
                         'price' => $row['price'] ?? null,
                         'priceExVat' => $row['priceExVat'] ?? null,
                         'campaignPrice' => $row['campaignPrice'] ?? null,
+                        'disclaimer' => $row['disclaimer'] ?? null,
                     ];
 
                     if (empty($packageCodes)) {

@@ -520,6 +520,24 @@
 
             <div class="text-xs text-primary divide-y divide-primary-low border-b border-primary-low">
                 @foreach ($extraEquipmentPackageMatrix as $row)
+
+                @php
+                    $disclaimers = collect($trims)
+                        ->map(function ($trim) use ($row) {
+                            $text = $row['prices'][$trim->id]['disclaimer'] ?? null;
+
+                            if (! $text) {
+                                return null;
+                            }
+
+                            return [
+                                'trim' => $trim,
+                                'text' => $text,
+                            ];
+                        })
+                        ->filter();
+                @endphp
+
                     <div class="flex justify-between p-2 items-center">
 
                         <div class="space-y-1">
@@ -544,11 +562,26 @@
                                 @endif
 
                             @endif
+
+                            @if($disclaimers->isNotEmpty())
+                                <div class="text-[9px] text-gray-500">
+                                    @foreach($disclaimers as $disclaimer)
+                                        <div>
+                                            * {{ $disclaimer['trim']->name }}: {{ $disclaimer['text'] }}
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
                         </div>
 
                         <div class="gap-4 flex justify-end items-center">
                             @foreach ($trims as $trim)
                                 <div @class(['w-32 text-center' => $isB2b, 'w-16 text-center' => ! $isB2b ])>
+                                    
+                                    @php
+                                        $hasDisclaimer = filled($row['prices'][$trim->id]['disclaimer'] ?? null);
+                                    @endphp
 
                                     @if($isB2b)
                                        <div class="grid grid-cols-2 gap-1 text-center">
@@ -556,12 +589,20 @@
                                                 {{ $row['prices'][$trim->id]['priceExVat']
                                                 ? Number::format($row['prices'][$trim->id]['priceExVat'], locale: 'da').' kr.'
                                                 : '-' }}
+
+                                                @if($hasDisclaimer)
+                                                    <sup>*</sup>
+                                                @endif
                                             </span>
 
                                             <span class="block">
                                                {{ $row['prices'][$trim->id]['price']
                                                 ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
                                                 : '-' }}
+
+                                                @if($hasDisclaimer)
+                                                    <sup>*</sup>
+                                                @endif
                                             </span>
                                         </div>
                                     @else
@@ -574,6 +615,10 @@
                                                 {{ $row['prices'][$trim->id]['price']
                                                     ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
                                                     : '-' }}
+
+                                                    @if($hasDisclaimer)
+                                                        <sup>*</sup>
+                                                    @endif
                                             </span>
                                         @else
 
@@ -581,6 +626,9 @@
                                                 ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
                                                 : '-' }}
 
+                                                @if($hasDisclaimer)
+                                                    <sup>*</sup>
+                                                @endif
                                         @endif
 
                                     @endif
@@ -924,6 +972,12 @@
                                     @if($excludes->isNotEmpty())
                                         <div class="text-[9px]">
                                             Udelukker: {{ $excludes->implode(', ') }}
+                                        </div>
+                                    @endif
+
+                                    @if($package->disclaimer)
+                                        <div class="text-[9px]">
+                                            {{ $package->disclaimer }}
                                         </div>
                                     @endif
                                 </div>

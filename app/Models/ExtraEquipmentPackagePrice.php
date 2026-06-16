@@ -26,7 +26,7 @@ class ExtraEquipmentPackagePrice extends Model
             $today = Carbon::today()->toDateString();
 
             $builder->where(function ($q) use ($today) {
-                $q->whereNull('valid_from')->orWhere('valid_from', '<=', $today);
+                $q->whereNotNull('valid_from')->orWhere('valid_from', '<=', $today);
             })->where(function ($q) use ($today) {
                 $q->whereNull('valid_to')->orWhere('valid_to', '>=', $today);
             });

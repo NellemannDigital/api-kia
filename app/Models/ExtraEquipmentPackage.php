@@ -34,7 +34,8 @@ class ExtraEquipmentPackage extends Model
         'requires',
         'excludes',
         'excludes_standard_equipment',
-        'engine_required'
+        'engine_required',
+        'disclaimer'
     ];
 
     protected $casts = [

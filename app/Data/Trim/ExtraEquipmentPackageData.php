@@ -26,6 +26,7 @@ class ExtraEquipmentPackageData extends Data
         public string $code,
         public string $name,
         public ?string $category,
+        public ?string $disclaimer,
         public ?AssetData $image = null,
         public ?InteriorOverrideToData $interior_override_to = null,
         public ?ModelChangeCodeData $model_change_code = null,

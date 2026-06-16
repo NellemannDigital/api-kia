@@ -253,6 +253,8 @@ class TrimMapper
                 $code = Arr::get($item, 'Package.Code');
                 $name = Arr::get($item, 'Package.Name');
                 $category = Arr::get($item, 'Package.Category.Name', '');
+
+                $disclaimer = Arr::get($item, 'Disclaimer', '');
                 
                 $imageId = Arr::get($item, 'Image');
                 $image = $imageId ? $getAsset($imageId) : null;
@@ -288,6 +290,7 @@ class TrimMapper
                     code: $code,
                     name: $name,
                     category: $category,
+                    disclaimer: $disclaimer,
                     image: $image,
                     interior_override_to: $interiorOverrideTo,
                     model_change_code: $modelChangeCode,
