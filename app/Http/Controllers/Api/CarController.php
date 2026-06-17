@@ -40,7 +40,8 @@ class CarController extends Controller
             ->with([
                 'trims.colors.prices',
                 'trims.powertrains',
-                'trims.equipment'
+                'trims.equipment',
+                'trims.accessories'
             ])
             ->firstOrFail();
     }
