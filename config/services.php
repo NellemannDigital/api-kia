@@ -42,5 +42,12 @@ return [
 
     'meta_feed' => [
         'currency' => env('META_FEED_CURRENCY', 'DKK'),
+        'location' => [
+            'street_address' => env('META_FEED_STREET_ADDRESS', 'Trianglen 4'),
+            'city' => env('META_FEED_CITY', 'Kolding'),
+            'region' => env('META_FEED_REGION', 'Syddanmark'),
+            'country' => env('META_FEED_COUNTRY', 'DK'),
+            'postal_code' => env('META_FEED_POSTAL_CODE', '6000'),
+        ],
     ],
 ];

@@ -12,6 +12,7 @@ class MetaCarsFeed
     public function __construct(
         protected Collection $cars,
         protected string $currency = 'DKK',
+        protected array $location = [],
     ) {}
 
     public function build(): Collection
@@ -30,6 +31,7 @@ class MetaCarsFeed
         $trimName = $this->clean($trim->name);
         $powertrainName = $this->clean(data_get($powertrain, 'engine.name'));
         $price = $this->price($powertrain);
+        $formattedPrice = $price ? number_format($price, 2, '.', '') : null;
         $title = $this->title($make, $model, $trimName, $powertrainName);
         $id = $this->listingId($powertrain);
 
@@ -52,7 +54,8 @@ class MetaCarsFeed
             'body_style' => $this->bodyStyle($car),
             'drivetrain' => $this->clean(data_get($powertrain, 'engine.drive')),
             'vin' => null,
-            'price' => $price ? number_format($price, 2, '.', '') : null,
+            'price' => $formattedPrice ? "{$formattedPrice} {$this->currency}" : null,
+            'price_amount' => $formattedPrice,
             'currency' => $this->currency,
             'exterior_color' => $this->exteriorColor($trim),
             'interior_color' => $this->interiorColor($trim),
@@ -64,6 +67,11 @@ class MetaCarsFeed
             'brand' => $make,
             'link' => $this->url($car),
             'image_link' => $this->imageUrl($car, $trim),
+            'street_address' => $this->locationValue('street_address'),
+            'city' => $this->locationValue('city'),
+            'region' => $this->locationValue('region'),
+            'country' => $this->locationValue('country'),
+            'postal_code' => $this->locationValue('postal_code'),
         ];
     }
 
@@ -130,11 +138,26 @@ class MetaCarsFeed
 
     protected function bodyStyle(Car $car): ?string
     {
-        return collect($car->categories ?? [])
+        $categories = collect($car->categories ?? [])
             ->map(fn ($category) => data_get($category, 'name') ?? data_get($category, 'Name') ?? (is_string($category) ? $category : null))
             ->map(fn ($category) => $this->clean($category))
-            ->filter()
-            ->first();
+            ->filter();
+
+        if ($categories->contains('SUV')) {
+            return 'SUV';
+        }
+
+        $modelName = strtolower((string) $car->name);
+
+        return match (true) {
+            str_contains($modelName, 'pv5') => 'VAN',
+            str_contains($modelName, 'fastback') => 'SEDAN',
+            str_contains($modelName, 'ev6') => 'CROSSOVER',
+            str_contains($modelName, 'ev4') => 'HATCHBACK',
+            $categories->contains('Bybiler') => 'HATCHBACK',
+            $categories->contains('Familiebiler') => 'HATCHBACK',
+            default => 'OTHER',
+        };
     }
 
     protected function exteriorColor(Trim $trim): ?string
@@ -149,6 +172,11 @@ class MetaCarsFeed
     protected function interiorColor(Trim $trim): ?string
     {
         return $this->clean(data_get($trim, 'interior.name'));
+    }
+
+    protected function locationValue(string $key): ?string
+    {
+        return $this->clean($this->location[$key] ?? null);
     }
 
     protected function clean(mixed $value): ?string

@@ -12,6 +12,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 it('renders cars as a Meta vehicle XML feed', function () {
+    config()->set('services.meta_feed.location', [
+        'street_address' => 'Trianglen 4',
+        'city' => 'Kolding',
+        'region' => 'Syddanmark',
+        'country' => 'DK',
+        'postal_code' => '6000',
+    ]);
+
     $openChannels = [
         'master_channel' => ['open_from' => now()->subDay()->toDateString(), 'open_to' => null],
         'web_channel' => ['open_from' => now()->subDay()->toDateString(), 'open_to' => null],
@@ -119,6 +127,11 @@ it('renders cars as a Meta vehicle XML feed', function () {
     $createPowertrain($prestige, 'Standard Range', 791, 349900, 'H8W5K5G1U', 'P', 'E1ZE');
     $createPowertrain($prestige, 'Long Range', 792, 379900, 'H8W5K5G1U', 'P', 'E2ZE');
 
+    expect(str_ends_with(route('feeds.cars'), '/feeds/cars.xml'))->toBeTrue();
+
+    $this->get(route('feeds.cars.legacy'))
+        ->assertRedirect(route('feeds.cars'));
+
     $response = $this->get(route('feeds.cars'));
 
     $response->assertOk();
@@ -146,10 +159,16 @@ it('renders cars as a Meta vehicle XML feed', function () {
         ->and($vehicleIds)->toContain('H8W5K5G1U-P-E2ZE')
         ->and((string) $accessStandardRange->id)->toBe('H8W5K5G1U-E-E1ZE')
         ->and((string) $accessStandardRange->vehicle_id)->toBe('H8W5K5G1U-E-E1ZE')
-        ->and((string) $accessStandardRange->price)->toBe('299900.00')
+        ->and((string) $accessStandardRange->description)->toBe('Kia EV3 Access Standard Range')
+        ->and((string) $accessStandardRange->price)->toBe('299900.00 DKK')
         ->and((string) $accessStandardRange->currency)->toBe('DKK')
         ->and((string) $accessStandardRange->image->url)->toBe('https://example.com/images/ev3.jpg')
         ->and((string) $accessStandardRange->trim)->toBe('Access')
+        ->and((string) $accessStandardRange->body_style)->toBe('SUV')
+        ->and((string) $accessStandardRange->street_address)->toBe('Trianglen 4')
+        ->and((string) $accessStandardRange->city)->toBe('Kolding')
+        ->and((string) $accessStandardRange->region)->toBe('Syddanmark')
+        ->and((string) $accessStandardRange->country)->toBe('DK')
         ->and((string) $accessStandardRange->mileage->unit)->toBe('KM')
         ->and((string) $accessStandardRange->state_of_vehicle)->toBe('new');
 });

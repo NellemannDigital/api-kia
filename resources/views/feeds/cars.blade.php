@@ -9,6 +9,7 @@
         <id>{{ $listing['id'] }}</id>
         <vehicle_id>{{ $listing['vehicle_id'] }}</vehicle_id>
         <title>{{ $listing['title'] }}</title>
+        <description>{{ $listing['description'] }}</description>
 
         @if(filled($listing['url']))
             <url>{{ $listing['url'] }}</url>
@@ -44,10 +45,6 @@
 
         @if(filled($listing['transmission']))
             <transmission>{{ $listing['transmission'] }}</transmission>
-        @endif
-
-        @if(filled($listing['body_style']))
-            <body_style>{{ $listing['body_style'] }}</body_style>
         @endif
 
         @if(filled($listing['drivetrain']))

@@ -25,7 +25,8 @@ class FeedsController extends Controller
             ->view('feeds.cars', [
                 'listings' => (new MetaCarsFeed(
                     $cars,
-                    config('services.meta_feed.currency', 'DKK')
+                    config('services.meta_feed.currency', 'DKK'),
+                    config('services.meta_feed.location', [])
                 ))->build(),
                 'generatedAt' => now(),
             ])

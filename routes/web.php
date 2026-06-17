@@ -59,7 +59,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::prefix('feeds')->group(function () {
-    Route::get('cars', [FeedsController::class, 'cars'])->name('feeds.cars');
+    Route::get('cars.xml', [FeedsController::class, 'cars'])->name('feeds.cars');
+    Route::get('cars', fn () => redirect()->route('feeds.cars'))->name('feeds.cars.legacy');
 });
 
 Route::get('/dokumenter/{filename}', function ($filename) {
