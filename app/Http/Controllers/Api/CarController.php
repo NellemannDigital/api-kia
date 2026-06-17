@@ -41,7 +41,7 @@ class CarController extends Controller
                 'trims.colors.prices',
                 'trims.powertrains',
                 'trims.equipment',
-                'trims.accessories'
+                'trims.accessories.prices'
             ])
             ->firstOrFail();
     }
