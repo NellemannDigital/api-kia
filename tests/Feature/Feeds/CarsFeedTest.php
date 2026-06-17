@@ -135,20 +135,26 @@ it('renders cars as a Meta vehicle XML feed', function () {
     $response = $this->get(route('feeds.cars'));
 
     $response->assertOk();
-    expect($response->headers->get('Content-Type'))->toContain('application/xml');
+    expect($response->headers->get('Content-Type'))->toContain('application/rss+xml');
 
     $xml = simplexml_load_string($response->getContent());
 
     $listings = [];
 
-    foreach ($xml->listing as $listing) {
+    foreach ($xml->channel->item as $listing) {
         $listings[] = $listing;
     }
 
-    $titles = array_map(fn ($listing) => (string) $listing->title, $listings);
-    $vehicleIds = array_map(fn ($listing) => (string) $listing->vehicle_id, $listings);
+    expect((string) $xml->getName())->toBe('rss')
+        ->and((string) $xml['version'])->toBe('2.0')
+        ->and($xml->getDocNamespaces(true))->toHaveKey('g');
+
+    $field = fn ($listing, string $name) => (string) $listing->children('g', true)->{$name};
+
+    $titles = array_map(fn ($listing) => $field($listing, 'title'), $listings);
+    $vehicleIds = array_map(fn ($listing) => $field($listing, 'vehicle_id'), $listings);
     $accessStandardRange = collect($listings)
-        ->first(fn ($listing) => (string) $listing->title === 'Kia EV3 Access Standard Range');
+        ->first(fn ($listing) => $field($listing, 'title') === 'Kia EV3 Access Standard Range');
 
     expect($listings)->toHaveCount(4)
         ->and($titles)->toContain('Kia EV3 Access Standard Range')
@@ -157,18 +163,19 @@ it('renders cars as a Meta vehicle XML feed', function () {
         ->and($titles)->toContain('Kia EV3 Prestige Long Range')
         ->and($vehicleIds)->toContain('H8W5K5G1U-E-E1ZE')
         ->and($vehicleIds)->toContain('H8W5K5G1U-P-E2ZE')
-        ->and((string) $accessStandardRange->id)->toBe('H8W5K5G1U-E-E1ZE')
-        ->and((string) $accessStandardRange->vehicle_id)->toBe('H8W5K5G1U-E-E1ZE')
-        ->and((string) $accessStandardRange->description)->toBe('Kia EV3 Access Standard Range')
-        ->and((string) $accessStandardRange->price)->toBe('299900.00 DKK')
-        ->and((string) $accessStandardRange->currency)->toBe('DKK')
-        ->and((string) $accessStandardRange->image->url)->toBe('https://example.com/images/ev3.jpg')
-        ->and((string) $accessStandardRange->trim)->toBe('Access')
-        ->and((string) $accessStandardRange->body_style)->toBe('SUV')
-        ->and((string) $accessStandardRange->street_address)->toBe('Trianglen 4')
-        ->and((string) $accessStandardRange->city)->toBe('Kolding')
-        ->and((string) $accessStandardRange->region)->toBe('Syddanmark')
-        ->and((string) $accessStandardRange->country)->toBe('DK')
-        ->and((string) $accessStandardRange->mileage->unit)->toBe('KM')
-        ->and((string) $accessStandardRange->state_of_vehicle)->toBe('new');
+        ->and($field($accessStandardRange, 'id'))->toBe('H8W5K5G1U-E-E1ZE')
+        ->and($field($accessStandardRange, 'vehicle_id'))->toBe('H8W5K5G1U-E-E1ZE')
+        ->and($field($accessStandardRange, 'description'))->toBe('Kia EV3 Access Standard Range')
+        ->and($field($accessStandardRange, 'price'))->toBe('299900.00 DKK')
+        ->and($field($accessStandardRange, 'image_link'))->toBe('https://example.com/images/ev3.jpg')
+        ->and($field($accessStandardRange, 'trim'))->toBe('Access')
+        ->and($field($accessStandardRange, 'body_style'))->toBe('SUV')
+        ->and($field($accessStandardRange, 'fuel_type'))->toBe('ELECTRIC')
+        ->and($field($accessStandardRange, 'transmission'))->toBe('AUTOMATIC')
+        ->and($field($accessStandardRange, 'street_address'))->toBe('Trianglen 4')
+        ->and($field($accessStandardRange, 'city'))->toBe('Kolding')
+        ->and($field($accessStandardRange, 'region'))->toBe('Syddanmark')
+        ->and($field($accessStandardRange, 'country'))->toBe('DK')
+        ->and((string) $accessStandardRange->children('g', true)->mileage->children('g', true)->unit)->toBe('KM')
+        ->and($field($accessStandardRange, 'state_of_vehicle'))->toBe('new');
 });

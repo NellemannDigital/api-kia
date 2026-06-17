@@ -1,75 +1,81 @@
 {!! '<?xml version="1.0" encoding="UTF-8"?>' !!}
-<listings>
-    <title>Kia cars feed</title>
-    <updated>{{ $generatedAt->toAtomString() }}</updated>
-    <link>{{ route('feeds.cars') }}</link>
+<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
+    <channel>
+        <title>Kia cars feed</title>
+        <link>{{ route('feeds.cars') }}</link>
+        <description>Kia cars feed</description>
+        <lastBuildDate>{{ $generatedAt->toRssString() }}</lastBuildDate>
 
 @foreach($listings as $listing)
-    <listing>
-        <id>{{ $listing['id'] }}</id>
-        <vehicle_id>{{ $listing['vehicle_id'] }}</vehicle_id>
-        <title>{{ $listing['title'] }}</title>
-        <description>{{ $listing['description'] }}</description>
+        <item>
+            <g:id>{{ $listing['id'] }}</g:id>
+            <g:vehicle_id>{{ $listing['vehicle_id'] }}</g:vehicle_id>
+            <g:title>{{ $listing['title'] }}</g:title>
+            <g:description>{{ $listing['description'] }}</g:description>
 
-        @if(filled($listing['url']))
-            <url>{{ $listing['url'] }}</url>
-            <link>{{ $listing['link'] }}</link>
-        @endif
+            @if(filled($listing['url']))
+                <g:link>{{ $listing['link'] }}</g:link>
+                <link>{{ $listing['link'] }}</link>
+            @endif
 
-        <make>{{ $listing['make'] }}</make>
+            <g:make>{{ $listing['make'] }}</g:make>
+            <g:brand>{{ $listing['brand'] }}</g:brand>
 
-        @if(filled($listing['model']))
-            <model>{{ $listing['model'] }}</model>
-        @endif
+            @if(filled($listing['model']))
+                <g:model>{{ $listing['model'] }}</g:model>
+            @endif
 
-        @if(filled($listing['trim']))
-            <trim>{{ $listing['trim'] }}</trim>
-        @endif
+            @if(filled($listing['trim']))
+                <g:trim>{{ $listing['trim'] }}</g:trim>
+            @endif
 
-        @if(filled($listing['year']))
-            <year>{{ $listing['year'] }}</year>
-        @endif
+            @if(filled($listing['year']))
+                <g:year>{{ $listing['year'] }}</g:year>
+            @endif
 
-        <mileage>
-            <value>{{ $listing['mileage']['value'] }}</value>
-            <unit>{{ $listing['mileage']['unit'] }}</unit>
-        </mileage>
+            <g:mileage>
+                <g:value>{{ $listing['mileage']['value'] }}</g:value>
+                <g:unit>{{ $listing['mileage']['unit'] }}</g:unit>
+            </g:mileage>
 
-        @if(filled($listing['image_url']))
-            <image>
-                <url>{{ $listing['image_url'] }}</url>
-                <tag>{{ $listing['title'] }}</tag>
-            </image>
-            <image_link>{{ $listing['image_link'] }}</image_link>
-        @endif
+            @if(filled($listing['image_url']))
+                <g:image_link>{{ $listing['image_link'] }}</g:image_link>
+            @endif
 
-        @if(filled($listing['transmission']))
-            <transmission>{{ $listing['transmission'] }}</transmission>
-        @endif
+            @if(filled($listing['transmission']))
+                <g:transmission>{{ $listing['transmission'] }}</g:transmission>
+            @endif
 
-        @if(filled($listing['drivetrain']))
-            <drivetrain>{{ $listing['drivetrain'] }}</drivetrain>
-        @endif
+            @if(filled($listing['drivetrain']))
+                <g:drivetrain>{{ $listing['drivetrain'] }}</g:drivetrain>
+            @endif
 
-        @if(filled($listing['vin']))
-            <vin>{{ $listing['vin'] }}</vin>
-        @endif
+            @if(filled($listing['vin']))
+                <g:vin>{{ $listing['vin'] }}</g:vin>
+            @endif
 
-        @if(filled($listing['price']))
-            <price>{{ $listing['price'] }}</price>
-            <currency>{{ $listing['currency'] }}</currency>
-        @endif
+            @if(filled($listing['price']))
+                <g:price>{{ $listing['price'] }}</g:price>
+            @endif
 
-        <state_of_vehicle>{{ $listing['state_of_vehicle'] }}</state_of_vehicle>
+            @if(filled($listing['exterior_color']))
+                <g:exterior_color>{{ $listing['exterior_color'] }}</g:exterior_color>
+            @endif
 
-        @if(filled($listing['fuel_type']))
-            <fuel_type>{{ $listing['fuel_type'] }}</fuel_type>
-        @endif
+            @if(filled($listing['interior_color']))
+                <g:interior_color>{{ $listing['interior_color'] }}</g:interior_color>
+            @endif
 
-        <condition>{{ $listing['condition'] }}</condition>
-        <availability>{{ $listing['availability'] }}</availability>
-        <vehicle_type>{{ $listing['vehicle_type'] }}</vehicle_type>
-        <brand>{{ $listing['brand'] }}</brand>
-    </listing>
+            <g:state_of_vehicle>{{ $listing['state_of_vehicle'] }}</g:state_of_vehicle>
+
+            @if(filled($listing['fuel_type']))
+                <g:fuel_type>{{ $listing['fuel_type'] }}</g:fuel_type>
+            @endif
+
+            <g:condition>{{ $listing['condition'] }}</g:condition>
+            <g:availability>{{ $listing['availability'] }}</g:availability>
+            <g:vehicle_type>{{ $listing['vehicle_type'] }}</g:vehicle_type>
+        </item>
 @endforeach
-</listings>
+    </channel>
+</rss>

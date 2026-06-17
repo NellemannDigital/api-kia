@@ -50,7 +50,7 @@ class MetaCarsFeed
                 'unit' => 'KM',
             ],
             'image_url' => $this->imageUrl($car, $trim),
-            'transmission' => $this->clean(data_get($powertrain, 'transmission.name')),
+            'transmission' => $this->transmission($powertrain),
             'body_style' => $this->bodyStyle($car),
             'drivetrain' => $this->clean(data_get($powertrain, 'engine.drive')),
             'vin' => null,
@@ -60,7 +60,7 @@ class MetaCarsFeed
             'exterior_color' => $this->exteriorColor($trim),
             'interior_color' => $this->interiorColor($trim),
             'state_of_vehicle' => 'new',
-            'fuel_type' => $this->clean(data_get($powertrain, 'engine.fuel_type')),
+            'fuel_type' => $this->fuelType($powertrain),
             'condition' => 'new',
             'availability' => 'in stock',
             'vehicle_type' => 'car',
@@ -157,6 +157,38 @@ class MetaCarsFeed
             $categories->contains('Bybiler') => 'HATCHBACK',
             $categories->contains('Familiebiler') => 'HATCHBACK',
             default => 'OTHER',
+        };
+    }
+
+    protected function fuelType(Powertrain $powertrain): ?string
+    {
+        $fuelType = strtolower((string) $this->clean(data_get($powertrain, 'engine.fuel_type')));
+
+        return match (true) {
+            str_contains($fuelType, 'elektrisk'),
+            str_contains($fuelType, 'electric') => 'ELECTRIC',
+            str_contains($fuelType, 'plug') => 'PLUGIN_HYBRID',
+            str_contains($fuelType, 'hybrid') => 'HYBRID',
+            str_contains($fuelType, 'benzin'),
+            str_contains($fuelType, 'gasoline'),
+            str_contains($fuelType, 'petrol') => 'GASOLINE',
+            str_contains($fuelType, 'diesel') => 'DIESEL',
+            filled($fuelType) => 'OTHER',
+            default => null,
+        };
+    }
+
+    protected function transmission(Powertrain $powertrain): ?string
+    {
+        $transmission = strtolower((string) $this->clean(data_get($powertrain, 'transmission.name')));
+
+        return match (true) {
+            str_contains($transmission, 'auto'),
+            str_contains($transmission, 'reduktionsgear') => 'AUTOMATIC',
+            str_contains($transmission, 'manuel'),
+            str_contains($transmission, 'manual') => 'MANUAL',
+            filled($transmission) => 'OTHER',
+            default => null,
         };
     }
 

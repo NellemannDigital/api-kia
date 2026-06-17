@@ -30,6 +30,6 @@ class FeedsController extends Controller
                 ))->build(),
                 'generatedAt' => now(),
             ])
-            ->header('Content-Type', 'application/xml');
+            ->header('Content-Type', 'application/rss+xml; charset=UTF-8');
     }
 }
