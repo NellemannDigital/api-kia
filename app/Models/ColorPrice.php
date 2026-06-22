@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 
 class ColorPrice extends Model
 {
@@ -31,6 +32,23 @@ class ColorPrice extends Model
                 $q->whereNull('valid_to')->orWhere('valid_to', '>=', $today);
             });
         });
+    }
+
+    public function scopeValidAt(Builder $query, CarbonInterface|string $date): Builder
+    {
+        $date = $date instanceof CarbonInterface
+            ? $date->toDateString()
+            : $date;
+
+        return $query
+            ->where(function ($q) use ($date) {
+                $q->whereNull('valid_from')
+                    ->orWhere('valid_from', '<=', $date);
+            })
+            ->where(function ($q) use ($date) {
+                $q->whereNull('valid_to')
+                    ->orWhere('valid_to', '>=', $date);
+            });
     }
 
     /**

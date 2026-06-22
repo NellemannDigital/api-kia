@@ -60,6 +60,7 @@ class TrimMapper
             $colors = self::mapColors($attributesData->get('KiaColors'), $getAsset, $getAssets);
             $leasingPowertrains = self::mapLeasingPowertrains($attributesData->get('KiaLeasingEngineAndTransmission'));
             $accessoryMapping = self::mapAccessoryMapping($variantAttributesReferencesData->get('MobisModelMapping'));
+            $featuredProductDetails = Arr::get($attributesData, 'FeaturedProductDetails', '') ?? [];
 
             return new TrimData(
                 struct_id: $structId,
@@ -76,6 +77,7 @@ class TrimMapper
                 powertrains: $powertrains,
                 leasing_powertrains: $leasingPowertrains,
                 accessory_mapping: $accessoryMapping,
+                featured_product_details: $featuredProductDetails,
                 colors: $colors,
                 equipment: $equipment,
                 extra_equipment_packages: $extraEquipmentPackages

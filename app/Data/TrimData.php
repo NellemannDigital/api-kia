@@ -32,6 +32,7 @@ class TrimData extends Data
         public ?CampaignData $campaign = null,
         public ChannelsData $channels,
         public array $accessory_mapping = [],
+        public array $featured_product_details = [],
        
         #[DataCollectionOf(EquipmentData::class)]
         public array $equipment = [],

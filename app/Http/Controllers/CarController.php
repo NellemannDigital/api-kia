@@ -16,6 +16,7 @@ use Spatie\Browsershot\Browsershot;
 use Spatie\LaravelPdf\Enums\Format;
 use App\Services\PdfService;
 use function Spatie\LaravelPdf\Support\pdf;
+use Carbon\Carbon;
 
 class CarController extends Controller
 {
@@ -89,9 +90,17 @@ class CarController extends Controller
         ]);
     }
 
-    public function prices($id)
+    public function prices(Request $request, int $id)
     {
-        $car = $this->pdfService->loadCar($id);
+        $request->validate([
+            'preview_date' => ['nullable', 'date'],
+        ]);
+
+        $previewDate = $request->input('preview_date')
+        ? Carbon::parse($request->input('preview_date'))
+        : null;
+
+        $car = $this->pdfService->loadPreviewCar($id, $previewDate);
 
         if (! $car) {
             abort(404, 'Car not found');

@@ -11,6 +11,7 @@ use Spatie\LaravelPdf\Enums\Format;
 use Spatie\LaravelPdf\Facades\Pdf;
 use function Spatie\LaravelPdf\Support\pdf;
 use App\ViewModels\Specifications;
+use Carbon\Carbon;
 
 class PdfService
 {
@@ -107,6 +108,64 @@ class PdfService
     public function loadCar(int $carStructId): Car
     {
         return Car::with(['trims.powertrains.configuration', 'trims.accessories'])->where('struct_id', $carStructId)->firstOrFail();
+    }
+
+    public function loadPreviewCar(int $carStructId, CarbonInterface|string|null $previewDate = null): Car
+    {
+        $date = $previewDate
+            ? Carbon::parse($previewDate)->toDateString()
+            : Carbon::today()->toDateString();
+
+        $validPricesAtDate = function ($priceQuery) use ($date) {
+            $priceQuery
+                ->withoutGlobalScope('valid')
+                ->validAt($date);
+        };
+
+        return Car::with([
+            'trims' => function ($trimQuery) use ($validPricesAtDate) {
+                $trimQuery
+                    ->withoutGlobalScope('hasPowertrains')
+                    ->whereHas('powertrains', function ($powertrainQuery) use ($validPricesAtDate) {
+                        $powertrainQuery
+                            ->withoutGlobalScope('hasAnyPrices')
+                            ->whereHas('prices', $validPricesAtDate);
+                    })
+                    ->with([
+                        'accessories',
+
+                        'powertrains' => function ($powertrainQuery) use ($validPricesAtDate) {
+                            $powertrainQuery
+                                ->withoutGlobalScope('hasAnyPrices')
+                                ->whereHas('prices', $validPricesAtDate)
+                                ->with([
+                                    'configuration',
+                                    'prices' => $validPricesAtDate,
+                                ]);
+                        },
+
+                        'colors' => function ($colorQuery) use ($validPricesAtDate) {
+                            $colorQuery
+                                ->whereHas('prices', $validPricesAtDate)
+                                ->with([
+                                    'prices' => $validPricesAtDate,
+                                ]);
+                        },
+
+                        'extraEquipmentPackages' => function ($extraEquipmentPackageQuery) use ($validPricesAtDate) {
+                            $extraEquipmentPackageQuery
+                                ->withoutGlobalScope('hasAnyPrices')
+                                ->whereHas('prices', $validPricesAtDate)
+                                ->with([
+                                    'prices' => $validPricesAtDate,
+                                    'latestPrice' => $validPricesAtDate,
+                                ]);
+                        },
+                    ]);
+            },
+        ])
+            ->where('struct_id', $carStructId)
+            ->firstOrFail();
     }
 
     public function build(Car $car): array

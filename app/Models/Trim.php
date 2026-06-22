@@ -32,7 +32,8 @@ class Trim extends Model
         'technical_specifications',
         'campaign',
         'channels',
-        'accessory_mapping'
+        'accessory_mapping',
+        'featured_product_details'
     ];
 
     protected $casts = [
@@ -41,7 +42,8 @@ class Trim extends Model
         'technical_specifications' => TechnicalSpecificationsData::class,
         'campaign' => CampaignData::class,
         'channels' => ChannelsData::class,
-        'accessory_mapping' => 'array'
+        'accessory_mapping' => 'array',
+        'featured_product_details' => 'array'
     ];
 
     protected array $extraChannels = [];
