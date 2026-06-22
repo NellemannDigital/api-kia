@@ -23,6 +23,7 @@ use App\Data\Car\{
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Scopes\OpenChannels;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 
 class Car extends Model
 {
@@ -102,6 +103,29 @@ class Car extends Model
                 $query->where('channels->test_drive_channel->booking_end', '>=', $date->toDateString())
                     ->orWhereNull('channels->test_drive_channel->booking_end');
             });
+    }
+
+    public function scopeOpenAt($query, CarbonInterface|string|null $date = null)
+    {
+        $date = $date instanceof CarbonInterface
+            ? $date->toDateString()
+            : ($date ? Carbon::parse($date)->toDateString() : Carbon::today()->toDateString());
+
+        $channels = $this->getActiveChannels();
+
+        return $query->where(function ($q) use ($channels, $date) {
+            foreach ($channels as $channel) {
+                $q->where(function ($subQuery) use ($channel, $date) {
+                    $subQuery
+                        ->where("{$channel}->open_from", '<=', $date)
+                        ->where(function ($dateQuery) use ($channel, $date) {
+                            $dateQuery
+                                ->whereNull("{$channel}->open_to")
+                                ->orWhere("{$channel}->open_to", '>=', $date);
+                        });
+                });
+            }
+        });
     }
 
     public function getActiveChannels(): array

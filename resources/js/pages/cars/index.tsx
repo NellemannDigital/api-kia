@@ -255,7 +255,11 @@ export default function Index({ cars }: Props) {
                           asChild
                         >
                           <a
-                            href={`${routes.prices(car.struct_id).url}?preview_date=2026-09-01`}
+                            href={`${routes.pricesPreview(car.struct_id).url}?preview_date=${
+                              new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+                                .toISOString()
+                                .split("T")[0]
+                            }`}
                             target="_blank"
                             rel="noreferrer"
                           >

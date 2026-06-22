@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Scopes\OpenChannels;
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
 
 class Trim extends Model
 {
@@ -78,6 +80,29 @@ class Trim extends Model
             $this->extraChannels[] = "channels->{$channel}";
         }
         return $query;
+    }
+
+    public function scopeOpenAt($query, CarbonInterface|string|null $date = null)
+    {
+        $date = $date instanceof CarbonInterface
+            ? $date->toDateString()
+            : ($date ? Carbon::parse($date)->toDateString() : Carbon::today()->toDateString());
+
+        $channels = $this->getActiveChannels();
+
+        return $query->where(function ($q) use ($channels, $date) {
+            foreach ($channels as $channel) {
+                $q->where(function ($subQuery) use ($channel, $date) {
+                    $subQuery
+                        ->where("{$channel}->open_from", '<=', $date)
+                        ->where(function ($dateQuery) use ($channel, $date) {
+                            $dateQuery
+                                ->whereNull("{$channel}->open_to")
+                                ->orWhere("{$channel}->open_to", '>=', $date);
+                        });
+                });
+            }
+        });
     }
 
     /**

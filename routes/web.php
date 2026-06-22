@@ -28,8 +28,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('compliance-text-templates', ComplianceTextTemplateController::class);
 
     Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
+
     Route::get('/cars/{id}/prices/', [CarController::class, 'prices'])->name('cars.prices');
-    Route::get('/cars/{id}/prices-view/', [CarController::class, 'pricesView'])->name('cars.price.prices');
+    Route::get('/cars/{id}/prices-view/', [CarController::class, 'pricesView'])->name('cars.prices-view');
+    Route::get('/cars/{id}/prices-preview/', [CarController::class, 'pricesPreview'])->name('cars.prices-preview');
 
     Route::get('/cars/{id}/accessories/', [CarController::class, 'accessories'])->name('cars.accessories');
     Route::get('/cars/{id}/accessories-view/', [CarController::class, 'accessoriesView'])->name('cars.accessories-view');
