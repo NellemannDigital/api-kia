@@ -45,7 +45,7 @@ class TrimMapper
             $structId = Arr::get($variantData, 'Id', '');
             $carStructId = Arr::get($variantData, 'ProductId', '');
             $sortOrder = is_numeric($value = Arr::get($attributesData, 'MarketingSortOrderKia')) ? (int) $value : null;
-            $name = Arr::get($attributesData, 'KiaEquipmentVariant', '');
+            $name = Arr::get($attributesData, 'EquipmentVariantWebName') ?? Arr::get($attributesData, 'KiaEquipmentVariant', '');
             $leasingReturnFee = Arr::get($attributesData, 'LeasingReturnFee', null);
             $usesHighTax = Arr::get($attributesData, 'LegalText', '') ?? false;
 
