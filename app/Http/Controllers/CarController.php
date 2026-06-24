@@ -78,7 +78,9 @@ class CarController extends Controller
             $jobs[] = new SyncTrimJob($variantId);
         }
 
-        $jobs[] = new GeneratePdfJob($id);
+        if(Car::addChannel('price_channel')->where('struct_id', $id)->first()) {
+            $jobs[] = new GeneratePdfJob($id);
+        }
 
         $batch = Bus::batch($jobs)
             ->onQueue('pim')
