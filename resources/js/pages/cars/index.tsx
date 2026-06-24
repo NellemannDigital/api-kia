@@ -45,15 +45,19 @@ const breadcrumbs: BreadcrumbItem[] = [
 // --- Channel renderer ---
 const isChannelActive = (
   channel?: Channel | TestDriveChannel,
-  type: 'regular' | 'test' = 'regular'
+  type: 'regular' | 'test' | 'internal' = 'regular'
 ) => {
   if (!channel) return false
   const now = new Date()
 
   if (type === 'regular') {
-    const fromOk = !(channel as Channel).open_from || now >= new Date((channel as Channel).open_from)
-    const toOk = !(channel as Channel).open_to || now <= new Date((channel as Channel).open_to)
+    const fromOk = now >= new Date((channel as Channel).open_from)
+    const toOk = (channel as Channel).open_from && (!(channel as Channel).open_to || now <= new Date((channel as Channel).open_to))
     return fromOk && toOk
+  }
+
+  if (type === 'internal') {
+    return (channel as Channel).open_internal
   }
 
   const testChannel = channel as TestDriveChannel
@@ -73,11 +77,12 @@ const isChannelActive = (
 const channelsMeta: {
   key: keyof Car['channels']
   label: string
-  type: 'regular' | 'test'
+  type: 'regular' | 'test' | 'internal'
 }[] = [
     { key: 'master_channel', label: 'Master', type: 'regular' },
     { key: 'web_channel', label: 'Web', type: 'regular' },
     { key: 'dealer_channel', label: 'Dealer', type: 'regular' },
+    { key: 'dealer_channel', label: 'Internal', type: 'internal' },
     { key: 'price_channel', label: 'Price', type: 'regular' },
     { key: 'test_drive_channel', label: 'Test Drive', type: 'test' },
   ]

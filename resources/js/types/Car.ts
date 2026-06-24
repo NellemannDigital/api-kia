@@ -26,6 +26,7 @@ type Channels = {
 export type Channel = {
   open_from: string, 
   open_to: string
+  open_internal: string
 }
 
 export type TestDriveChannel = {

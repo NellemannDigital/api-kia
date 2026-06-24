@@ -30,7 +30,7 @@ class CarController extends Controller
     public function index()
     {
         return Inertia::render('cars/index', [
-            'cars' => Car::orderBy('name')->get(),
+            'cars' => Car::withoutGlobalScopes(['hasTrims'])->orderBy('name')->get(),
         ]);
     }
 
