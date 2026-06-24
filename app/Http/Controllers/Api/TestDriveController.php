@@ -66,12 +66,13 @@ class TestDriveController extends Controller
 
     public function cars()
     {
-         $ids = request('ids');
+        $ids = request('ids');
+        $b2b = request('b2b');
 
         return Car::query()
             ->addChannels(['web_channel'])
             ->availableForTestDrive()
-            ->where('variant->b2b', false)
+            ->where('variant->b2b', $b2b)
 
             ->when($ids, function ($query) use ($ids) {
                 $query->whereIn(
@@ -95,10 +96,17 @@ class TestDriveController extends Controller
 
     public function dealers(Request $request, GeocodingService $geocodingService)
     {
+        $b2b = request()->boolean('b2b');
+        
         $query = Dealer::query()
             ->where('types->b2c', true)
             ->where('tools->test_drive', true)
-
+            ->when(
+                $b2b,
+                function ($query) {
+                    $query->where('types->b2b', true);
+                }
+            )
             ->when(
                 $request->filled('ids'),
                 function ($query) use ($request) {
@@ -193,16 +201,19 @@ class TestDriveController extends Controller
 
         $allSlots = $this->generateHourlySlots($startTime, $endTime);
 
+        /*
+        VI TESTER AT FOLK KAN BOOKE FLERE SAMTIDIG
         $booked = Activity::where('dealer_id', $dealer->id)
             ->where('type', 'test_drive')
             ->where('date', $date)
             ->pluck('time')
             ->map(fn ($time) => Carbon::parse($time)->format('H:i'))
             ->values();
+            */
 
         return response()->json([
             'timeSlots' => $allSlots,
-            'unavailableSlots' => $booked,
+            'unavailableSlots' => [] // $booked
         ]);
     }
 
