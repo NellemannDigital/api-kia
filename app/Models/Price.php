@@ -31,11 +31,13 @@ class Price extends Model
         static::addGlobalScope('valid', function (Builder $builder) {
             $today = Carbon::today()->toDateString();
 
-            $builder->where(function ($q) use ($today) {
-                $q->whereNull('valid_from')->orWhere('valid_from', '<=', $today);
-            })->where(function ($q) use ($today) {
-                $q->whereNull('valid_to')->orWhere('valid_to', '>=', $today);
-            });
+            $builder
+                ->whereNotNull('valid_from')
+                ->where('valid_from', '<=', $today)
+                ->where(function ($q) use ($today) {
+                    $q->whereNull('valid_to')
+                    ->orWhere('valid_to', '>=', $today);
+                });
         });
     }
 
