@@ -19,7 +19,7 @@ class AccessoryMapper
     {
         try {
             $accessoryId = Arr::get($accessoryData, 'Id', '');
-            $name = Arr::get($attributesData, 'SharedAccessoryPartNameOverride') ?: Arr::get($attributesData, 'SharedAccessoryPartName', '');
+            $name = Arr::get($attributesData, 'AccessoriesMarketingName') ?: Arr::get($attributesData, 'SharedAccessoryPartName', '');
             $description = Arr::get($attributesData, 'SharedAccessoryDescription', '');
             $partNumber = Arr::get($attributesData, 'SharedAccessoryPartNumber', '');
             $categories = Arr::get($attributesData, 'SharedAccessoryMarketingCategory', '');
