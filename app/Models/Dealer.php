@@ -6,10 +6,12 @@ use App\Data\Dealer\ToolsData;
 use App\Data\Dealer\EmailsData;
 use App\Data\Dealer\OpeningHoursData;
 use App\Data\Dealer\PostalCodesData;
+use App\Data\Dealer\SpecialOpeningHourData;
 use App\Data\Dealer\TypesData;
 use App\Data\Dealer\UrlsData;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\LaravelData\DataCollection;
 
 class Dealer extends Model
 {
@@ -41,6 +43,7 @@ class Dealer extends Model
         'urls',
         'types',
         'opening_hours',
+        'special_opening_hours',
         'postal_codes',
         'synced_at',
     ];
@@ -51,6 +54,7 @@ class Dealer extends Model
         'urls' => UrlsData::class,
         'types' => TypesData::class,
         'opening_hours' => OpeningHoursData::class,
+        'special_opening_hours' => DataCollection::class . ':' . SpecialOpeningHourData::class,
         'postal_codes' => PostalCodesData::class,
     ];
 

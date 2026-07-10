@@ -10,6 +10,7 @@ use App\Data\Dealer\{
     UrlsData,
     TypesData,
     OpeningHoursData,
+    SpecialOpeningHourData,
     PostalCodesData
 };
 
@@ -43,6 +44,8 @@ class DealerData extends Data
         public ?UrlsData $urls = null,
         public ?TypesData $types = null,
         public ?OpeningHoursData $opening_hours = null,
+        #[DataCollectionOf(SpecialOpeningHourData::class)]
+        public array $special_opening_hours = [],
         public ?PostalCodesData $postal_codes = null,
     ) {}
 }

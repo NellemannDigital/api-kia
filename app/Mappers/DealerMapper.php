@@ -14,6 +14,7 @@ use App\Data\Dealer\{
     OpeningHoursData,
     OpeningHours\SalesData,
     OpeningHours\WorkshopData,
+    SpecialOpeningHourData,
     PostalCodesData
 };
 use Throwable;
@@ -52,6 +53,10 @@ class DealerMapper
             $urls = self::mapUrls($dealerData);
             $types = self::mapTypes($dealerData);
             $openingHours = self::mapOpeningHours($dealerData);
+            $specialOpeningHours = self::mapSpecialOpeningHours(
+                Arr::get($dealerData, 'pin_pin_forhandlereabnelukkedage_Forhandler_p'),
+                Arr::get($dealerData, 'general_special_opening_hours')
+            );
             $postalCodes = self::mapPostalCodes($dealerData);
 
             return new DealerData(
@@ -82,6 +87,7 @@ class DealerMapper
                 urls: $urls,
                 types: $types,
                 opening_hours: $openingHours,
+                special_opening_hours: $specialOpeningHours,
                 postal_codes: $postalCodes
             );
 
@@ -231,11 +237,41 @@ class DealerMapper
         return new PostalCodesData(...$values);
     }
 
+    protected static function mapSpecialOpeningHours(array|Collection|null ...$specialOpeningHoursGroups): array
+    {
+        return collect($specialOpeningHoursGroups)
+            ->filter()
+            ->flatMap(fn($specialOpeningHours) => $specialOpeningHours instanceof Collection
+                ? $specialOpeningHours
+                : collect($specialOpeningHours))
+            ->map(fn($item) => new SpecialOpeningHourData(
+                date: self::normalizeDate(Arr::get($item, 'pin_dato')),
+                opening_time: Arr::get($item, 'pin_abningstidspunkt'),
+                closing_time: Arr::get($item, 'pin_lukketidspunkt'),
+                closed: Arr::get($item, 'pin_dealerclosed', Arr::get($item, 'pin_dealersclosed')),
+                display_name: Arr::get($item, 'pin_specialdayname'),
+            ))
+            ->filter(fn(SpecialOpeningHourData $item) => $item->date
+                || $item->opening_time
+                || $item->closing_time
+                || $item->closed !== null
+                || $item->display_name)
+            ->values()
+            ->all();
+    }
+
     protected static function mapPostalCodeGroups(array|Collection|null $groups): array
     {
         if (!$groups) return [];
         $data = $groups instanceof Collection ? $groups : collect($groups);
 
         return $data->pluck('pin_name')->values()->all();
+    }
+
+    protected static function normalizeDate(?string $date): ?string
+    {
+        if (!$date) return null;
+
+        return substr($date, 0, 10);
     }
 }

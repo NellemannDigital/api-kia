@@ -22,4 +22,19 @@ class DealersRequest
 
         return collect($responseData);
     }
+
+    public function getGeneralSpecialOpeningHours(): Collection
+    {
+        $response = Http::nellemannDynamics()
+            ->timeout(300) // 5 minutes
+            ->get("pin_specialopeningdaysgenerals");
+
+        if ($response->failed()) {
+            throw new \Exception("Dynamics request failed [{$response->status()}]");
+        }
+
+        $responseData = $response->json('value', []);
+
+        return collect($responseData);
+    }
 }

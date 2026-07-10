@@ -19,10 +19,14 @@ class SyncDealersJob implements ShouldQueue
     public function handle(DealersRequest $dealersRequest): void
     {
         $dealers = $dealersRequest->getDealers();
+        $generalSpecialOpeningHours = $dealersRequest->getGeneralSpecialOpeningHours()
+            ->values()
+            ->all();
 
         $jobs = [];
 
         foreach ($dealers as $dealer) {
+            $dealer['general_special_opening_hours'] = $generalSpecialOpeningHours;
             $jobs[] = new SyncDealerJob($dealer);
         };
 
