@@ -27,7 +27,7 @@ use Carbon\CarbonInterface;
 
 class Car extends Model
 {
-    protected $appends = ['from_price', 'electric_range', 'consumption_range', 'co2_emission_range', 'ac_charging_time_range', 'dc_charging_time_range', 'ac_charging_speed_range', 'dc_charging_speed_range', 'owner_tax_range'];
+    protected $appends = ['service_intervals', 'from_price', 'electric_range', 'consumption_range', 'co2_emission_range', 'ac_charging_time_range', 'dc_charging_time_range', 'ac_charging_speed_range', 'dc_charging_speed_range', 'owner_tax_range'];
 
     protected $fillable = [
         'struct_id',
@@ -280,6 +280,26 @@ class Car extends Model
     public function trims(): HasMany
     {
         return $this->hasMany(Trim::class);
+    }
+
+    public function getServiceIntervalsAttribute()
+    {
+        $intervals = $this->trims
+            ->flatMap(function ($trim) {
+                return $trim->powertrains;
+            })
+            ->map(function ($powertrain) {
+                return $powertrain->engine?->service_interval;
+            })
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($intervals->isEmpty()) {
+            return null;
+        }
+
+        return $intervals;
     }
 
 

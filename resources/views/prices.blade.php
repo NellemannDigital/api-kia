@@ -146,7 +146,7 @@
                         <div class="flex gap-2 items-center p-2 border-b border-primary-low">
 
                             <div class="{{ $columnWidths['variant'] }} text-left">
-                                {{ $engine->name ?? '-' }} ({{ $engine->drive }})
+                                {{ $engine->name ?? '-' }} {{ $engine->drive ? '(' . $engine->drive . ')' : '' }}
                             </div>
 
                             <div class="{{ $columnWidths['power'] }} text-center">
@@ -252,49 +252,53 @@
             </div>
 
             <div class="grid grid-cols-2 gap-8 text-xs text-primary mt-10">
-                <div>
-                    <div class="bg-primary p-2 rounded">
-                        <p class="font-bold text-white">Garantier</p>
-                    </div>
-
-                    <div class="divide-y divide-primary-low border-b border-primary-low">
-                        @php
-                            $warranties = $car->warranties['primary']
-                        @endphp
-                        
-                        <div class="grid grid-cols-2 p-2">
-                            <p>Garanti</p>
-                            <p>{{ $warranties->base_warranty }}</p>
+                @if(count($car->warranties) > 0)
+                    <div>
+                        <div class="bg-primary p-2 rounded">
+                            <p class="font-bold text-white">Garantier</p>
                         </div>
 
-                        <div class="grid grid-cols-2 p-2">
-                            <p>Batterigaranti</p>
-                            <p>{{ $warranties->hv_battery_warranty }}</p>
-                        </div>
+                        <div class="divide-y divide-primary-low border-b border-primary-low">
+                            @php
+                                $warranties = $car->warranties['primary']
+                            @endphp
+                            
+                            <div class="grid grid-cols-2 p-2">
+                                <p>Garanti</p>
+                                <p>{{ $warranties->base_warranty }}</p>
+                            </div>
 
-                        <div class="grid grid-cols-2 p-2">
-                            <p>Lakgaranti</p>
-                            <p>{{ $warranties->paint_warranty }}</p>
-                        </div>
+                            <div class="grid grid-cols-2 p-2">
+                                <p>Batterigaranti</p>
+                                <p>{{ $warranties->hv_battery_warranty }}</p>
+                            </div>
 
-                        <div class="grid grid-cols-2 p-2">
-                            <p>Gennemtæringsgaranti</p>
-                             <p>{{ $warranties->corrosion_warranty }}</p>
-                        </div>
-                    </div>
-                </div>
+                            <div class="grid grid-cols-2 p-2">
+                                <p>Lakgaranti</p>
+                                <p>{{ $warranties->paint_warranty }}</p>
+                            </div>
 
-                <div>
-                    <div class="bg-primary p-2 rounded">
-                        <p class="font-bold text-white">Serviceinterval</p>
-                    </div>
-
-                    <div class="divide-y divide-primary-low border-b border-primary-low">
-                        <div class="p-2">
-                            <p>24 måneder / 30.000 km</p>
+                            <div class="grid grid-cols-2 p-2">
+                                <p>Gennemtæringsgaranti</p>
+                                <p>{{ $warranties->corrosion_warranty }}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
+
+                @if(count($car->service_intervals) > 0)
+                    <div>
+                        <div class="bg-primary p-2 rounded">
+                            <p class="font-bold text-white">Serviceinterval</p>
+                        </div>
+
+                        <div class="divide-y divide-primary-low border-b border-primary-low">
+                            <div class="p-2">
+                                <p>{{ $car->service_intervals[0]->months }} måneder / {{ Number::format($car->service_intervals[0]->kilometers, locale: 'da')  }} km</p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <div class="space-y-2 text-[10px] text-primary mt-10">
@@ -472,146 +476,132 @@
 
         @pageBreak
 
-        <!-- Extra Equipment Packages-->
-        <section class="mx-auto max-w-[210mm]">
+        @if($extraEquipmentPackageMatrix->isNotEmpty())
 
-            <div class="flex justify-between items-center mb-3">
-                <div class="font-bold text-xl">
-                    Ekstraudstyr
+            <!-- Extra Equipment Packages-->
+            <section class="mx-auto max-w-[210mm]">
+
+                <div class="flex justify-between items-center mb-3">
+                    <div class="font-bold text-xl">
+                        Ekstraudstyr
+                    </div>
+                    <img src="{{ asset('images/logo.png') }}" class="block w-20">
                 </div>
-                <img src="{{ asset('images/logo.png') }}" class="block w-20">
-            </div>
 
-            <div class="bg-primary p-2 rounded flex justify-between items-center gap-2 font-bold text-white text-xs">
+                <div class="bg-primary p-2 rounded flex justify-between items-center gap-2 font-bold text-white text-xs">
 
-                <p class="text-xs text-white font-bold">Ekstraudstyr</p>
+                    <p class="text-xs text-white font-bold">Ekstraudstyr</p>
 
-                <div class="flex justify-end gap-4">
-                    @foreach ($trims as $trim)
-                        <div @class(['w-32' => $isB2b, 'w-16' => ! $isB2b ])>
-                            <p class="text-center">
-                                {{ $trim->name }}
+                    <div class="flex justify-end gap-4">
+                        @foreach ($trims as $trim)
+                            <div @class(['w-32' => $isB2b, 'w-16' => ! $isB2b ])>
+                                <p class="text-center">
+                                    {{ $trim->name }}
 
-                                @if ($trim->uses_high_tax)
-                                    @php
-                                        $usesHighTax = true
-                                    @endphp
+                                    @if ($trim->uses_high_tax)
+                                        @php
+                                            $usesHighTax = true
+                                        @endphp
 
-                                    **
-                                @else
-                                    @php
-                                        $usesHighTax = false
-                                    @endphp
+                                        **
+                                    @else
+                                        @php
+                                            $usesHighTax = false
+                                        @endphp
 
-                                    *
-                                @endif
-
-                                @if($isB2b)
-                                    <div class="grid grid-cols-2 gap-1 text-[9px] font-light text-center">
-                                        <span>ekskl. moms</span>
-                                        <span>inkl. moms</span>
-                                    </div>
-                                @endif
-                            </p>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <div class="text-xs text-primary divide-y divide-primary-low border-b border-primary-low">
-                @foreach ($extraEquipmentPackageMatrix as $row)
-
-                @php
-                    $disclaimers = collect($trims)
-                        ->map(function ($trim) use ($row) {
-                            $text = $row['prices'][$trim->id]['disclaimer'] ?? null;
-
-                            if (! $text) {
-                                return null;
-                            }
-
-                            return [
-                                'trim' => $trim,
-                                'text' => $text,
-                            ];
-                        })
-                        ->filter();
-                @endphp
-
-                    <div class="flex justify-between p-2 items-center">
-
-                        <div class="space-y-1">
-                            <div class="font-bold"> {{ $row['extraEquipmentPackages']->name }}</div>
-
-                            @if($row['extraEquipmentPackages']->equipment->isNotEmpty())
-
-                                @php
-                                    $singleEquipment = $row['extraEquipmentPackages']->equipment->count() === 1
-                                        ? $row['extraEquipmentPackages']->equipment->first()
-                                        : null;
-                                @endphp
-
-                                @if($singleEquipment && $singleEquipment->name === $row['extraEquipmentPackages']->name)
-                                    
-                                @else
-                                    <ul class="pl-4 list-disc list-outside text-[9px]">
-                                        @foreach($row['extraEquipmentPackages']->equipment as $equipment)
-                                            <li>{{ $equipment->name }}</li>
-                                        @endforeach
-                                    </ul>
-                                @endif
-
-                            @endif
-
-                            @if($disclaimers->isNotEmpty())
-                                <div class="text-[9px] text-gray-500">
-                                    @foreach($disclaimers as $disclaimer)
-                                        <div>
-                                            * {{ $disclaimer['trim']->name }}: {{ $disclaimer['text'] }}
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-
-                        </div>
-
-                        <div class="gap-4 flex justify-end items-center">
-                            @foreach ($trims as $trim)
-                                <div @class(['w-32 text-center' => $isB2b, 'w-16 text-center' => ! $isB2b ])>
-                                    
-                                    @php
-                                        $hasDisclaimer = filled($row['prices'][$trim->id]['disclaimer'] ?? null);
-                                    @endphp
+                                        *
+                                    @endif
 
                                     @if($isB2b)
-                                       <div class="grid grid-cols-2 gap-1 text-center">
-                                            <span class="block">
-                                                {{ $row['prices'][$trim->id]['priceExVat']
-                                                ? Number::format($row['prices'][$trim->id]['priceExVat'], locale: 'da').' kr.'
-                                                : '-' }}
-
-                                                @if($hasDisclaimer)
-                                                    <sup>*</sup>
-                                                @endif
-                                            </span>
-
-                                            <span class="block">
-                                               {{ $row['prices'][$trim->id]['price']
-                                                ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
-                                                : '-' }}
-
-                                                @if($hasDisclaimer)
-                                                    <sup>*</sup>
-                                                @endif
-                                            </span>
+                                        <div class="grid grid-cols-2 gap-1 text-[9px] font-light text-center">
+                                            <span>ekskl. moms</span>
+                                            <span>inkl. moms</span>
                                         </div>
-                                    @else
+                                    @endif
+                                </p>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
 
-                                        @if( $row['prices'][$trim->id]['campaignPrice'])
-                                            
-                                            {!! Number::format($row['prices'][$trim->id]['campaignPrice'], locale: 'da') !!} kr. <br>
-                                            
-                                            <span class="text-gray-400 line-through">
+                <div class="text-xs text-primary divide-y divide-primary-low border-b border-primary-low">
+                    @foreach ($extraEquipmentPackageMatrix as $row)
+
+                    @php
+                        $disclaimers = collect($trims)
+                            ->map(function ($trim) use ($row) {
+                                $text = $row['prices'][$trim->id]['disclaimer'] ?? null;
+
+                                if (! $text) {
+                                    return null;
+                                }
+
+                                return [
+                                    'trim' => $trim,
+                                    'text' => $text,
+                                ];
+                            })
+                            ->filter();
+                    @endphp
+
+                        <div class="flex justify-between p-2 items-center">
+
+                            <div class="space-y-1">
+                                <div class="font-bold"> {{ $row['extraEquipmentPackages']->name }}</div>
+
+                                @if($row['extraEquipmentPackages']->equipment->isNotEmpty())
+
+                                    @php
+                                        $singleEquipment = $row['extraEquipmentPackages']->equipment->count() === 1
+                                            ? $row['extraEquipmentPackages']->equipment->first()
+                                            : null;
+                                    @endphp
+
+                                    @if($singleEquipment && $singleEquipment->name === $row['extraEquipmentPackages']->name)
+                                        
+                                    @else
+                                        <ul class="pl-4 list-disc list-outside text-[9px]">
+                                            @foreach($row['extraEquipmentPackages']->equipment as $equipment)
+                                                <li>{{ $equipment->name }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+
+                                @endif
+
+                                @if($disclaimers->isNotEmpty())
+                                    <div class="text-[9px] text-gray-500">
+                                        @foreach($disclaimers as $disclaimer)
+                                            <div>
+                                                * {{ $disclaimer['trim']->name }}: {{ $disclaimer['text'] }}
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                            </div>
+
+                            <div class="gap-4 flex justify-end items-center">
+                                @foreach ($trims as $trim)
+                                    <div @class(['w-32 text-center' => $isB2b, 'w-16 text-center' => ! $isB2b ])>
+                                        
+                                        @php
+                                            $hasDisclaimer = filled($row['prices'][$trim->id]['disclaimer'] ?? null);
+                                        @endphp
+
+                                        @if($isB2b)
+                                        <div class="grid grid-cols-2 gap-1 text-center">
+                                                <span class="block">
+                                                    {{ $row['prices'][$trim->id]['priceExVat']
+                                                    ? Number::format($row['prices'][$trim->id]['priceExVat'], locale: 'da').' kr.'
+                                                    : '-' }}
+
+                                                    @if($hasDisclaimer)
+                                                        <sup>*</sup>
+                                                    @endif
+                                                </span>
+
+                                                <span class="block">
                                                 {{ $row['prices'][$trim->id]['price']
                                                     ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
                                                     : '-' }}
@@ -619,63 +609,81 @@
                                                     @if($hasDisclaimer)
                                                         <sup>*</sup>
                                                     @endif
-                                            </span>
+                                                </span>
+                                            </div>
                                         @else
 
-                                            {{ $row['prices'][$trim->id]['price']
-                                                ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
-                                                : '-' }}
+                                            @if( $row['prices'][$trim->id]['campaignPrice'])
+                                                
+                                                {!! Number::format($row['prices'][$trim->id]['campaignPrice'], locale: 'da') !!} kr. <br>
+                                                
+                                                <span class="text-gray-400 line-through">
+                                                    {{ $row['prices'][$trim->id]['price']
+                                                        ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
+                                                        : '-' }}
 
-                                                @if($hasDisclaimer)
-                                                    <sup>*</sup>
-                                                @endif
+                                                        @if($hasDisclaimer)
+                                                            <sup>*</sup>
+                                                        @endif
+                                                </span>
+                                            @else
+
+                                                {{ $row['prices'][$trim->id]['price']
+                                                    ? Number::format($row['prices'][$trim->id]['price'], locale: 'da').' kr.'
+                                                    : '-' }}
+
+                                                    @if($hasDisclaimer)
+                                                        <sup>*</sup>
+                                                    @endif
+                                            @endif
+
                                         @endif
 
-                                    @endif
+                                    </div>
+                                @endforeach
 
-                                </div>
-                            @endforeach
+                            </div>
 
                         </div>
+                    @endforeach
+                </div>
+                <div class="space-y-2 text-[10px] text-primary mt-4">
+                    @php
+                        $priceListExtrasDependency = compliance_text_for(['car' => $car], 'price_list_extras_dependency');
+                        $priceListExtrasWltp = compliance_text_for(['car' => $car], 'price_list_extras_wltp');
+                        $priceListExtrasTax = compliance_text_for(['car' => $car], 'price_list_extras_tax');
+                        $priceListExtrasHighTax = compliance_text_for(['car' => $car], 'price_list_extras_high_tax');
+                    @endphp
 
-                    </div>
-                @endforeach
-            </div>
-            <div class="space-y-2 text-[10px] text-primary mt-4">
-                @php
-                    $priceListExtrasDependency = compliance_text_for(['car' => $car], 'price_list_extras_dependency');
-                    $priceListExtrasWltp = compliance_text_for(['car' => $car], 'price_list_extras_wltp');
-                    $priceListExtrasTax = compliance_text_for(['car' => $car], 'price_list_extras_tax');
-                    $priceListExtrasHighTax = compliance_text_for(['car' => $car], 'price_list_extras_high_tax');
-                @endphp
+                    @if($priceListExtrasDependency)
+                        <div>
+                            {{ $priceListExtrasDependency }}
+                        </div>
+                    @endif
 
-                @if($priceListExtrasDependency)
-                    <div>
-                        {{ $priceListExtrasDependency }}
-                    </div>
-                @endif
+                    @if($priceListExtrasWltp)
+                        <div>
+                            {{ $priceListExtrasWltp }}
+                        </div>
+                    @endif
 
-                @if($priceListExtrasWltp)
-                    <div>
-                        {{ $priceListExtrasWltp }}
-                    </div>
-                @endif
+                    @if($priceListExtrasTax)
+                        <div>
+                            * {{ $priceListExtrasTax }}
+                        </div>
+                    @endif
 
-                @if($priceListExtrasTax)
-                    <div>
-                        * {{ $priceListExtrasTax }}
-                    </div>
-                @endif
+                    @if($usesHighTax && $priceListExtrasHighTax)
+                        <div>
+                            ** {{ $priceListExtrasHighTax }}
+                        </div>
+                    @endif
+                </div>
+            </section>
 
-                @if($usesHighTax && $priceListExtrasHighTax)
-                    <div>
-                        ** {{ $priceListExtrasHighTax }}
-                    </div>
-                @endif
-            </div>
-        </section>
+            @pageBreak
 
-        @pageBreak
+        @endif
 
         <!-- Interior & exterior -->
 
