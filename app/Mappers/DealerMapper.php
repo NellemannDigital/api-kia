@@ -3,6 +3,7 @@
 namespace App\Mappers;
 
 use App\Data\DealerData;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -190,13 +191,13 @@ class DealerMapper
         if (!$attributes) return null;
 
         $values = [
-            'monday' => Arr::get($attributes, 'pin_openinghoursmonday'),
-            'tuesday' => Arr::get($attributes, 'pin_openinghourstuesday'),
-            'wednesday' => Arr::get($attributes, 'pin_openinghourswednesday'),
-            'thursday' => Arr::get($attributes, 'pin_openinghoursthursday'),
-            'friday' => Arr::get($attributes, 'pin_openinghoursfriday'),
-            'saturday' => Arr::get($attributes, 'pin_openinghourssaturday'),
-            'sunday' => Arr::get($attributes, 'pin_openinghourssunday')
+            'monday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_openinghoursmonday')),
+            'tuesday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_openinghourstuesday')),
+            'wednesday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_openinghourswednesday')),
+            'thursday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_openinghoursthursday')),
+            'friday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_openinghoursfriday')),
+            'saturday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_openinghourssaturday')),
+            'sunday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_openinghourssunday'))
         ];
 
         if (!array_filter($values)) return null;
@@ -209,13 +210,13 @@ class DealerMapper
         if (!$attributes) return null;
 
         $values = [
-            'monday' => Arr::get($attributes, 'pin_workshopopeninghoursmonday'),
-            'tuesday' => Arr::get($attributes, 'pin_workshopopeninghourstuesday'),
-            'wednesday' => Arr::get($attributes, 'pin_workshopopeninghourswedneysday'),
-            'thursday' => Arr::get($attributes, 'pin_workshopopeninghoursthursday'),
-            'friday' => Arr::get($attributes, 'pin_workshopopeninghoursfriday'),
-            'saturday' => Arr::get($attributes, 'pin_workshopopeninghourssaturday'),
-            'sunday' => Arr::get($attributes, 'pin_workshopopeninghourssunday')
+            'monday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_workshopopeninghoursmonday')),
+            'tuesday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_workshopopeninghourstuesday')),
+            'wednesday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_workshopopeninghourswedneysday')),
+            'thursday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_workshopopeninghoursthursday')),
+            'friday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_workshopopeninghoursfriday')),
+            'saturday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_workshopopeninghourssaturday')),
+            'sunday' => self::normalizeOpeningHours(Arr::get($attributes, 'pin_workshopopeninghourssunday'))
         ];
 
         if (!array_filter($values)) return null;
@@ -246,8 +247,8 @@ class DealerMapper
                 : collect($specialOpeningHours))
             ->map(fn($item) => new SpecialOpeningHourData(
                 date: self::normalizeDate(Arr::get($item, 'pin_dato')),
-                opening_time: Arr::get($item, 'pin_abningstidspunkt'),
-                closing_time: Arr::get($item, 'pin_lukketidspunkt'),
+                opening_time: self::normalizeOpeningTime(Arr::get($item, 'pin_abningstidspunkt')),
+                closing_time: self::normalizeOpeningTime(Arr::get($item, 'pin_lukketidspunkt')),
                 closed: Arr::get($item, 'pin_dealerclosed', Arr::get($item, 'pin_dealersclosed')),
                 display_name: Arr::get($item, 'pin_specialdayname'),
             ))
@@ -268,10 +269,60 @@ class DealerMapper
         return $data->pluck('pin_name')->values()->all();
     }
 
+    protected static function normalizeOpeningHours(?string $hours): ?string
+    {
+        if (!$hours) return null;
+
+        $hours = trim($hours);
+
+        if (!str_contains($hours, '-')) {
+            return self::normalizeOpeningTime($hours);
+        }
+
+        [$openingTime, $closingTime] = explode('-', $hours, 2);
+
+        $openingTime = self::normalizeOpeningTime($openingTime);
+        $closingTime = self::normalizeOpeningTime($closingTime);
+
+        if (!$openingTime || !$closingTime) {
+            return null;
+        }
+
+        return "{$openingTime}-{$closingTime}";
+    }
+
+    protected static function normalizeOpeningTime(?string $time): ?string
+    {
+        if ($time === null) return null;
+
+        $time = trim($time);
+
+        if ($time === '') return null;
+
+        return str_replace(':', '.', $time);
+    }
+
     protected static function normalizeDate(?string $date): ?string
     {
         if (!$date) return null;
 
-        return substr($date, 0, 10);
+        try {
+            return Carbon::parse($date)
+                ->timezone(self::applicationTimezone())
+                ->toDateString();
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    protected static function applicationTimezone(): string
+    {
+        try {
+            if (app()->bound('config')) {
+                return config('app.timezone', 'Europe/Copenhagen');
+            }
+        } catch (Throwable) {}
+
+        return 'Europe/Copenhagen';
     }
 }

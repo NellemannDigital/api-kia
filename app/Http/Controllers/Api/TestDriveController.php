@@ -183,9 +183,7 @@ class TestDriveController extends Controller
     public function availability(Request $request, Dealer $dealer)
     {
         $date = Carbon::parse($request->date);
-        $weekday = strtolower($date->format('l'));
-
-        $hours = $dealer->opening_hours->sales->$weekday ?? null;
+        $hours = $this->resolveSalesOpeningHours($dealer, $date);
 
         if (!$hours) {
             return response()->json([
@@ -215,6 +213,40 @@ class TestDriveController extends Controller
             'timeSlots' => $allSlots,
             'unavailableSlots' => [] // $booked
         ]);
+    }
+
+    private function resolveSalesOpeningHours(Dealer $dealer, Carbon $date): ?string
+    {
+        $specialOpeningHour = $this->specialOpeningHourForDate($dealer, $date);
+
+        if ($specialOpeningHour) {
+            if (data_get($specialOpeningHour, 'closed') === true) {
+                return null;
+            }
+
+            $openingTime = data_get($specialOpeningHour, 'opening_time');
+            $closingTime = data_get($specialOpeningHour, 'closing_time');
+
+            if ($openingTime && $closingTime) {
+                return trim($openingTime) . '-' . trim($closingTime);
+            }
+        }
+
+        $weekday = strtolower($date->format('l'));
+
+        return data_get($dealer->opening_hours, "sales.$weekday");
+    }
+
+    private function specialOpeningHourForDate(Dealer $dealer, Carbon $date): mixed
+    {
+        $specialOpeningHours = $dealer->special_opening_hours ?? [];
+
+        if (is_object($specialOpeningHours) && method_exists($specialOpeningHours, 'toArray')) {
+            $specialOpeningHours = $specialOpeningHours->toArray();
+        }
+
+        return collect($specialOpeningHours)
+            ->first(fn($specialOpeningHour) => data_get($specialOpeningHour, 'date') === $date->toDateString());
     }
 
     private function generateHourlySlots(Carbon $start, Carbon $end): array
@@ -248,9 +280,7 @@ class TestDriveController extends Controller
 
         foreach (CarbonPeriod::create($start, $end) as $date) {
 
-            $weekday = strtolower($date->format('l'));
-
-            $hours = data_get($dealer->opening_hours, "sales.$weekday");
+            $hours = $this->resolveSalesOpeningHours($dealer, $date);
 
             if (!$hours) {
                 $result[$date->format('Y-m-d')] = [
