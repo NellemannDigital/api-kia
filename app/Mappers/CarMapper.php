@@ -208,15 +208,17 @@ class CarMapper
         $leasingConfigurator = Arr::get($attributes, 'LeasingUrl', '');
         $technicalSpecifications = Arr::get($attributes, 'SpecificationsSite', '');
         $testDrive = Arr::get($attributes, 'TestdriveUrl', '');
+        $accessory = Arr::get($attributes, 'AccessoryUrl', '');
 
-        if (!$website && !$buildConfigurator && !$leasingConfigurator && !$technicalSpecifications && !$testDrive) return null;
+        if (!$website && !$buildConfigurator && !$leasingConfigurator && !$technicalSpecifications && !$testDrive && !$accessory) return null;
 
         return new UrlsData(
             website: $website,
             build_configurator: $buildConfigurator,
             leasing_configurator: $leasingConfigurator,
             technical_specifications: $technicalSpecifications,
-            test_drive: $testDrive
+            test_drive: $testDrive,
+            accessory: $accessory
         );
     }
 
