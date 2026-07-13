@@ -183,6 +183,15 @@ class TestDriveController extends Controller
     public function availability(Request $request, Dealer $dealer)
     {
         $date = Carbon::parse($request->date);
+        $car = $this->resolveCarFromRequest($request);
+
+        if ($this->isAfterBookingEnd($car, $date)) {
+            return response()->json([
+                'timeSlots' => [],
+                'unavailableSlots' => [],
+            ]);
+        }
+
         $hours = $this->resolveSalesOpeningHours($dealer, $date);
 
         if (!$hours) {
@@ -213,6 +222,50 @@ class TestDriveController extends Controller
             'timeSlots' => $allSlots,
             'unavailableSlots' => [] // $booked
         ]);
+    }
+
+    private function resolveCarFromRequest(Request $request): ?Car
+    {
+        $identifier = $request->input('car_id')
+            ?? $request->input('car')
+            ?? $request->input('web_id')
+            ?? $request->input('car_web_id');
+
+        if (is_array($identifier)) {
+            $identifier = $identifier['id']
+                ?? $identifier['struct_id']
+                ?? $identifier['web_id']
+                ?? null;
+        }
+
+        if (!$identifier) {
+            return null;
+        }
+
+        return Car::withoutGlobalScopes()
+            ->where(function ($query) use ($identifier) {
+                if (is_numeric($identifier)) {
+                    $query
+                        ->whereKey($identifier)
+                        ->orWhere('struct_id', (int) $identifier);
+                }
+
+                $query->orWhere('web_id', $identifier);
+            })
+            ->firstOrFail();
+    }
+
+    private function isAfterBookingEnd(?Car $car, Carbon $date): bool
+    {
+        $bookingEnd = data_get($car, 'channels.test_drive_channel.booking_end');
+
+        if (!$bookingEnd) {
+            return false;
+        }
+
+        return $date->copy()
+            ->startOfDay()
+            ->gt(Carbon::parse($bookingEnd)->startOfDay());
     }
 
     private function resolveSalesOpeningHours(Dealer $dealer, Carbon $date): ?string
@@ -272,6 +325,7 @@ class TestDriveController extends Controller
     public function calendarAvailability(Request $request, Dealer $dealer)
     {
         $month = Carbon::parse($request->month);
+        $car = $this->resolveCarFromRequest($request);
 
         $start = $month->copy()->startOfMonth();
         $end = $month->copy()->endOfMonth();
@@ -279,6 +333,14 @@ class TestDriveController extends Controller
         $result = [];
 
         foreach (CarbonPeriod::create($start, $end) as $date) {
+
+            if ($this->isAfterBookingEnd($car, $date)) {
+                $result[$date->format('Y-m-d')] = [
+                    'status' => 'closed',
+                    'available' => 0,
+                ];
+                continue;
+            }
 
             $hours = $this->resolveSalesOpeningHours($dealer, $date);
 
