@@ -35,7 +35,7 @@ class CarController extends Controller
     public function show(string $id)
     {
         return Car::query()
-            ->addChannels(['web_channel'])
+            ->addChannels(['web_channel', 'price_channel'])
             ->where('web_id', $id)
             ->with([
                 'trims.extraEquipmentPackages.prices',
