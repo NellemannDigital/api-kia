@@ -439,7 +439,7 @@
                     </div>
                 @endif
 
-                @if($priceListColorTax)
+                @if(!$usesHighTax && $priceListColorTax)
                     <div>
                         * {{ $priceListColorTax }}
                     </div>
@@ -667,7 +667,7 @@
                         </div>
                     @endif
 
-                    @if($priceListExtrasTax)
+                    @if(!$usesHighTax && $priceListExtrasTax)
                         <div>
                             * {{ $priceListExtrasTax }}
                         </div>

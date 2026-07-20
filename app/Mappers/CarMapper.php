@@ -208,9 +208,11 @@ class CarMapper
         $leasingConfigurator = Arr::get($attributes, 'LeasingUrl', '');
         $technicalSpecifications = Arr::get($attributes, 'SpecificationsSite', '');
         $testDrive = Arr::get($attributes, 'TestdriveUrl', '');
+        $priceList = Arr::get($attributes, 'PriceListUrl', '');
         $accessory = Arr::get($attributes, 'AccessoryUrl', '');
+        $dataSheet = Arr::get($attributes, 'DataSheetUrl', '');
 
-        if (!$website && !$buildConfigurator && !$leasingConfigurator && !$technicalSpecifications && !$testDrive && !$accessory) return null;
+        if (!$website && !$buildConfigurator && !$leasingConfigurator && !$technicalSpecifications && !$testDrive && !$accessory && !$dataSheet) return null;
 
         return new UrlsData(
             website: $website,
@@ -218,7 +220,9 @@ class CarMapper
             leasing_configurator: $leasingConfigurator,
             technical_specifications: $technicalSpecifications,
             test_drive: $testDrive,
-            accessory: $accessory
+            price_list: $priceList,
+            accessory: $accessory,
+            data_sheet: $dataSheet
         );
     }
 

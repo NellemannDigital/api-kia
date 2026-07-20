@@ -12,6 +12,8 @@ class UrlsData extends Data
         public ?string $leasing_configurator = null,
         public ?string $technical_specifications = null,
         public ?string $test_drive = null,
+        public ?string $price_list = null,
         public ?string $accessory = null,
+        public ?string $data_sheet = null,
     ) {}
 }
