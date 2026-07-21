@@ -207,22 +207,24 @@ class CarMapper
         $buildConfigurator = Arr::get($attributes, 'BuildURL', '');
         $leasingConfigurator = Arr::get($attributes, 'LeasingUrl', '');
         $technicalSpecifications = Arr::get($attributes, 'SpecificationsSite', '');
+        $accessory = Arr::get($attributes, 'AccessorySite', '');
         $testDrive = Arr::get($attributes, 'TestdriveUrl', '');
-        $priceList = Arr::get($attributes, 'PriceListUrl', '');
-        $accessory = Arr::get($attributes, 'AccessoryUrl', '');
-        $dataSheet = Arr::get($attributes, 'DataSheetUrl', '');
+        $priceListPdf = Arr::get($attributes, 'PriceListUrl', '');
+        $accessoryPdf = Arr::get($attributes, 'AccessoryUrl', '');
+        $dataSheetPdf = Arr::get($attributes, 'DataSheetUrl', '');
 
-        if (!$website && !$buildConfigurator && !$leasingConfigurator && !$technicalSpecifications && !$testDrive && !$accessory && !$dataSheet) return null;
+        if (!$website && !$buildConfigurator && !$leasingConfigurator && !$technicalSpecifications && !$accessory && !$testDrive && !$priceListPdf && !$accessoryPdf && !$dataSheetPdf) return null;
 
         return new UrlsData(
             website: $website,
             build_configurator: $buildConfigurator,
             leasing_configurator: $leasingConfigurator,
             technical_specifications: $technicalSpecifications,
-            test_drive: $testDrive,
-            price_list: $priceList,
             accessory: $accessory,
-            data_sheet: $dataSheet
+            test_drive: $testDrive,
+            price_list_pdf: $priceListPdf,
+            accessory_pdf: $accessoryPdf,
+            data_sheet_pdf: $dataSheetPdf
         );
     }
 
