@@ -15,7 +15,6 @@ class CarController extends Controller
     {
         return Car::query()
             ->addChannels(['web_channel', 'price_channel'])
-            ->where('variant->b2b', false)
             ->with('trims.powertrains.configuration')
             ->orderBy('name')
             ->paginate();
