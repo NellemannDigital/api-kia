@@ -40,7 +40,7 @@
 
                     @if($section['show_header'])
                         <div class="flex">
-                            <div class="w-36 shrink-0"></div>
+                            <div class="w-35 shrink-0"></div>
 
                             @foreach($specifications['columns'] as $group)
                                 <div class="flex-1 text-center text-xs">
@@ -74,7 +74,7 @@
 
                             <div class="flex">
 
-                                <div class="w-36 shrink-0 py-2 text-xs">
+                                <div class="w-35 shrink-0 py-2 text-xs">
                                     {!! $row['labels'][$group['display_index']] ?? $row['label'] !!}
                                 </div>
 
