@@ -9,7 +9,7 @@
 
     @vite('resources/css/pdf.css')
 </head>
-<body class="text-sm">
+<body>
 
     <main class="max-w-6xl mx-auto">
 
