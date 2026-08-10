@@ -93,12 +93,10 @@ class Car extends Model
     {
         $date = $date ? Carbon::parse($date) : Carbon::today();
 
-        /*return $query->whereNotNull('channels->test_drive_channel->test_start')
-            ->where('channels->test_drive_channel->test_start', '<=', $date->toDateString());*/
-
         return $query
+            ->whereNotNull('channels->test_drive_channel->test_start')
             ->whereNotNull('channels->test_drive_channel->booking_start')
-            ->where('channels->test_drive_channel->booking_start', '<=', $date->toDateString())
+            ->where('channels->test_drive_channel->test_start', '<=', $date->toDateString())
             ->where(function ($query) use ($date) {
                 $query->where('channels->test_drive_channel->booking_end', '>=', $date->toDateString())
                     ->orWhereNull('channels->test_drive_channel->booking_end');

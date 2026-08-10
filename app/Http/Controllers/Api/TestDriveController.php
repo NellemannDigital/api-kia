@@ -185,7 +185,7 @@ class TestDriveController extends Controller
         $date = Carbon::parse($request->date);
         $car = $this->resolveCarFromRequest($request);
 
-        if ($this->isAfterBookingEnd($car, $date)) {
+        if ($this->isOutsideBookingWindow($car, $date)) {
             return response()->json([
                 'timeSlots' => [],
                 'unavailableSlots' => [],
@@ -266,6 +266,25 @@ class TestDriveController extends Controller
             ->gt(Carbon::parse($bookingEnd)->startOfDay());
     }
 
+    private function isBeforeBookingStart(?Car $car, Carbon $date): bool
+    {
+        $bookingStart = data_get($car, 'channels.test_drive_channel.booking_start');
+
+        if (!$bookingStart) {
+            return false;
+        }
+
+        return $date->copy()
+            ->startOfDay()
+            ->lt(Carbon::parse($bookingStart)->startOfDay());
+    }
+
+    private function isOutsideBookingWindow(?Car $car, Carbon $date): bool
+    {
+        return $this->isBeforeBookingStart($car, $date)
+            || $this->isAfterBookingEnd($car, $date);
+    }
+
     private function resolveSalesOpeningHours(Dealer $dealer, Carbon $date): ?string
     {
         $specialOpeningHour = $this->specialOpeningHourForDate($dealer, $date);
@@ -332,7 +351,7 @@ class TestDriveController extends Controller
 
         foreach (CarbonPeriod::create($start, $end) as $date) {
 
-            if ($this->isAfterBookingEnd($car, $date)) {
+            if ($this->isOutsideBookingWindow($car, $date)) {
                 $result[$date->format('Y-m-d')] = [
                     'status' => 'closed',
                     'available' => 0,
