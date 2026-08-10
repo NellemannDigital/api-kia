@@ -208,19 +208,17 @@ class TestDriveController extends Controller
 
         $allSlots = $this->generateHourlySlots($startTime, $endTime);
 
-        /*
-        VI TESTER AT FOLK KAN BOOKE FLERE SAMTIDIG
         $booked = Activity::where('dealer_id', $dealer->id)
             ->where('type', 'test_drive')
             ->where('date', $date)
+            ->where('data->car->name', $car->name)
             ->pluck('time')
             ->map(fn ($time) => Carbon::parse($time)->format('H:i'))
             ->values();
-            */
 
         return response()->json([
             'timeSlots' => $allSlots,
-            'unavailableSlots' => [] // $booked
+            'unavailableSlots' => $booked
         ]);
     }
 
@@ -374,6 +372,7 @@ class TestDriveController extends Controller
             $booked = Activity::where('dealer_id', $dealer->id)
                 ->where('type', 'test_drive')
                 ->where('date', $date)
+                ->where('data->car->name', $car->name)
                 ->pluck('time')
                 ->map(fn ($time) => Carbon::parse($time)->format('H:i'))
                 ->all();
