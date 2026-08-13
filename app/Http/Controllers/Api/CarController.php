@@ -41,6 +41,7 @@ class CarController extends Controller
                 'trims.colors.prices',
                 'trims.powertrains.configuration',
                 'trims.powertrains.prices',
+                'trims.powertrains.leasingPrices',
                 'trims.equipment',
                 'trims.accessories.prices'
             ])
