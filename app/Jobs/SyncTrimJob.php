@@ -48,6 +48,7 @@ class SyncTrimJob implements ShouldQueue
                 );
 
                 $this->mapColors($this->trimData, $trim);
+                $this->mapLeasingColors($this->trimData, $trim);
                 $this->mapPowertrains($this->trimData, $trim);
                 $this->mapLeasingPowertrains($this->trimData, $trim);
                 $this->mapEquipment($this->trimData, $trim);
@@ -104,6 +105,24 @@ class SyncTrimJob implements ShouldQueue
         }
 
         $trim->colors()->withoutGlobalScopes()->whereNotIn('id', $existingColorIds)->delete();
+    }
+
+    private function mapLeasingColors(TrimData $trimData, Trim $trim): void
+    {
+        $existingColorIds = collect();
+
+        foreach ($trimData->leasing_colors as $c) {
+
+            $color = $trim->leasingColors()->withoutGlobalScopes()->updateOrCreate(
+                ['code' => $c->code],
+                $c->toArray()
+            );
+
+            $existingColorIds->push($color->id);
+
+        }
+
+        $trim->leasingColors()->withoutGlobalScopes()->whereNotIn('id', $existingColorIds)->delete();
     }
 
     private function mapPowertrains(TrimData $trimData, Trim $trim): void

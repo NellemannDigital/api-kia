@@ -14,6 +14,7 @@ use App\Data\Trim\{
     ExtraEquipmentPackageData,
     LeasingPowertrainData,
     ColorData,
+    LeasingColorData,
     Color\PriceData as ColorPriceData,
     Powertrain\EngineData,
     Powertrain\TransmissionData,
@@ -58,6 +59,7 @@ class TrimMapper
             $equipment = self::mapEquipment($attributesData->get('KiaStandardEquipment'), $getAssets);
             $extraEquipmentPackages = self::mapExtraEquipmentPackages($attributesData->get('KiaExtraEquipmentFoundation'), $getAsset, $getAssets);
             $colors = self::mapColors($attributesData->get('KiaColors'), $getAsset, $getAssets);
+            $leasingColors = self::mapLeasingColors($attributesData->get('KiaLeasingColors'), $getAsset, $getAssets);
             $leasingPowertrains = self::mapLeasingPowertrains($attributesData->get('KiaLeasingEngineAndTransmission'));
             $accessoryMapping = self::mapAccessoryMapping($variantAttributesReferencesData->get('MobisModelMapping'));
             $featuredProductDetails = Arr::get($attributesData, 'FeaturedProductDetails', '') ?? [];
@@ -79,6 +81,7 @@ class TrimMapper
                 accessory_mapping: $accessoryMapping,
                 featured_product_details: $featuredProductDetails,
                 colors: $colors,
+                leasing_colors: $leasingColors,
                 equipment: $equipment,
                 extra_equipment_packages: $extraEquipmentPackages
             );
@@ -575,6 +578,34 @@ class TrimMapper
         $assets = $ids ? $getAssets($ids) : collect();
 
         return $assets->all();
+    }
+
+    protected static function mapLeasingColors(array|Collection|null $colors, callable $getAsset, callable $getAssets): array
+    {
+
+        if (!$colors) return [];
+
+        $colors = collect($colors)->first();
+
+        $data = collect(Arr::get($colors, 'Colors', []));
+
+        return $data
+            ->map(function ($item) use ($getAsset, $getAssets) {
+                $code = Arr::get($item, 'Color.Code');
+                $price = Arr::get($item, 'MonthlyPrice');
+
+                if (!$code || $price === null) {
+                    return null;
+                }
+
+                return new LeasingColorData(
+                    code: $code,
+                    price: $price
+                );
+            })
+            ->filter()
+            ->values()
+            ->all();
     }
 
     protected static function mapLeasingPowertrains(array|Collection|null $powertrains): array

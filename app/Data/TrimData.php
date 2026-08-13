@@ -14,6 +14,7 @@ use App\Data\Trim\{
     ColorData,
     PowertrainData,
     LeasingPowertrainData,
+    LeasingColorData,
     ExtraEquipmentPackageData
 };
 
@@ -48,5 +49,8 @@ class TrimData extends Data
 
         #[DataCollectionOf(LeasingPowertrainData::class)]
         public array $leasing_powertrains = [],
+
+        #[DataCollectionOf(LeasingColorData::class)]
+        public array $leasing_colors = [],
     ) {}
 }
