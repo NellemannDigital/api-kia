@@ -37,7 +37,9 @@ class CarController extends Controller
             ->addChannels(['web_channel', 'price_channel'])
             ->where('web_id', $id)
             ->with([
+                'trims.leasingExtraEquipmentPackages.extraEquipmentPackage',
                 'trims.extraEquipmentPackages.prices',
+                'trims.leasingColors.color',
                 'trims.colors.prices',
                 'trims.powertrains.configuration',
                 'trims.powertrains.prices',

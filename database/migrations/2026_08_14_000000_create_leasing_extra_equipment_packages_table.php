@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use App\Models\Trim;
-use App\Models\Color;
+use App\Models\ExtraEquipmentPackage;
 
 return new class extends Migration
 {
@@ -13,14 +13,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('leasing_colors', function (Blueprint $table) {
+        Schema::create('leasing_extra_equipment_packages', function (Blueprint $table) {
             $table->id();
 
             $table->foreignIdFor(Trim::class)->cascadeOnDelete();
-            $table->foreignIdFor(Color::class);
+            $table->foreignIdFor(ExtraEquipmentPackage::class);
 
             $table->string('code');
             $table->decimal('price', 12, 2)->nullable();
+            $table->decimal('down_payment', 12, 2)->nullable();
 
             $table->timestamps();
         });
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('leasing_colors');
+        Schema::dropIfExists('leasing_extra_equipment_packages');
     }
 };

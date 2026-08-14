@@ -11,11 +11,12 @@ use App\Data\Trim\{
     TechnicalSpecificationsData,
     CampaignData,
     ChannelsData,
-    ColorData,
     PowertrainData,
+    ColorData,
+    ExtraEquipmentPackageData,
     LeasingPowertrainData,
     LeasingColorData,
-    ExtraEquipmentPackageData
+    LeasingExtraEquipmentPackageData,
 };
 
 class TrimData extends Data
@@ -38,17 +39,20 @@ class TrimData extends Data
         #[DataCollectionOf(EquipmentData::class)]
         public array $equipment = [],
 
+        #[DataCollectionOf(PowertrainData::class)]
+        public array $powertrains = [],
+
         #[DataCollectionOf(ExtraEquipmentPackageData::class)]
         public array $extra_equipment_packages = [],
 
         #[DataCollectionOf(ColorData::class)]
         public array $colors = [],
 
-        #[DataCollectionOf(PowertrainData::class)]
-        public array $powertrains = [],
-
         #[DataCollectionOf(LeasingPowertrainData::class)]
         public array $leasing_powertrains = [],
+
+        #[DataCollectionOf(LeasingExtraEquipmentPackageData::class)]
+        public array $leasing_extra_equipment_packages = [],
 
         #[DataCollectionOf(LeasingColorData::class)]
         public array $leasing_colors = [],

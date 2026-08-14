@@ -76,7 +76,7 @@ class ExtraEquipmentPackage extends Model
     }
 
     /**
-     * @return HaoOne<ExtraEquipmentPackagePrice, $this>
+     * @return HasOne<ExtraEquipmentPackagePrice, $this>
      */
     public function latestPrice(): HasOne
     {

@@ -15,6 +15,7 @@ use App\Data\Trim\{
     LeasingPowertrainData,
     ColorData,
     LeasingColorData,
+    LeasingExtraEquipmentPackageData,
     Color\PriceData as ColorPriceData,
     Powertrain\EngineData,
     Powertrain\TransmissionData,
@@ -60,6 +61,7 @@ class TrimMapper
             $extraEquipmentPackages = self::mapExtraEquipmentPackages($attributesData->get('KiaExtraEquipmentFoundation'), $getAsset, $getAssets);
             $colors = self::mapColors($attributesData->get('KiaColors'), $getAsset, $getAssets);
             $leasingColors = self::mapLeasingColors($attributesData->get('KiaLeasingColors'), $getAsset, $getAssets);
+            $leasingExtraEquipmentPackages = self::mapLeasingExtraEquipmentPackages($attributesData->get('KiaLeasingExtraEquipment'), $getAsset, $getAssets);
             $leasingPowertrains = self::mapLeasingPowertrains($attributesData->get('KiaLeasingEngineAndTransmission'));
             $accessoryMapping = self::mapAccessoryMapping($variantAttributesReferencesData->get('MobisModelMapping'));
             $featuredProductDetails = Arr::get($attributesData, 'FeaturedProductDetails', '') ?? [];
@@ -82,6 +84,7 @@ class TrimMapper
                 featured_product_details: $featuredProductDetails,
                 colors: $colors,
                 leasing_colors: $leasingColors,
+                leasing_extra_equipment_packages: $leasingExtraEquipmentPackages,
                 equipment: $equipment,
                 extra_equipment_packages: $extraEquipmentPackages
             );
@@ -601,6 +604,36 @@ class TrimMapper
                 return new LeasingColorData(
                     code: $code,
                     price: $price
+                );
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected static function mapLeasingExtraEquipmentPackages(array|Collection|null $packages, callable $getAsset, callable $getAssets): array
+    {
+
+        if (!$packages) return [];
+
+        $packages = collect($packages)->first();
+
+        $data = collect(Arr::get($packages, 'ExtraEquipment', []));
+
+        return $data
+            ->map(function ($item) use ($getAsset, $getAssets) {
+                $code = Arr::get($item, 'ExtraEquipment.Code');
+                $price = Arr::get($item, 'MonthlyPrice');
+                $downPayment = Arr::get($item, 'AdditionalDownPayment');
+
+                if (!$code || $price === null) {
+                    return null;
+                }
+
+                return new LeasingExtraEquipmentPackageData(
+                    code: $code,
+                    price: $price,
+                    down_payment: $downPayment
                 );
             })
             ->filter()

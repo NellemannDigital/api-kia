@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Services\PimService;
 use App\Models\Car;
 use App\Models\Trim;
+use App\Models\Color;
 use App\Models\Equipment;
 use App\Models\ExtraEquipmentPackage;
 use App\Data\TrimData;
@@ -48,11 +49,12 @@ class SyncTrimJob implements ShouldQueue
                 );
 
                 $this->mapColors($this->trimData, $trim);
-                $this->mapLeasingColors($this->trimData, $trim);
                 $this->mapPowertrains($this->trimData, $trim);
                 $this->mapLeasingPowertrains($this->trimData, $trim);
                 $this->mapEquipment($this->trimData, $trim);
                 $this->mapExtraEquipmentPackages($this->trimData, $trim);
+                $this->mapLeasingColors($this->trimData, $trim);
+                $this->mapLeasingExtraEquipmentPackages($this->trimData, $trim);
             });
 
         } catch (Throwable $e) {
@@ -113,16 +115,49 @@ class SyncTrimJob implements ShouldQueue
 
         foreach ($trimData->leasing_colors as $c) {
 
+            $matchingColor = Color::withoutGlobalScopes()
+                ->where('trim_id', $trim->id)
+                ->where('code', $c->code)
+                ->firstOrFail();
+
             $color = $trim->leasingColors()->withoutGlobalScopes()->updateOrCreate(
                 ['code' => $c->code],
-                $c->toArray()
+                [
+                    ...$c->toArray(),
+                    'color_id' => $matchingColor->id,
+                ]
             );
 
             $existingColorIds->push($color->id);
-
         }
 
         $trim->leasingColors()->withoutGlobalScopes()->whereNotIn('id', $existingColorIds)->delete();
+    }
+
+    private function mapLeasingExtraEquipmentPackages(TrimData $trimData, Trim $trim): void
+    {
+        $existingPackageIds = collect();
+
+        foreach ($trimData->leasing_extra_equipment_packages as $p) {
+
+            $matchingPackage = ExtraEquipmentPackage::withoutGlobalScopes()
+                ->where('trim_id', $trim->id)
+                ->where('code', $p->code)
+                ->firstOrFail();
+
+            $package = $trim->leasingExtraEquipmentPackages()->withoutGlobalScopes()->updateOrCreate(
+                ['code' => $p->code],
+                [
+                    ...$p->toArray(),
+                    'extra_equipment_package_id' => $matchingPackage->id,
+                ]
+            );
+
+            $existingPackageIds->push($package->id);
+
+        }
+
+        $trim->leasingExtraEquipmentPackages()->withoutGlobalScopes()->whereNotIn('id', $existingPackageIds)->delete();
     }
 
     private function mapPowertrains(TrimData $trimData, Trim $trim): void

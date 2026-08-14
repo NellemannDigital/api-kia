@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class LeasingColor extends Model
+class LeasingExtraEquipmentPackage  extends Model
 {
     protected $fillable = [
         'trim_id',
-        'color_id',
+        'extra_equipment_package_id',
         'code',
-        'price'
+        'price',
+        'down_payment',
     ];
 
     /**
@@ -22,12 +23,11 @@ class LeasingColor extends Model
         return $this->belongsTo(Trim::class);
     }
 
-
-    /**
+     /**
      * @return BelongsTo<Color, $this>
      */
-    public function color(): BelongsTo
+    public function extraEquipmentPackage(): BelongsTo
     {
-        return $this->belongsTo(Color::class);
+        return $this->belongsTo(ExtraEquipmentPackage::class);
     }
 }
