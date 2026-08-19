@@ -149,7 +149,8 @@ class DealerMapper
             'website' => Arr::get($attributes, 'pin_website'),
             'intern_website' => Arr::get($attributes, 'pin_nellemanndealerwebsite'),
             'privacy_policy' => Arr::get($attributes, 'pin_privatlivspolitik'),
-            'service_booking' => Arr::get($attributes, 'pin_linkservicebooking')
+            'service_booking' => Arr::get($attributes, 'pin_linkservicebooking'),
+            'testdrive_booking' => Arr::get($attributes, 'nel_linktestdrivebooking')
         ];
 
         if (!array_filter($values)) return null;

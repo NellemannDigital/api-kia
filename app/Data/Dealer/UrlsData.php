@@ -10,7 +10,8 @@ class UrlsData extends Data
         public ?string $website,
         public ?string $intern_website,
         public ?string $privacy_policy,
-        public ?string $service_booking
+        public ?string $service_booking,
+        public ?string $testdrive_booking
     ) {}
 }
 
