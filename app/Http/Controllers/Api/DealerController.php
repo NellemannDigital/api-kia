@@ -31,9 +31,9 @@ class DealerController extends Controller
      */
     public function show(string $id)
     {
-        $dealer = Dealer::findOrFail($id);
-
-        return $dealer;
+        return Dealer::query()
+            ->where('dealer_guid', $id)
+            ->firstOrFail();
     }
 
     /**
