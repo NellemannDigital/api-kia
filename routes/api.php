@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cars/{car}', [CarController::class, 'show']);
 
     Route::get('/dealers', [DealerController::class, 'index']);
+    Route::get('/postal-codes', [DealerController::class, 'postalCodes']);
     Route::get('/dealers/{dealer}', [DealerController::class, 'show']);
 
     Route::get('/used-cars', [UsedCarController::class, 'index']);
