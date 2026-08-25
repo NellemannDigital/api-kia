@@ -21,6 +21,9 @@ class Accessory extends Model
         'part_number',
         'categories',
         'disclaimer',
+        'leasing_active',
+        'leasing_price',
+        'leasing_down_payment',
         'primary_image',
         'override_image',
         'additional_images'

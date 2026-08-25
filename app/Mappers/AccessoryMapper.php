@@ -29,6 +29,9 @@ class AccessoryMapper
             $overrideImage = self::resolveAsset($attributesData, 'NellemannImage', $getAsset);
             $additional_images = self::mapAdditionalImages($attributesData->get('ExtraImages'), $getAsset);
             $accessoryMapping = self::mapAccessoryMapping($variantAttributesReferencesData->get('KiaAccessoriesModels'));
+            $leasingActive = Arr::get($attributesData, 'CanBeLeased', false);
+            $leasingPrice = Arr::get($attributesData, 'LeasingPrice', '');
+            $leasingDownPayment = Arr::get($attributesData, 'LeasingDownPayment', '');
 
             return new AccessoryData(
                 struct_id: $accessoryId,
@@ -41,7 +44,10 @@ class AccessoryMapper
                 primary_image: $primaryImage,
                 override_image: $overrideImage,
                 additional_images: $additional_images,
-                accessory_mapping: $accessoryMapping
+                accessory_mapping: $accessoryMapping,
+                leasing_active: $leasingActive,
+                leasing_price: $leasingPrice,
+                leasing_down_payment: $leasingDownPayment
             );
 
         } catch (Throwable $e) {
