@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Bus;
 use App\Requests\StockCarsRequest;
+use Carbon\Carbon;
 
 class SyncStockCarsJob implements ShouldQueue
 {
@@ -29,22 +30,16 @@ class SyncStockCarsJob implements ShouldQueue
             $this->modifiedFrom
         );
 
-        $stockCars = $stockCars->reject(fn ($stockCar) =>
-            $stockCar['hideOnPortal'] === true ||
-            $stockCar['standardPriceNumber'] !== null
-        );
-
         $jobs = [];
 
         foreach ($stockCars as $stockCar) {
             $jobs[] = new SyncStockCarJob($stockCar);
-        };
+        }
 
         Bus::batch($jobs)
             ->onQueue('azure')
             ->allowFailures()
             ->dispatch();
-
     }
 
     public function failed(Throwable $exception): void

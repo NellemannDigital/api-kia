@@ -30,8 +30,9 @@ class StockCarsRequest
         $responseData = $response->json('value', []);
 
         return collect($responseData)
-            ->where('redeemType', '==', 'Tom')
+            ->where('redeemType', 'Tom')
             ->where('hideOnPortal', false)
+            ->whereNull('standardPriceNumber')
             ->values();
     }
 }
