@@ -60,6 +60,14 @@ class ExtraEquipmentPackage extends Model
     }
 
     /**
+     * @return BelongsTo<Trim, $this>
+     */
+    public function trim(): BelongsTo
+    {
+        return $this->belongsTo(Trim::class);
+    }
+
+    /**
      * @return BelongsToMany<Equipment, $this>
      */
     public function equipment()

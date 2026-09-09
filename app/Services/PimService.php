@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Data\CarData;
 use App\Data\ConfigurationData;
 use App\Data\AccessoryData;
+use App\Data\SparePartData;
 use App\Data\TrimData;
 use App\Requests\ProductRequest;
 use App\Requests\VariantRequest;
@@ -12,6 +13,7 @@ use App\Requests\AssetRequest;
 use App\Mappers\CarMapper;
 use App\Mappers\ConfigurationMapper;
 use App\Mappers\AccessoryMapper;
+use App\Mappers\SparePartMapper;
 use App\Mappers\TrimMapper;
 use App\Mappers\AssetMapper;
 use Illuminate\Support\Facades\Log;
@@ -26,6 +28,7 @@ class PimService
         protected CarMapper $carMapper,
         protected ConfigurationMapper $configurationMapper,
         protected AccessoryMapper $accessoryMapper,
+        protected SparePartMapper $sparePartMapper,
         protected TrimMapper $trimMapper,
         protected AssetMapper $assetMapper,
     ) {}
@@ -106,6 +109,23 @@ class PimService
             $productAttributesData,
             $productAttributesReferencesData,
             fn ($id) => $this->getAsset($id)
+        );
+    }
+
+    public function getSpacePart(int $productId): ?SparePartData
+    {
+        return $this->safeCall(fn() => $this->buildSparePartData($productId), $productId);
+    }
+
+    protected function buildSparePartData(int $productId): ?SparePartData
+    {
+        $productData = $this->productRequest->getProductResponse($productId);
+        $productAttributesData = $this->productRequest->getProductAttributesResponse($productId);
+
+
+        return $this->sparePartMapper->map(
+            $productData,
+            $productAttributesData
         );
     }
 

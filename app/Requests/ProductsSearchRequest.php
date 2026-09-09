@@ -124,4 +124,41 @@ class ProductsSearchRequest extends PimRequest
             ],
         ];
     }
+
+
+    public function getSparePartId(string $partNumber): ?int
+    {
+        $response = Http::nellemannPIM()
+            ->post('products/search', $this->getSparePartsSearchQuery($partNumber));
+
+        if ($response->failed()) {
+            throw new \Exception("PIM request failed [{$response->status()}]");
+        }
+
+        return $response->json()[0] ?? null;
+    }
+
+    protected function getSparePartsSearchQuery(string $partNumber): array
+    {
+        return [
+            'IncludeArchived' => true,
+            'QueryModel' => [
+                'SubQueries' => [
+                    [
+                        'Filters' => [
+                            [
+                                'FieldUid' => 'SharedAccessoryPartNumber_NA_NA',
+                                'QueryOperator' => 0,
+                                'FilterValue' => $partNumber,
+                            ]
+                        ],
+                        'BooleanOperator' => 0,
+                        'QueryModelType' => 'SimpleQueryModel',
+                    ],
+                ],
+                'BooleanOperator' => 0,
+                'QueryModelType' => 'BooleanQueryModel',
+            ],
+        ];
+    }
 }

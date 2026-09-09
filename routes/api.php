@@ -8,8 +8,12 @@ use App\Http\Controllers\Api\StockCarController;
 use App\Http\Controllers\Api\TestDriveController;
 use App\Http\Controllers\Api\AdvisorController;
 use App\Http\Controllers\Api\UsedCarController;
+use App\Http\Controllers\Api\SparePartController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+    Route::get('/spare-parts/{sparePart}', [SparePartController::class, 'show']);
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', fn (Request $request) => $request->user());
@@ -57,6 +61,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/stock-cars', [StockCarController::class, 'index']);
     Route::get('/stock-cars-price-range', [StockCarController::class, 'priceRange']);
+
+    //Route::get('/spare-parts/{sparePart}', [SparePartController::class, 'show']);
 
     Route::get('/compliance-text', [ComplianceTextController::class, 'show'])->name('compliance.text');
 
