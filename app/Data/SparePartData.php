@@ -14,6 +14,7 @@ class SparePartData extends Data
         public int $struct_id,
         public string $name,
         public string $part_number,
+        public string $eu_hs_code,
         public ?float $price = null,
         public string $group,
         public ?float $weight = null,

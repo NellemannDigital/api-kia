@@ -39,6 +39,10 @@ class SparePartMapper
             
             $group = Arr::get($attributesData, 'SharedAccessoryPNCGroup2.Id', '');
 
+            $euHsCode = Arr::get($attributesData, 'KiaSparePartsTariffNumberManualOverride')
+                ?? Arr::get($attributesData, 'KiaSparePartsTariffNumberShortened')
+                ?? null;
+
             $defaultPrice = Arr::get(
                 $attributesData,
                 'SharedAccessoryListPriceFO'
@@ -54,6 +58,7 @@ class SparePartMapper
                 struct_id: $sparePartId,
                 part_number: $partNumber,
                 name: $name,
+                eu_hs_code: $euHsCode,
                 group: $group,
                 price: $price,
                 weight: $weight,
