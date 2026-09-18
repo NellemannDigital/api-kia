@@ -29,7 +29,7 @@ class AccessoryMapper
             $overrideImage = self::resolveAsset($attributesData, 'NellemannImage', $getAsset);
             $additional_images = self::mapAdditionalImages($attributesData->get('ExtraImages'), $getAsset);
             $accessoryMapping = self::mapAccessoryMapping($variantAttributesReferencesData->get('KiaAccessoriesModels'));
-            $leasingActive = Arr::get($attributesData, 'CanBeLeased', false);
+            $leasingActive = Arr::get($attributesData, 'CanBeLeased', false) ?? false;
             $leasingPrice = Arr::get($attributesData, 'LeasingPrice', '');
             $leasingDownPayment = Arr::get($attributesData, 'LeasingDownPayment', '');
 
