@@ -28,12 +28,16 @@ class ProcessTestDriveActivity implements ShouldQueue
         $dealer = $activity->dealer;
         $payload = $activity->data;
 
-        $mapped = $this->mapPayload($activity->type, $payload, $dealer);
-
-        $response = Http::timeout(5)->post(
-            config('services.power_automate.test_drive_webhook_url'),
-            $mapped
+        $mapped = $this->mapPayload(
+            $activity->type, 
+            $payload, 
+            $dealer
         );
+
+        $webhookUrl = $this->getWebhookUrl($payload);
+
+        $response = Http::timeout(5)
+            ->post($webhookUrl, $mapped);
 
         if ($response->successful()) {
             $activity->update(['status' => 'processed']);
@@ -87,6 +91,14 @@ class ProcessTestDriveActivity implements ShouldQueue
                 'type' => $type,
                 'payload' => $payload,
             ],
+        };
+    }
+
+    private function getWebhookUrl(array $payload): string
+    {
+        return match ($payload['channel'] ?? 'internal') {
+            'external' => config('services.power_automate.external_test_drive_webhook_url'),
+            default => config('services.power_automate.test_drive_webhook_url'),
         };
     }
 

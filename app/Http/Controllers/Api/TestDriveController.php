@@ -28,6 +28,7 @@ class TestDriveController extends Controller
             'newsletter' => 'boolean',
             'page_location' => 'nullable|string',
             'user_device' => 'nullable|string',
+            'channel' => 'nullable|in:internal,external',
         ]);
 
         $date = Carbon::parse($data['date']);
@@ -43,6 +44,7 @@ class TestDriveController extends Controller
                 'newsletter' => $data['newsletter'] ?? null,
                 'page_location' => $data['page_location'] ?? null,
                 'user_device' => $data['user_device'] ?? null,
+                'channel' => $data['channel'] ?? 'internal',
             ],
             'status' => 'pending',
         ]);
