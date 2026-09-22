@@ -249,6 +249,12 @@
                         ** {{ $car->campaign_disclaimer }}
                     </div>
                 @endif
+
+                @if($car->custom_disclaimer)
+                    <div>
+                        {{ $car->custom_disclaimer }}
+                    </div>
+                @endif
             </div>
 
             <div class="grid grid-cols-2 gap-8 text-xs text-primary mt-10">
