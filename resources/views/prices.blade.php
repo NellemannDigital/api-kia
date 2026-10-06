@@ -326,6 +326,13 @@
         @pageBreak
 
         <!-- Colors & Prices -->
+        @php
+            $hasHighTaxTrims = $trims->contains(fn ($trim) => $trim->uses_high_tax);
+            $hasNormalTaxTrims = $trims->contains(fn ($trim) => ! $trim->uses_high_tax);
+
+            $mixedTaxTypes = $hasHighTaxTrims && $hasNormalTaxTrims;
+        @endphp
+
         <section class="mx-auto max-w-[210mm]">
 
             <div class="flex justify-between items-center mb-3">
@@ -346,16 +353,8 @@
                                 {{ $trim->name }}
 
                                 @if ($trim->uses_high_tax)
-                                    @php
-                                        $usesHighTax = true
-                                    @endphp
-
-                                    **
+                                    {{ $mixedTaxTypes ? '**' : '*' }}
                                 @else
-                                    @php
-                                        $usesHighTax = false
-                                    @endphp
-
                                     *
                                 @endif
 
@@ -445,15 +444,15 @@
                     </div>
                 @endif
 
-                @if(!$usesHighTax && $priceListColorTax)
+                @if($hasNormalTaxTrims  && $priceListColorTax)
                     <div>
                         * {{ $priceListColorTax }}
                     </div>
                 @endif
 
-                @if($usesHighTax && $priceListColorHighTax)
+                @if($hasHighTaxTrims  && $priceListColorHighTax)
                     <div>
-                        ** {{ $priceListColorHighTax }}
+                        {{ $mixedTaxTypes ? '**' : '*' }} {{ $priceListColorHighTax }}
                     </div>
                 @endif
             </div>
@@ -505,16 +504,8 @@
                                     {{ $trim->name }}
 
                                     @if ($trim->uses_high_tax)
-                                        @php
-                                            $usesHighTax = true
-                                        @endphp
-
-                                        **
+                                        {{ $mixedTaxTypes ? '**' : '*' }}
                                     @else
-                                        @php
-                                            $usesHighTax = false
-                                        @endphp
-
                                         *
                                     @endif
 
@@ -673,15 +664,15 @@
                         </div>
                     @endif
 
-                    @if(!$usesHighTax && $priceListExtrasTax)
+                    @if($hasNormalTaxTrims && $priceListExtrasTax)
                         <div>
                             * {{ $priceListExtrasTax }}
                         </div>
                     @endif
 
-                    @if($usesHighTax && $priceListExtrasHighTax)
+                    @if($hasHighTaxTrims && $priceListExtrasHighTax)
                         <div>
-                            ** {{ $priceListExtrasHighTax }}
+                            {{ $mixedTaxTypes ? '**' : '*' }} {{ $priceListExtrasHighTax }}
                         </div>
                     @endif
                 </div>
