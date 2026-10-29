@@ -33,24 +33,4 @@ class SparePartController extends Controller
 
         return response()->json($sparePartData);
     }
-
-
-    public function get(): Collection
-    {
-        $response = Http::nellemannFO()
-            ->timeout(300)
-            ->get('/data/IntegrationOutSparePartsInvtoryQty_NEL', [
-                'cross-company' => 'true',
-                '$filter' => "dataAreaId eq 'KIT' and ItemId eq 'KI-PS-KIA1'",
-                '$select' => 'AvailPhysical',
-            ]);
-
-        if ($response->failed()) {
-            throw new \Exception(
-                "FO request failed [{$response->status()}]: {$response->body()}"
-            );
-        }
-
-        return collect($response->json('value', []));
-    }
 }
