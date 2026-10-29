@@ -14,7 +14,9 @@ class SparePartMapper
 {
     public static function map(
         Collection $sparePartData,
-        Collection $attributesData
+        Collection $attributesData,
+        ?array $foData = null,
+        int|float $stock = 0
     ): ?SparePartData {
         try {
             $sparePartId = Arr::get($sparePartData, 'Id', '');
@@ -43,16 +45,12 @@ class SparePartMapper
                 ?? Arr::get($attributesData, 'KiaSparePartsTariffNumberShortened')
                 ?? null;
 
-            $defaultPrice = Arr::get(
-                $attributesData,
-                'SharedAccessoryListPriceFO'
-            );
+            $price = Arr::get($foData, 'SalesPrice');
 
-            $prices = self::mapPrices(
-                $attributesData->get('SharedAccessoryListPriceManualOverride')
+            $discountCode = Arr::get(
+                $foData,
+                'SalesLineDiscountProductGroupCode'
             );
-
-            $price = self::getValidPrice($prices, $defaultPrice);
 
             return new SparePartData(
                 struct_id: $sparePartId,
@@ -61,6 +59,8 @@ class SparePartMapper
                 eu_hs_code: $euHsCode,
                 group: $group,
                 price: $price,
+                discount_code: $discountCode,
+                stock: $stock,
                 weight: $weight,
                 width: $width,
                 length: $length,
@@ -76,53 +76,5 @@ class SparePartMapper
 
             throw $e;
         }
-    }
-
-    protected static function mapPrices(
-        array|Collection|null $prices
-    ): array {
-        if (!$prices) {
-            return [];
-        }
-
-        $data = $prices instanceof Collection
-            ? $prices
-            : collect($prices);
-
-        return $data
-            ->map(fn ($item) => new PriceData(
-                price: Arr::get($item, 'Price'),
-                valid_from: Arr::get($item, 'ValidFrom')
-                    ? substr($item['ValidFrom'], 0, 10)
-                    : null,
-                valid_to: Arr::get($item, 'ValidTo')
-                    ? substr($item['ValidTo'], 0, 10)
-                    : null,
-            ))
-            ->values()
-            ->all();
-    }
-
-    protected static function getValidPrice(
-        array $prices,
-        int|float|null $defaultPrice
-    ): int|float|null {
-        $today = Carbon::today();
-
-        $validPrice = collect($prices)
-            ->first(function (PriceData $price) use ($today) {
-                $validFrom = $price->valid_from
-                    ? Carbon::parse($price->valid_from)
-                    : null;
-
-                $validTo = $price->valid_to
-                    ? Carbon::parse($price->valid_to)
-                    : null;
-
-                return (!$validFrom || $today->gte($validFrom))
-                    && (!$validTo || $today->lte($validTo));
-            });
-
-        return $validPrice?->price ?? $defaultPrice;
     }
 }

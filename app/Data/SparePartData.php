@@ -4,9 +4,6 @@ namespace App\Data;
 
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
-use App\Data\SparePart\{
-    PriceData
-};
 
 class SparePartData extends Data
 {
@@ -14,8 +11,10 @@ class SparePartData extends Data
         public int $struct_id,
         public string $name,
         public string $part_number,
-        public string $eu_hs_code,
+        public ?string $eu_hs_code,
         public ?float $price = null,
+        public ?string $discount_code,
+        public int|float $stock,
         public string $group,
         public ?float $weight = null,
         public ?float $width = null,

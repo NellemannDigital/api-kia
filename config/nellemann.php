@@ -27,6 +27,14 @@ return [
         'resource' => env('DYNAMICS_RESOURCE'),
     ],
 
+    'fo' => [
+        'api_url' => env('FO_API_URL'),
+        'tenant_id' => env('FO_TENANT_ID'),
+        'client_id' => env('FO_CLIENT_ID'),
+        'client_secret' => env('FO_CLIENT_SECRET'),
+        'resource' => env('FO_RESOURCE'),
+    ],
+
     'google' => [
         'maps_key' => env('GOOGLE_MAPS_KEY'),
     ]

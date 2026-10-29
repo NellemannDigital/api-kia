@@ -92,6 +92,34 @@ class AppServiceProvider extends ServiceProvider
                 ]);
         });
 
+        Http::macro('nellemannFO', function (): PendingRequest {
+            $accessToken = Cache::remember('nellemann_fo_access_token', now()->addMinutes(50), function () {
+                $tenantId = config('nellemann.fo.tenant_id');
+                $clientId = config('nellemann.fo.client_id');
+                $clientSecret = config('nellemann.fo.client_secret');
+                $resource = config('nellemann.fo.resource');
+
+                $tokenUrl = "https://login.microsoftonline.com/{$tenantId}/oauth2/token";
+
+                $response = Http::asForm()->post($tokenUrl, [
+                    'grant_type'    => 'client_credentials',
+                    'client_id'     => $clientId,
+                    'client_secret' => $clientSecret,
+                    'resource'      => $resource,
+                ]);
+
+                $response->throw();
+
+                return $response->json('access_token');
+            });
+
+            return Http::baseUrl(
+                rtrim(config('nellemann.fo.api_url'), '/')
+            )
+                ->withToken($accessToken)
+                ->acceptJson();
+        });
+
     }
 
     protected function addDirectives(): void

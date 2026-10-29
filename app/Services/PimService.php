@@ -16,6 +16,7 @@ use App\Mappers\AccessoryMapper;
 use App\Mappers\SparePartMapper;
 use App\Mappers\TrimMapper;
 use App\Mappers\AssetMapper;
+use App\Services\FoService;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -31,6 +32,7 @@ class PimService
         protected SparePartMapper $sparePartMapper,
         protected TrimMapper $trimMapper,
         protected AssetMapper $assetMapper,
+        protected FoService $foService,
     ) {}
 
     public function getProductStructureId(int $productId)
@@ -112,20 +114,35 @@ class PimService
         );
     }
 
-    public function getSpacePart(int $productId): ?SparePartData
-    {
-        return $this->safeCall(fn() => $this->buildSparePartData($productId), $productId);
+    public function getSparePart(
+        int $productId,
+        string $partNumber
+    ): ?SparePartData {
+        return $this->safeCall(
+            fn() => $this->buildSparePartData($productId, $partNumber),
+            $productId
+        );
     }
 
-    protected function buildSparePartData(int $productId): ?SparePartData
-    {
-        $productData = $this->productRequest->getProductResponse($productId);
-        $productAttributesData = $this->productRequest->getProductAttributesResponse($productId);
+    protected function buildSparePartData(
+        int $productId,
+        string $partNumber
+    ): ?SparePartData {
+        $productData = $this->productRequest
+            ->getProductResponse($productId);
 
+        $productAttributesData = $this->productRequest
+            ->getProductAttributesResponse($productId);
+
+        $foData = $this->foService->getSparePart($partNumber);
+
+        $stock = $this->foService->getStock($partNumber);
 
         return $this->sparePartMapper->map(
             $productData,
-            $productAttributesData
+            $productAttributesData,
+            $foData,
+            $stock
         );
     }
 
