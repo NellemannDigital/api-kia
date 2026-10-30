@@ -126,10 +126,10 @@ class ProductsSearchRequest extends PimRequest
     }
 
 
-    public function getSparePartId(string $partNumber): ?int
+    public function getSparePartId(string $structureId, string $partNumber): ?int
     {
         $response = Http::nellemannPIM()
-            ->post('products/search', $this->getSparePartsSearchQuery($partNumber));
+            ->post('products/search', $this->getSparePartsSearchQuery($structureId, $partNumber));
 
         if ($response->failed()) {
             throw new \Exception("PIM request failed [{$response->status()}]");
@@ -138,7 +138,7 @@ class ProductsSearchRequest extends PimRequest
         return $response->json()[0] ?? null;
     }
 
-    protected function getSparePartsSearchQuery(string $partNumber): array
+    protected function getSparePartsSearchQuery(string $structureId, string $partNumber): array
     {
         return [
             'IncludeArchived' => true,
@@ -146,6 +146,11 @@ class ProductsSearchRequest extends PimRequest
                 'SubQueries' => [
                     [
                         'Filters' => [
+                            [
+                                'FieldUid' => 'PIM_ProductStructureUid',
+                                'QueryOperator' => 0,
+                                'FilterValue' => $structureId,
+                            ],
                             [
                                 'FieldUid' => 'SharedAccessoryPartNumber_NA_NA',
                                 'QueryOperator' => 0,
