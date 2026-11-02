@@ -310,11 +310,18 @@
             <div class="space-y-2 text-[10px] text-primary mt-4">
                 @php
                     $priceListWarranty = compliance_text_for(['car' => $car], 'price_list_warranty');
+                    $priceListBatteryWarranty = compliance_text_for(['car' => $car], 'price_list_battery_warranty');
                 @endphp
 
                 @if($priceListWarranty)
                     <div>
                         {{ $priceListWarranty }}
+                    </div>
+                @endif
+
+                 @if($priceListBatteryWarranty)
+                    <div>
+                        {{ $priceListBatteryWarranty }}
                     </div>
                 @endif
             </div>
