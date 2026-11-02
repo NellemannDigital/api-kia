@@ -270,12 +270,12 @@
                             @endphp
                             
                             <div class="grid grid-cols-2 p-2">
-                                <p>Garanti</p>
+                                <p>Garanti*</p>
                                 <p>{{ $warranties->base_warranty }}</p>
                             </div>
 
                             <div class="grid grid-cols-2 p-2">
-                                <p>Batterigaranti</p>
+                                <p>Batterigaranti*</p>
                                 <p>{{ $warranties->hv_battery_warranty }}</p>
                             </div>
 
@@ -303,6 +303,18 @@
                                 <p>{{ $car->service_intervals[0]->months }} måneder / {{ Number::format($car->service_intervals[0]->kilometers, locale: 'da')  }} km</p>
                             </div>
                         </div>
+                    </div>
+                @endif
+            </div>
+
+            <div class="space-y-2 text-[10px] text-primary mt-4">
+                @php
+                    $priceListWarranty = compliance_text_for(['car' => $car], 'price_list_warranty');
+                @endphp
+
+                @if($priceListWarranty)
+                    <div>
+                        {{ $priceListWarranty }}
                     </div>
                 @endif
             </div>
