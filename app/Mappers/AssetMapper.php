@@ -22,10 +22,10 @@ class AssetMapper
         try {
             return new AssetData(
                 struct_id: $assetData->get('Id', ''),
-                name: $assetData->get('Name', ''),
-                url: str_replace('https://nellemann.cloud12.structpim.com', 'https://pim.nellemann.dk', $assetData->get('Url', '')),
+                name: $assetData->get('FileName', ''),
+                url: $assetData->get('CDNUrl', ''),
                 file_type: $assetData->get('FileType', ''),
-                type: $assetData->get('Type', ''),
+                type: $assetData->get('FileType', '')
             );
         } catch (Throwable $e) {
             Log::error('Error mapping asset data', [
