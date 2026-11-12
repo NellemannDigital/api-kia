@@ -74,17 +74,17 @@ class ProductsSearchRequest extends PimRequest
                                 'FilterValue' => $structureId,
                             ],
                             [
-                                'FieldUid' => 'CategoryNEW.Id_NA_NA',
+                                'FieldUid' => '32a9ce20-4ebd-4c9d-89c4-085077a1d162_6a5e47cd-38aa-4764-bb99-16269e6ebe5b_NA_NA',
                                 'QueryOperator' => 0,
                                 'FilterValue' => '5637150586',
                             ],
                             [
-                                'FieldUid' => 'KiaAccessoriesModels_NA_NA',
+                                'FieldUid' => '843467ee-dfbd-4155-a6f3-647de7ce7367_NA_NA',
                                 'QueryOperator' => 1,
                                 'FilterValue' => '',
                             ],
                             [
-                                'FieldUid' => 'SharedAccessoryRetailPrice_NA_NA',
+                                'FieldUid' => 'c64b73de-fefa-4e95-92a3-34533f97867e_NA_NA',
                                 'QueryOperator' => 1,
                                 'FilterValue' => '',
                             ]
@@ -100,17 +100,17 @@ class ProductsSearchRequest extends PimRequest
                                 'FilterValue' => $structureId,
                             ],
                             [
-                                'FieldUid' => 'CategoryNEW.Id_NA_NA',
+                                'FieldUid' => '32a9ce20-4ebd-4c9d-89c4-085077a1d162_6a5e47cd-38aa-4764-bb99-16269e6ebe5b_NA_NA',
                                 'QueryOperator' => 0,
                                 'FilterValue' => '5637155076',
                             ],
                             [
-                                'FieldUid' => 'KiaAccessoriesModels_NA_NA',
+                                'FieldUid' => '843467ee-dfbd-4155-a6f3-647de7ce7367_NA_NA',
                                 'QueryOperator' => 1,
                                 'FilterValue' => '',
                             ],
                             [
-                                'FieldUid' => 'SharedAccessoryRetailPrice_NA_NA',
+                                'FieldUid' => 'c64b73de-fefa-4e95-92a3-34533f97867e_NA_NA',
                                 'QueryOperator' => 1,
                                 'FilterValue' => '',
                             ]
