@@ -128,6 +128,7 @@ class ProductsSearchRequest extends PimRequest
 
     public function getSparePartId(string $structureId, string $partNumber): ?int
     {
+
         $response = Http::nellemannPIM()
             ->post('products/search', $this->getSparePartsSearchQuery($structureId, $partNumber));
 
@@ -152,7 +153,7 @@ class ProductsSearchRequest extends PimRequest
                                 'FilterValue' => $structureId,
                             ],
                             [
-                                'FieldUid' => 'SharedAccessoryPartNumber_NA_NA',
+                                'FieldUid' => 'f7c905b8-d5bc-40a2-b0ea-19f37e2b8a75_NA_NA',
                                 'QueryOperator' => 0,
                                 'FilterValue' => $partNumber,
                             ]
