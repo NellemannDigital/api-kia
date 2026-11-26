@@ -40,6 +40,7 @@ return [
         'external_test_drive_webhook_url' => env('POWER_AUTOMATE_EXTERNAL_TEST_DRIVE_WEBHOOK_URL'),
         'advisor_webhook_url' => env('POWER_AUTOMATE_ADVISOR_WEBHOOK_URL'),
         'profile_lookup_url' => env('POWER_AUTOMATE_PROFILE_LOOKUP_URL'),
+        'newsletter_webhook_url' => env('POWER_AUTOMATE_NEWSLETTER_WEBHOOK_URL')
     ],
 
     'meta_feed' => [

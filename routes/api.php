@@ -13,9 +13,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/stock-cars', [StockCarController::class, 'index']);
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', fn (Request $request) => $request->user());
+
+    Route::post('/newsletter', [NewsletterController::class, 'submit']);
 
     Route::prefix('test-drive')
         ->controller(TestDriveController::class)
@@ -56,11 +57,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/postal-codes', [DealerController::class, 'postalCodes']);
     Route::get('/dealers/{dealer}', [DealerController::class, 'show']);
 
-    Route::get('/spare-parts/{sparePart}', [SparePartController::class, 'show']);
-
     Route::get('/used-cars', [UsedCarController::class, 'index']);
 
     Route::get('/stock-cars-price-range', [StockCarController::class, 'priceRange']);
+
+    Route::get('/spare-parts/{sparePart}', [SparePartController::class, 'show']);
 
     Route::get('/compliance-text', [ComplianceTextController::class, 'show'])->name('compliance.text');
 
