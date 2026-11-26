@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\CarController;
 use App\Http\Controllers\Api\ComplianceTextController;
 use App\Http\Controllers\Api\DealerController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\NewsletterController;
 use App\Http\Controllers\Api\StockCarController;
 use App\Http\Controllers\Api\TestDriveController;
 use App\Http\Controllers\Api\AdvisorController;
